@@ -1,1 +1,0 @@
-SELECT TOP 1 [custid] FROM [dbo].[user_account] WHERE [user_name] = @username;
