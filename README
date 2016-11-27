@@ -8,20 +8,3 @@ npm install passport
 npm install bcrypt
 npm install knockout
 
-
-
-Login System -
-40 hours tools prep
-8 hours basic server prep sql table creation
-24 hours passport session system - login signup
-8 hours frontend signup page creation
-8 hours password encryption
-8 hours change password
-8 hours sql incorporation
-
-40 hours order form building and sql connection
-
-moving files over and installing to server - 8 hours
-moving excel values over - 24 hours
-interpreting excel formulas - 24 hours
-Fixing order values - 40 hours
