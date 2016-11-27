@@ -1,0 +1,1 @@
+SELECT ord_no FROM [511].[dbo].[oeordhdr_sql] WHERE [ord_type]='O' AND status = '4' AND ord_dt >= DATEADD(day,-14,getdate()) ORDER BY ord_no

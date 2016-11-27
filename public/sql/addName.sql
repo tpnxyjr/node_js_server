@@ -1,0 +1,1 @@
+UPDATE [dbo].[user_account] SET  [custid] = @custid  WHERE [user_name] = @username

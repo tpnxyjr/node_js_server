@@ -1,0 +1,32 @@
+{{#if user}}
+    <div class="jumbotron">
+        <h1>CHANGE PASSWORD</h1>
+    </div>
+    <div class="panel panel-default">
+        <form id="local-changepw" action="/changePassword" method="post">
+        <div class="panel-body">
+            <label>Username: {{user.user_name}}</label>
+            <input type="hidden" name="username" value={{user.user_name}}>
+            <div><label>Current Password: </label><input name="password"type="password"></div>
+            <div><label>New Password: </label><input name="newpassword"type="password"></div>
+        </div>
+        <div>
+            <input type="submit" class="btn btn-primary btn-sm" value="Change"/>
+        </div>
+        </form>
+        <a href="/home">Main Page</a>
+    </div>
+
+{{else}}
+    <div class="jumbotron">
+        <h1>LOG IN FIRST</h1>
+        <p>Sign in and view your profile!</p>
+        <p>
+            <a href="/signin" class="btn btn-primary btn-lg" role="button">
+                <span class="glyphicon glyphicon-user"></span>
+                Sign in!
+            </a>
+        </p>
+    </div>
+
+{{/if}}

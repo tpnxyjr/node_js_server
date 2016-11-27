@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ORDER FORM</title>
+    <link rel="stylesheet" type="text/css" href="../public/css/form.css">
+    <script src="../public/js/order.js"></script>
+</head>
+<body>
+<form action="/orderForm" method="post">
+    <table id="header" width="100%" align="center">
+        <tr>
+            <td id="CUSTID" rowspan="2" width="25%">CUST ID <input type="text" value=""readonly></td>
+            <td id="CUSTNAME" colspan="2">CUST NAME <input type="text"readonly></td>
+            <td id="ORDNUM" rowspan="2"width="33%">ORDER NUMBER <input type="text"readonly></td>
+        </tr>
+        <tr>
+            <td id="TELFAX" colspan="2">TEL/FAX <input type="text" readonly></td>
+        </tr>
+        <tr>
+            <td id="ORDDT" rowspan="2">ORD DT <input type="text"readonly></td>
+            <td id="SHIPTO" colspan="2">SHIP TO NAME <input type="text"readonly></td>
+            <td id="SHIPDT" rowspan="2">SHIPPING DATE <input type="text"readonly></td>
+        </tr>
+        <tr><td id="ADD1" colspan="2">ADDRESS 1 <input type="text"readonly></td></tr>
+        <tr>
+            <td id="CONFDT" rowspan="2">CONFIRM DT <input type="text"readonly></td>
+            <td id="ADD2" colspan="2">ADDRESS 2 <input type="text"readonly></td>
+            <td id="REQTIME">REQUIRED TIME <input type="text"readonly></td>
+        </tr>
+        <tr><td id="CITY">CITY <input type="text"readonly></td>
+            <td id="STATE">STATE <input type="text"readonly></td>
+            <td id="ZIP">ZIP <input type="text"readonly></td>
+        </tr>
+        <tr>
+            <td id="PONUM">PO NUMBER <input type="text"readonly></td>
+            <td id="SM" colspan="2">S/M <input type="text"readonly></td>
+            <td id="SHIPVIA">SHIP VIA <input type="text"readonly></td>
+        </tr>
+
+    </table>
+    <table id="body" width="100%" align="center">
+        <tr>
+            <th width="5%"><B>LN</B></th>
+            <td width="5%"><B>PROF</B></td>
+            <td width="5%"><B>COLOR</B></td>
+            <td width="5%"><B>QTY</B></td>
+            <td width="5%"><B>WIDTH</B></td>
+            <td width="5%"><B>HEIGHT</B></td>
+            <td width="5%"><B>MT</B></td>
+            <td width="5%"><B>VAL</B></td>
+            <td width="5%"><B>VAL ADD</B></td>
+            <td width="5%"><B>VAL RT</B></td>
+            <td width="5%"><B>CT</B></td>
+            <td width="5%"><B>TC</B></td>
+            <td width="5%"><B>HD</B></td>
+            <td width = "30%"><B>Description/Comments</B></td>
+        </tr>
+    </table>
+    <br>
+    <INPUT type="button" value="Add Row" onclick="addRow('body')" />
+
+    <INPUT type="button" value="Delete Row" onclick="deleteRow('body')" />
+</form>
+<table id="footer" align="right">
+    <tr><td>TOTAL</td><td><input type="number"></td></tr>
+    <tr><td><input type="submit" value="Submit" /></td></tr>
+</table>
+</body>
+</html>

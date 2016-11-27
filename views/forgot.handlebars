@@ -1,0 +1,23 @@
+{{#if user}}
+    <div class="jumbotron">
+        <p>You shouldn't be on this page!</p>
+        <p>
+            <a href="/home" class="btn btn-primary btn-lg" role="button">
+                <span class="glyphicon glyphicon-user"></span>
+                Go Back
+            </a>
+        </p>
+    </div>
+
+{{else}}
+    <div class="jumbotron">
+        <h1>Password Reset</h1>
+        <p>Please contact support to reset your password</p>
+        <p>
+            <a href="/signin" class="btn btn-primary btn-lg" role="button">
+                <span class="glyphicon glyphicon-user"></span>
+                Back to Sign in
+            </a>
+        </p>
+    </div>
+{{/if}}

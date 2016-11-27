@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Form</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="./css/form.css">
+    <script>
+        function isNumber(n) { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); }
+        function validateForm() {
+            var qty = document.forms["input"]["qty"].value;
+            if (qty == null || qty == "" || !isNumber(qty)) {
+                alert("qty must be a number");
+                return false;
+            }
+        }
+    </script>
+
+</head>
+<body>
+<form name="input" action="/form" method="post" onsubmit="return validateForm()" enctype="multipart/form-data">
+    <fieldset>
+        <label for="qty">Qty:</label>
+        <input type="text" id="qty" name="qty" placeholder="Enter Quantity" />
+        <br />
+        <label for="w">W:</label>
+        <input type="text" id="W" name="W" placeholder="Enter Width" />
+        <br />
+        <label for="L">L:</label>
+        <input type="text" id="L" name="L" placeholder="Enter Length">
+        <br />
+        <label for="mount">Mount:</label>
+        <input type="text" id="mount" name="mount" placeholder="Enter Mount">
+        <br />
+        <label for="variance">Variance:</label>
+        <textarea id="variance" name="variance" placeholder="Enter common variance"></textarea>
+        <br/>
+        <input type="submit" value="Submit" />
+    </fieldset>
+</form>
+</body>
+</html>
