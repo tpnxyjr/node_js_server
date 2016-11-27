@@ -1,3 +1,0 @@
-INSERT INTO [dbo].[tbl_datagenerator]
-(sm, customer_id, customer_name, so_number, po_number, product, profile, color, qty, width, height, mount, val_style, val_add, val_ret, control, additional_request_sm, item_number, product_description, color_description, serial_number, line_number, whenAdded)
-VALUES (@sm, @custid, @custname, @sonum, @ponum, @product, @profile, @color, @qty, @width, @height, @mount, @val, @val_add, @val_ret, @ct, @sm, @num,@proddesc,@colordesc, @serial, @lineno, @whenAdded )
