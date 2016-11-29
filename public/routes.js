@@ -22,7 +22,7 @@ router.get('/pickticket',function(req,res){
    });
 });
 router.get('/DetailedReport',function(req,res){
-    var data = [];
+    var data = "";
     sql.execute({
         query: "./public/sql/getSOprogress.sql",
         params:{sonum: req.body.SONUM}
@@ -32,24 +32,29 @@ router.get('/DetailedReport',function(req,res){
         var numer = 0;
         var lineno = result[count].line_no;
 
-        while(result[count] != null) {
+        for(count = 0; count < result.length; count++) {
             if (lineno.equals(result[count].line_no)) {
                 var timecreate = result[count].timecreate;
                 var timefin = result[count].timefin;
                 if (timecreate != null)denom++;
                 if (timefin != null)numer++;
             }
-            data.push(lineno);
-            data.push((numer/denom).toString());
-            count++;
+            else {
+                //data.push(lineno);
+                data += "<tr><td>" + lineno + "</td>";
+                //data.push((numer/denom).toString());
+                data += "<td>" + numer / denom + "</td>";
+                data += "<td><input id='weight"+count+"' type='text'></td></tr>";
+            }
         }
-        var datastringify = JSON.stringify(data);
+        data+="<tr><td style='display:none;'><input type='text' id='total' value='"+count+"'></td></tr>";
+        //var datastringify = JSON.stringify(data);
         res.render('DetailedReport',{SONUM: req.body.SONUM,
-                                    data: datastringify});
+                                    data: data});
     },function (err) {
         console.log(err);
     });
 
 });
-module.exports = router;
+exports.router = router;
 

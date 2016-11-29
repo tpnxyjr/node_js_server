@@ -19,9 +19,13 @@
     <tr><td bgcolor="#d3d3d3">ORDER DATE</td><td rowspan="2">{{payment}}</td><td colspan="2">{{shipinstruct}}</td></tr>
     <tr><td>{{orddate}}</td><td colspan="2">{{shipinstruct2}}</td></tr>
 </table>
+<form id="processpicks" action="pickticket" method="post" onsubmit="return checkForm()">
 <table class = "sub" border="1">
 {{{data}}}
 </table>
+    <input name="totallines" id="tl" value='{{totallines}}' type="hidden">
+    <input type="button" onclick="location.href='ticketList';" style="height:50px; width:80px; background-color:red" value="Go Back"></a><input type="submit" value="Submit" style="height:50px; width:80px; background-color:blue">
+</form>
 <table class = "sub">
     <tr><td colspan = "2" style="text-align:left;">ADDITIONAL COMMENT</td><td>{{totalweight}} LB</td></tr>
     <tr class="blank_row" ><td colspan="3"></td></tr><tr class="blank_row"><td colspan="3"></td></tr>
@@ -29,23 +33,5 @@
     <tr class="blank_row"><td colspan="3"></td></tr>
     <tr><td style="text-align:left;">PICKED BY</td><td style="text-align:left;">CHECKED BY</td><td style="text-align:left;">DATE/TIME</td></tr>
 </table>
-<script>
-    function show(element){
-        var info = "info"+element;
-        var desc = "desc"+element;
-        if(document.getElementById(info).style.display == 'none') document.getElementById(info).style.display = 'block';
-        else document.getElementById(info).style.display = 'none';
-        if(document.getElementById(desc).style.display=='none')document.getElementById(desc).style.display = 'block';
-        else document.getElementById(desc).style.display = 'none';
-        if(document.getElementById("desctitle").style.display=='none')document.getElementById("desctitle").style.display = 'block';
-    }
-</script>
-<script>
-    function compare(i,j){
-        var a = "CheckValue"+i;
-        var b = "image"+i;
-        if(parseInt(document.getElementById(a).value)== j) document.getElementById(b).style.display='block';
-        else document.getElementById(b).style.display='none';
-    }
-</script>
+<script src='./js/pticket.js'></script>
 </body>

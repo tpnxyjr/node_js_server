@@ -65,7 +65,7 @@ app.get('/', function(req,res){
     res.redirect('/home');
 });
 
-app.get('/ticketList',function(req,res){
+app.get('/ticketList',function(req,res){//incidentid date
     var sqlFile = './public/sql/gettickets.sql';
     var prerender = "";
     sql.execute({
@@ -87,7 +87,7 @@ app.get('/ticketList',function(req,res){
 
 
 });
-app.get('/pickticket',function(req,res){
+app.get('/pickticket',function(req,res){//create comment table with order num, line num, comment like oelincmt_sql; clicking line num will bring up comment
     var sonum = req.query.SONUM;
     var sqlFile = './public/sql/getpickticket.sql';
     var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2,freight, weight, totalweight;
@@ -110,7 +110,7 @@ app.get('/pickticket',function(req,res){
         freight = result[0].ship_to_addr_3;
 
 
-        var prerender = "<tr><td bgcolor=\"#d3d3d3\">LN</td><td bgcolor=\"#d3d3d3\">ORDERED</td><td bgcolor=\"#d3d3d3\">UOM</td><td bgcolor=\"#d3d3d3\">PICKED</td><td bgcolor=\"#d3d3d3\">BAY LOC</td><td>PACK</td></td><td bgcolor=\"#d3d3d3\">ITEM NO</td><td bgcolor=\"#d3d3d3\" id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</td></tr>";
+        var prerender = "<tr><td bgcolor=\"#d3d3d3\">LN</td><td bgcolor=\"#d3d3d3\">ORDERED</td><td bgcolor=\"#d3d3d3\">UOM</td><td bgcolor=\"#d3d3d3\">ITEM NO</td><td bgcolor=\"#d3d3d3\">PICKED</td><td bgcolor=\"#d3d3d3\">BAY LOC</td><td>PACK</td></td><td bgcolor=\"#d3d3d3\" id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</td></tr>";
         sql.execute({
             query: sql.fromFile("./public/sql/getorderlines.sql"),
             params: {sonum: sonum}
@@ -120,11 +120,12 @@ app.get('/pickticket',function(req,res){
                 weight = Math.round(1.10*(result[i].item_weight)*(result[i].qty_ordered));
                 totalweight += weight;
                 if(result[i].picking_seq == null) result[i].picking_seq = " ";
-                prerender = prerender + "<tr><td><img id='image"+i+"' src='./image/CheckMark.jpg' style='display:none;'/>"+result[i].line_seq_no+"</td><td>"+result[i].qty_ordered+
-                    "<br><b>"+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+"</b></td><td>"+ result[i].uom+"<br><b>"+result[i].user_def_fld_1+"" +
-                    "</b></td><td><input id='CheckValue"+i+"' type='text' maxlength='2' onchange='compare("+i+","+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+")' style='width:30px;'>"+result[i].user_def_fld_1+"</td><td>"+
-                    result[i].picking_seq+"</td><td><select><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><input type='text' maxlength='2'style='width:30px;'></td><td><p onclick='show("+i+")'><b>"+
-                    result[i].item_no+"</b></p><p id='info"+i+"' style='display:none;'>"+ result[i].qty_on_hand +"    "+weight+"LB</p></td><td id='desc"+i+"' style='display:none;'>"+result[i].item_desc_1+"<br><b>"+result[i].item_desc_2+"</b></td></tr>";
+                prerender = prerender + "<tr><td><img id='image"+i+"' src='./image/CheckMark.jpg' style='display:none;'/>"+result[i].line_seq_no+"</td>" +
+                    "<td><p style='font-size:0.5em;'>"+result[i].qty_ordered+"</p><b>"+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+"</b></td><td><p style='font-size:0.5em;'>"+ result[i].uom+"</p><b>"+result[i].user_def_fld_1+"" +
+                    "</b></td><td><p onclick='show("+i+")'><b>"+result[i].item_no+"</b></p></td>" +
+                    "<td style='font-size:1.8em;'><input id='CheckValue"+i+"' type='text' maxlength='2' onchange='compare("+i+","+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'>"+result[i].user_def_fld_1+"</td><td>"+
+                    result[i].picking_seq+"</td><td><select><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><input type='text' maxlength='2'style='width:30px;'></td>" +
+                    "<td bgcolor='yellow' id='desc"+i+"' style='display:none;'><p id='info"+i+"' style='display:none;'>"+ result[i].qty_on_hand +"    <b>"+weight+"LB</b></p>"+result[i].item_desc_1+"<br><b>"+result[i].item_desc_2+"</b></td></tr>";
             }
 
             res.render('PickTicket',{
@@ -158,6 +159,19 @@ app.get('/pickticket',function(req,res){
         console.log(err);
     });
 
+});
+app.post('/pickticket',function(req,res){
+    var total = req.body.totallines;
+    console.log(total);
+    for(var i = 0; i < total; i ++){
+        //go through all lines and subtract from inventory
+        //oeordlin qty_to_ship
+    }
+    res.redirect('/ticketList');
+});
+
+app.get('displaygiven',function(req,res){
+    res.render('/blank', {data: req.query.data, layout: 'internal'});
 });
 
 app.get('/orderForm', function(req,res){
