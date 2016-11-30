@@ -10,13 +10,13 @@
 </head>
 <body>
 <table class = "sub" width="100%" align="center">
-    <tr><td width="20%">{{datetime}}</td><td><b>{{ordnum}}</b></td><td bgcolor="#d3d3d3"><b>* PICK TICKET *</b></td><td><b>{{ordnum}}</b></td></tr>
-    <tr><td bgcolor="#d3d3d3">CUSTOMER ID</td><td colspan="2"><b>{{custname}}</b></td><td colspan="2" bgcolor="#d3d3d3">SHIP VIA</td></tr>
+    <tr><td width="20%">{{datetime}}</td><td><b>{{ordnum}}</b></td><td class='gray'><b>* PICK TICKET *</b></td><td><b>{{ordnum}}</b></td></tr>
+    <tr><td class='gray'>CUSTOMER ID</td><td colspan="2"><b>{{custname}}</b></td><td colspan="2" class='gray'>SHIP VIA</td></tr>
     <tr><td rowspan="2"><b>{{custid}}</b></td><td colspan="2">{{address}}</td><td colspan="2" rowspan="2"><b>{{shipvia}}</b></td></tr>
     <tr><td>{{address2}}</td></tr>
-    <tr><td bgcolor="#d3d3d3">PO NUMBER</td><td colspan="2">{{citystatezip}}</td><td></td></tr>
-    <tr><td>{{ponum}}</td><td bgcolor="#d3d3d3">PAYMENT</td><td colspan="2" bgcolor="#d3d3d3">SHIPPING INSTRUCTION</td></tr>
-    <tr><td bgcolor="#d3d3d3">ORDER DATE</td><td rowspan="2">{{payment}}</td><td colspan="2">{{shipinstruct}}</td></tr>
+    <tr><td class='gray'>PO NUMBER</td><td colspan="2">{{citystatezip}}</td><td></td></tr>
+    <tr><td>{{ponum}}</td><td class='gray'>PAYMENT</td><td colspan="2" class='gray'>SHIPPING INSTRUCTION</td></tr>
+    <tr><td class='gray'>ORDER DATE</td><td rowspan="2">{{payment}}</td><td colspan="2">{{shipinstruct}}</td></tr>
     <tr><td>{{orddate}}</td><td colspan="2">{{shipinstruct2}}</td></tr>
 </table>
 <form id="processpicks" action="pickticket" method="post" onsubmit="return checkForm()">

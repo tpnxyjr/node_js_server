@@ -40,3 +40,9 @@ function checkForm(){
     return true;
 }
 
+function showComment(element){
+    var comment = 'comment'+element;
+    if(document.getElementById(comment).style.display == 'none') document.getElementById(comment).style.display = 'table-row';
+    else document.getElementById(comment).style.display = 'none';
+}
+
