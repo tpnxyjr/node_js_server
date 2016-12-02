@@ -12,7 +12,9 @@ sql.setDefaultConfig( config );
 
 
 router.get('/reports', function(req,res){
-    res.render('DetailedReport',{SONUM: null});
+    res.render('DetailedReport',{SONUM: null,
+        layout: 'internal'
+    });
 });
 router.get('/pickticket',function(req,res){
     var sonum = req.query.SONUM;
@@ -57,4 +59,4 @@ router.get('/DetailedReport',function(req,res){
 
 });
 exports.router = router;
-
+module.exports= router;

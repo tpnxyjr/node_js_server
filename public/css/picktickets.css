@@ -19,12 +19,21 @@
 .sub, td p{
     margin: 0;
     padding: 0;
+    word-wrap: break-word;
 }
 .infobox{
     background-color:yellow;
 }
 .gray{
     background-color:#d3d3d3;
+}
+.itemnobox{
+    border:none;
+    font-weight:bold;
+    font-size:1.3em;
+    width: 7em;
+    word-wrap: break-word;
+    word-break: break-all;
 }
 .blank_row
 {

@@ -14,10 +14,10 @@ function compare(i,j){
 }
 
 function show(element){
-    var info = "info"+element;
+    //var info = "info"+element;
     var desc = "desc"+element;
-    if(document.getElementById(info).style.display == 'none') document.getElementById(info).style.display = 'block';
-    else document.getElementById(info).style.display = 'none';
+    //if(document.getElementById(info).style.display == 'none') document.getElementById(info).style.display = 'block';
+    //else document.getElementById(info).style.display = 'none';
     if(document.getElementById(desc).style.display=='none')document.getElementById(desc).style.display = 'block';
     else document.getElementById(desc).style.display = 'none';
     // if(document.getElementById("desctitle").style.display=='none')document.getElementById("desctitle").style.display = 'block';
