@@ -55,7 +55,8 @@ var funct = require('./public/js/functions.js'); //funct file contains our helpe
 var numbers = require('./public/js/numbers.js');
 var myConfig = require('./config.js');
 var config = myConfig.config;
-
+var routes = require('./public/routes');
+app.use('/routes',routes);
 //require('./config').config;
 sql.setDefaultConfig( config );
 
@@ -126,12 +127,12 @@ app.get('/pickticket',function(req,res){//pticketcmt
 
                 prerender = prerender + "<tr><td><img id='image"+i+"' src='./image/CheckMark.jpg' style='display:none;'/><p onclick='showComment("+i+")'>"+result[i].line_seq_no+"</p></td>" +
                     "<td><p style='font-size:0.5em;'>"+result[i].qty_ordered+"</p><b>"+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+"</b></td><td><p style='font-size:0.5em;'>"+ result[i].uom+"</p><b>"+result[i].user_def_fld_1+"" +
-                    "</b></td><td><p onclick='show("+i+")'><b>"+result[i].item_no+"</b></p></td>" +
+                    "</b></td><td><p onclick='show("+i+")' style='width:6em'><input name='itemno"+i+"' class='itemnobox' value='"+result[i].item_no+"' readonly></p></td>" +
                     "<td style='font-size:1.8em;'><input id='CheckValue"+i+"' type='text' maxlength='2' onchange='compare("+i+","+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'>"+result[i].user_def_fld_1+"</td><td>"+
-                    result[i].picking_seq+"</td><td><select><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><input type='text' maxlength='2'style='width:30px;'></td>" +
-                    "<td class='infobox' id='desc"+i+"' style='display:none;'><p id='info"+i+"' style='display:none;'>"+ result[i].qty_on_hand +"    <b>"+weight+"LB</b></p>"+result[i].item_desc_1+"<br><b>"+result[i].item_desc_2+"</b></td></tr>";
+                    result[i].picking_seq+"</td><td><select name='pack"+i+"'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><input type='text' name='pcode"+i+"' maxlength='2'style='width:30px;'></td></tr>" +
+                    "<tr id='desc"+i+"' style='display:none;'><td class='infobox' colspan='7'>"+ result[i].qty_on_hand +"    <b>"+weight+"LB</b>  "+result[i].item_desc_1+"<b>"+result[i].item_desc_2+"</b></td></tr>";
 
-                prerender = prerender + "<tr id='comment"+i+"' style='display:none'><td colspan='7'><input name='comment"+i+"' type='text' style='color:red;width:100em' placeholder='input comment for line"+(i+1)+"'></td></tr>";
+                prerender = prerender + "<tr id='comment"+i+"' style='display:none'><td colspan='7'><input name='comment"+i+"' type='text' style='color:red;width:20em' placeholder='input comment for line"+(i+1)+"'></td></tr>";
 
             }
 
@@ -169,8 +170,19 @@ app.get('/pickticket',function(req,res){//pticketcmt
 });
 app.post('/pickticket',function(req,res){
     var total = req.body.totallines;
-    console.log(total);
     for(var i = 0; i < total; i ++){
+        var temp = 'comment'+i;
+        var comment = req.body[temp];
+        temp = 'itemno'+i;
+        var itemno = req.body[temp];
+        temp = 'CheckValue'+i;
+        var picked = req.body[temp];
+        temp = 'pack'+i;
+        var pack = req.body[temp];
+        temp = 'pcode'+i;
+        var pcode = req.body[temp];
+        console.log(comment);
+        console.log(itemno);
         //go through all lines and subtract from inventory
         //oeordlin qty_to_ship
     }
