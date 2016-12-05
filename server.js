@@ -57,6 +57,8 @@ var myConfig = require('./config.js');
 var config = myConfig.config;
 var routes = require('./public/routes');
 app.use('/routes',routes);
+var workers = require('./public/workers');
+app.use('/workers',workers);
 //require('./config').config;
 sql.setDefaultConfig( config );
 

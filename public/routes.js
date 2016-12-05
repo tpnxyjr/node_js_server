@@ -1,13 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var sql  = require("seriate");
-var config = {
-    "server": "108.23.30.126",
-    "user": "data",
-    "password": "Cbc9096290869",
-    "database": "ExcelDataImport"
-};
-// require('./config').config;
+var myConfig = require('../config.js');
+var config = myConfig.config;
 sql.setDefaultConfig( config );
 
 
