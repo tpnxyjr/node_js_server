@@ -78,11 +78,16 @@ app.get('/ticketList',function(req,res){
         var count = 0;
         for(count = 0; count < result.length; count++){
             //16, 24
-            prerender = prerender + "<tr><td><a href='/pickticket?SONUM="+result[count].ord_no + "'>"+result[count].ord_no+"</a></td><td style='color:black;font-size:0.5em;'>"+result[count].new_DeliveryDate.toString().substring(0,16)+"</td></tr>";
+            if(result[count].new_DeliveryDate == null)result[count].new_DeliveryDate= '                           ';
+            prerender = prerender + "<tr><td>"+result[count].cus_no+"</td><td><a href='/pickticket?SONUM="+result[count].ord_no + "'>"+result[count].ord_no+"</a></td><td style='color:black;font-size:0.5em;'>"+
+                result[count].new_DeliveryDate.toString().substring(0,16)+
+                "</td><td><div class='progress'><div class='progress-bar' role='progressbar' aria-valuenow='70' aria-valuemin='0' aria-valuemax='100' style='width:70%'>70%</div></div></td></tr>";
         }
         res.render('TicketList',{
             data: prerender,
-            layout: 'internal'
+            date: (new Date()),
+            layout: 'date',
+            user: req.user
         });
 
     },function (err) {
@@ -114,12 +119,13 @@ app.get('/pickticket',function(req,res){//pticketcmt
         freight = result[0].ship_to_addr_3;
 
 
-        var prerender = "<tr><td class='gray'>LN</td><td class='gray'>ORDERED</td><td class='gray'>UOM</td><td class='gray'>ITEM NO</td><td class='gray'>PICKED</td><td class='gray'>BAY LOC</td><td>PACK</td></td><td class='gray' id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</td></tr>";
+        var prerender = "<thead><tr><th class='gray'>LN</th><th class='gray'>ORDERED</th><th class='gray'>UOM</th><th class='gray'>ITEM NO</th><th class='gray'>PICKED</th><th class='gray'>PACK</th><th class='gray' id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</th></tr></thead>";
         sql.execute({
             query: sql.fromFile("./public/sql/getorderlines.sql"),
             params: {sonum: sonum}
         }).then(function (result) {
             totalweight = 0;
+            prerender = prerender + "<tbody>";
             for(var i = 0; i < result.length; i++){
                 weight = Math.round(1.10*(result[i].item_weight)*(result[i].qty_ordered));
                 totalweight += weight;
@@ -129,14 +135,15 @@ app.get('/pickticket',function(req,res){//pticketcmt
 
                 prerender = prerender + "<tr><td><img id='image"+i+"' src='./image/CheckMark.jpg' style='display:none;'/><p onclick='showComment("+i+")'>"+result[i].line_seq_no+"</p></td>" +
                     "<td><p style='font-size:0.5em;'>"+result[i].qty_ordered+"</p><b>"+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+"</b></td><td><p style='font-size:0.5em;'>"+ result[i].uom+"</p><b>"+result[i].user_def_fld_1+"" +
-                    "</b></td><td><p onclick='show("+i+")' style='width:6em'><input name='itemno"+i+"' class='itemnobox' value='"+result[i].item_no+"' readonly></p></td>" +
-                    "<td style='font-size:1.8em;'><input id='CheckValue"+i+"' type='text' maxlength='2' onchange='compare("+i+","+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'>"+result[i].user_def_fld_1+"</td><td>"+
-                    result[i].picking_seq+"</td><td><select name='pack"+i+"'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><input type='text' name='pcode"+i+"' maxlength='2'style='width:30px;'></td></tr>" +
-                    "<tr id='desc"+i+"' style='display:none;'><td class='infobox' colspan='7'>"+ result[i].qty_on_hand +"    <b>"+weight+"LB</b>  "+result[i].item_desc_1+"<b>"+result[i].item_desc_2+"</b></td></tr>";
+                    "</b></td><td><p onclick='show("+i+")' style='width:6em'><input name='itemno"+i+"' class='itemnobox' value='"+result[i].item_no+"' readonly></p><p style='font-size:0.5em;'>"+result[i].qty_on_hand+"</p></td>" +
+                    "<td style='font-size:1.8em;'><input id='CheckValue"+i+"' type='text' maxlength='2' onchange='compare("+i+","+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'>"+result[i].user_def_fld_1+"</td>"+
+                    "<td><select name='pack"+i+"'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><select name='pcode"+i+"' style='width:40px;'><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></td></tr>" +
+                    "<tr id='desc"+i+"' style='display:none;'><td class='infobox' colspan='6'>"+result[i].item_desc_1+"<b>"+result[i].item_desc_2+"</b>ORDER DETAIL COMMENT INTERNAL DETAIL COMMENT<b>"+weight+"LB</b>"+ result[i].picking_seq+"</td></tr>";
 
-                prerender = prerender + "<tr id='comment"+i+"' style='display:none'><td colspan='7'><input name='comment"+i+"' type='text' style='color:red;width:20em' placeholder='input comment for line"+(i+1)+"'></td></tr>";
+                prerender = prerender + "<tr id='comment"+i+"' style='display:none'><td colspan='6'><input name='comment"+i+"' type='text' style='color:red;width:20em' placeholder='input comment for line"+(i+1)+"'></td></tr>";
 
             }
+            prerender = prerender + "</tbody>";
 
             res.render('PickTicket',{
                 datetime: (new Date()).toLocaleDateString(),
@@ -156,7 +163,8 @@ app.get('/pickticket',function(req,res){//pticketcmt
                 data: prerender,
                 totalweight: totalweight,
                 totallines: i,
-                layout: 'internal'
+                layout: 'internal',
+                user: req.user
             });
         },function (err) {
             console.log(err);

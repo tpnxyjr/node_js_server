@@ -18,7 +18,7 @@ function show(element){
     var desc = "desc"+element;
     //if(document.getElementById(info).style.display == 'none') document.getElementById(info).style.display = 'block';
     //else document.getElementById(info).style.display = 'none';
-    if(document.getElementById(desc).style.display=='none')document.getElementById(desc).style.display = 'block';
+    if(document.getElementById(desc).style.display=='none')document.getElementById(desc).style.display = 'table-row';
     else document.getElementById(desc).style.display = 'none';
     // if(document.getElementById("desctitle").style.display=='none')document.getElementById("desctitle").style.display = 'block';
 }
@@ -46,3 +46,71 @@ function showComment(element){
     else document.getElementById(comment).style.display = 'none';
 }
 
+function addRow(tableID){
+    var table = document.getElementById(tableID);
+
+    var rowCount = table.rows.length;
+    var row = table.insertRow(rowCount);
+
+    var colCount = table.rows[0].cells.length;
+
+    for(var i=0; i<colCount; i++) {
+
+        var newcell = row.insertCell(i);
+        var idstring = "inside"+rowCount+"at"+i;
+        var val = "";
+
+        if(i == 0){
+            newcell.innerHTML = "<select id = \"" + idstring + "\"><option>BOX</option><option>PALLET</option><option>BUNDLE</option></select>";
+        }
+        else if(i == 4){
+            if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
+            newcell.innerHTML = "<input id=\"" + idstring + "\" name=\"" + idstring + "\" size=\"5\" type=\"text\" value=\"" + escapeHtml(val) + "\" onchange='total(\"" + table + "\")'>";
+        }
+        else {
+            if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
+            newcell.innerHTML = "<input id=\"" + idstring + "\" name=\"" + idstring + "\" size=\"5\" type=\"text\" value=\"" + escapeHtml(val) + "\">";
+        }
+
+    }
+}
+
+function deleteRow(tableID){
+    try {
+        var table = document.getElementById(tableID);
+        var rowCount = table.rows.length;
+
+        if (rowCount > 1){
+            table.deleteRow(rowCount-1);
+            rowCount--;
+        }
+    }catch(e) {
+        alert(e);
+    }
+}
+
+function total(tableID){
+    var table = document.getElementById(tableID);
+    var totalweight = 0;
+
+    var rowCount = table.rows.length;
+    for(var i = 0; i < rowCount; i++){
+        var temp = document.getElementById("inside"+i+"at4").value;
+        totalweight+= temp;
+    }
+
+
+    document.getElementById('totalweight').value = totalweight;
+}
+
+function addcomment(rowID){
+    var user = document.getElementById(user);
+    alert(user);
+}
+
+
+$(document).ready(function()
+    {
+        $("#body").tablesorter();
+    }
+);
