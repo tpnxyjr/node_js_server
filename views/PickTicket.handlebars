@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>PICK TICKET</title>
-    <link rel="stylesheet" type="text/css" href="./css/jquery-ui-1.12.0.css">
-    <link rel="stylesheet" type="text/css" href="./css/picktickets.css">
-    <script src="./js/jquery-1.12.4.js"></script>
-    <script src="./js/jquery-ui.js"></script>
-    <script type="text/javascript" src="/js/jquery-latest.js"></script>
-    <script type="text/javascript" src="/js/jquery.tablesorter.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/jquery-ui-1.12.0.css">
+    <link rel="stylesheet" type="text/css" href="../css/picktickets.css">
+    <script src="../js/jquery-1.12.4.js"></script>
+    <script src="../js/jquery-ui.js"></script>
+    <script type="text/javascript" src="../js/jquery-latest.js"></script>
+    <script type="text/javascript" src="../js/jquery.tablesorter.min.js"></script>
 </head>
 <body>
 <table class = "fixed" width="100%" align="center">
@@ -22,14 +22,16 @@
     <tr><td>{{orddate}}</td><td colspan="2">{{shipinstruct2}}</td></tr>
 </table>
 <form id="processpicks" action="pickticket" method="post" onsubmit="return checkForm()">
+    <input name="sonum" id="tl" value='{{ordnum}}' type="hidden">
     <input name="totallines" id="tl" value='{{totallines}}' type="hidden">
     <input name="user" value="{{user}}" type="hidden">
+    <input name="complete" id="complete" value="false" type="hidden">
 <table class = "under">
-    <tr><td colspan = "2" style="text-align:left;">ADDITIONAL COMMENT</td><td>{{totalweight}} LB</td></tr>
+    <tr><td colspan = "2" style="text-align:left;">ADDITIONAL COMMENT {{addcomment}}</td><td>{{totalweight}} LB</td></tr>
    <!-- <tr class="blank_row" ><td colspan="3"></td></tr><tr class="blank_row"><td colspan="3"></td></tr>-->
     <tr><td colspan = "3" style="text-align:left;">FREIGHT POLICY: {{freight}}</td></tr>
 </table>
-    <input type="button" onclick="location.href='ticketList';" style="height:50px; width:80px; background-color:red" value="Go Back"></a><input type="submit" value="Submit" style="height:50px; width:80px; background-color:green">
+    <input type="button" onclick="location.href='/routes/ticketList';" style="height:50px; width:80px; background-color:red" value="Go Back"></a><input type="submit" value="Submit" style="height:50px; width:80px; background-color:green">
 <table class = "sub" id='body' border="1">
     {{{data}}}
 </table>
@@ -40,7 +42,7 @@
     <div>TOTAL WEIGHT: <input type="text" id="totalweight"></div>
     <INPUT type="button" value="Add Row" onclick="addRow('dimension')" /><INPUT type="button" value="Delete Row" onclick="deleteRow('dimension')" />
 <br>
-    <input type="button" onclick="location.href='ticketList';" style="height:50px; width:80px; background-color:red" value="Go Back"></a><input type="submit" value="Submit" style="height:50px; width:80px; background-color:green">
+    <input type="button" onclick="location.href='/routes/ticketList';" style="height:50px; width:80px; background-color:red" value="Go Back"></a><input type="submit" value="Submit" style="height:50px; width:80px; background-color:green" onclick="checkiffinished('body');">
 </form>
-<script src='./js/pticket.js'></script>
+<script src='../js/pticket.js'></script>
 </body>

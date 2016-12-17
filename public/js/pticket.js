@@ -108,6 +108,18 @@ function addcomment(rowID){
     alert(user);
 }
 
+function checkiffinished(tableID){
+    var table = document.getElementById(tableID);
+    var rowCount = table.rows.length;
+    document.getElementById('complete').value = true;
+
+    //for each row check if full
+    for(var i =  0; i < rowCount; i++) {
+        var b = "image"+i;
+        if (document.getElementById(b).style.display == 'none')document.getElementById('complete').value = false;
+    }
+    return true;
+}
 
 $(document).ready(function()
     {
