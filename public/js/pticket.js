@@ -53,7 +53,6 @@ function addRow(tableID){
     var row = table.insertRow(rowCount);
 
     var colCount = table.rows[0].cells.length;
-
     for(var i=0; i<colCount; i++) {
 
         var newcell = row.insertCell(i);
@@ -120,7 +119,17 @@ function checkiffinished(tableID){
     }
     return true;
 }
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
 
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
 $(document).ready(function()
     {
         $("#body").tablesorter();

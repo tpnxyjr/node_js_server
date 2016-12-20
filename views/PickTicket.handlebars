@@ -22,7 +22,7 @@
     <tr><td>{{orddate}}</td><td colspan="2">{{shipinstruct2}}</td></tr>
 </table>
 <form id="processpicks" action="pickticket" method="post" onsubmit="return checkForm()">
-    <input name="sonum" id="tl" value='{{ordnum}}' type="hidden">
+    <input name="sonum" id="sonum" value='{{ordnum}}' type="hidden">
     <input name="totallines" id="tl" value='{{totallines}}' type="hidden">
     <input name="user" value="{{user}}" type="hidden">
     <input name="complete" id="complete" value="false" type="hidden">
@@ -36,7 +36,7 @@
     {{{data}}}
 </table>
 
-    <table id="dimension">
+    <table id="dimension" class="shipping">
             <tr><td>TYPE</td><td>LENGTH</td><td>WIDTH</td><td>HEIGHT</td><td>WEIGHT</td></tr>
     </table>
     <div>TOTAL WEIGHT: <input type="text" id="totalweight"></div>

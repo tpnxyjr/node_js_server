@@ -52,89 +52,90 @@ router.get('/pickticket',function(req,res){//pticketcmt
         query: sql.fromFile(sqlFile),
         params: {sonum: sonum}
     }).then(function (result) {
-        if(result[0] != null) res.redirect('/usedpickticket?sonum='+sonum);
-    },function (err) {
-        console.log(err);
-    });
+        if(result[0] != null) res.redirect('/routes/usedpickticket?sonum='+sonum);
+    else {
 
-    sqlFile = './sql/getpickticket.sql';
-    var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2,freight, weight, totalweight;
-    sql.execute({
-        query: sql.fromFile(sqlFile),
-        params: {sonum: sonum}
-    }).then(function (result) {
-        custname = result[0].ship_to_name;
-        custid = result[0].cus_no;
-        address= result[0].ship_to_addr_1;
-        address2 = result[0].ship_to_addr_2;
-        citystatezip= result[0].ship_to_addr_4;
-        shipvia= result[0].ship_via_cd;
-        ponum= result[0].oe_po_num;
-        orddate= result[0].ord_dt.toString().substring(3,16);
-        payment= ((result[0].ar_terms_cd == 'CC')? "COD/CASH" : (result[0].ar_terms_cd == '01')? "COD/CHECK": (result[0].ar_terms_cd == 'PP')? "PREPAID" : (result[0].ar_terms_cd == 'PF')? "FAX COPY" :
-            (result[0].ar_terms_cd == '15' || result[0].ar_terms_cd == '30' ||  result[0].ar_terms_cd == '10'  || result[0].ar_terms_cd == '3P')? "NET TERM" : result[0].ar_terms_cd);
-        shipinstruct= result[0].ship_instruction_1;
-        shipinstruct2 = result[0].ship_instruction_2;
-        freight = result[0].ship_to_addr_3;
+            sqlFile = './sql/getpickticket.sql';
+            var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2, freight, weight, totalweight;
+            sql.execute({
+                query: sql.fromFile(sqlFile),
+                params: {sonum: sonum}
+            }).then(function (result) {
+                custname = result[0].ship_to_name;
+                custid = result[0].cus_no;
+                address = result[0].ship_to_addr_1;
+                address2 = result[0].ship_to_addr_2;
+                citystatezip = result[0].ship_to_addr_4;
+                shipvia = result[0].ship_via_cd;
+                ponum = result[0].oe_po_num;
+                orddate = result[0].ord_dt.toString().substring(3, 16);
+                payment = ((result[0].ar_terms_cd == 'CC') ? "COD/CASH" : (result[0].ar_terms_cd == '01') ? "COD/CHECK" : (result[0].ar_terms_cd == 'PP') ? "PREPAID" : (result[0].ar_terms_cd == 'PF') ? "FAX COPY" :
+                    (result[0].ar_terms_cd == '15' || result[0].ar_terms_cd == '30' || result[0].ar_terms_cd == '10' || result[0].ar_terms_cd == '3P') ? "NET TERM" : result[0].ar_terms_cd);
+                shipinstruct = result[0].ship_instruction_1;
+                shipinstruct2 = result[0].ship_instruction_2;
+                freight = result[0].ship_to_addr_3;
 
 
-        var prerender = "<thead><tr><th class='gray'>LN</th><th class='gray'>ORDERED</th><th class='gray'>UOM</th><th class='gray'>ITEM NO</th><th class='gray'>PICKED</th><th class='gray'>PACK</th><th class='gray' id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</th></tr></thead>";
-        sql.execute({
-            query: sql.fromFile("./sql/getorderlines.sql"),
-            params: {sonum: sonum}
-        }).then(function (result) {
-            totalweight = 0;
-            prerender = prerender + "<tbody>";
-            for(var i = 0; i < result.length; i++){
-                weight = Math.round(1.10*(result[i].item_weight)*(result[i].qty_ordered));
-                totalweight += weight;
-                if(result[i].picking_seq == null) result[i].picking_seq = " ";
-                if(isNaN(parseInt(result[i].user_def_fld_2 ))) result[i].user_def_fld_2 = " ";
-                if(result[i].user_def_fld_1 == null) result[i].user_def_fld_1 = " ";
+                var prerender = "<thead><tr><th class='gray'>LN</th><th class='gray'>ORDERED</th><th class='gray'>UOM</th><th class='gray'>ITEM NO</th><th class='gray'>PICKED</th><th class='gray'>PACK</th><th class='gray' id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</th></tr></thead>";
+                sql.execute({
+                    query: sql.fromFile("./sql/getorderlines.sql"),
+                    params: {sonum: sonum}
+                }).then(function (result) {
+                    totalweight = 0;
+                    prerender = prerender + "<tbody>";
+                    for (var i = 0; i < result.length; i++) {
+                        weight = Math.round(1.10 * (result[i].item_weight) * (result[i].qty_ordered));
+                        totalweight += weight;
+                        if (result[i].picking_seq == null) result[i].picking_seq = " ";
+                        if (isNaN(parseInt(result[i].user_def_fld_2))) result[i].user_def_fld_2 = " ";
+                        if (result[i].user_def_fld_1 == null) result[i].user_def_fld_1 = " ";
 
-                prerender = prerender + "<tr><td><img id='image"+i+"' src='../image/CheckMark.jpg' style='display:none;'/><p onclick='showComment("+i+")'>"+result[i].line_seq_no+"</p><input type='hidden' name='lineno"+i+"' value='"+i+"'></td>" +
-                    "<td><p style='font-size:0.5em;'>"+result[i].qty_ordered+"</p><b>"+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+"</b></td><td><p style='font-size:0.5em;'>"+ result[i].uom+"</p><b>"+result[i].user_def_fld_1+"" +
-                    "</b></td><td><p onclick='show("+i+")' style='width:6em'><input name='itemno"+i+"' class='itemnobox' value='"+result[i].item_no+"' readonly></p><p style='font-size:0.5em;'>"+result[i].qty_on_hand+"</p></td>" +
-                    "<td style='font-size:1.8em;'><input id='CheckValue"+i+"' type='text' maxlength='2' onchange='compare("+i+","+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'>"+result[i].user_def_fld_1+"</td>"+
-                    "<td><select name='pack"+i+"'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><select name='pcode"+i+"' style='width:40px;'><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></td></tr>" +
-                    "<tr id='desc"+i+"' style='display:none;'><td class='infobox' colspan='6'>"+result[i].item_desc_1+"<b>"+result[i].item_desc_2+"</b>ORDER DETAIL COMMENT INTERNAL DETAIL COMMENT<b>"+weight+"LB</b>"+ result[i].picking_seq+"</td></tr>";
+                        prerender = prerender + "<tr><td><img id='image" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p><input type='hidden' name='lineno" + i + "' value='" + i + "'></td>" +
+                            "<td><p style='font-size: 0.5em;'><input type='text' name='qty" + i + "' value='" + result[i].qty_ordered + "'  readonly></p><input type='text' name='qtyb" + i + "' value='" + result[i].qty_ordered / parseInt(result[i].user_def_fld_2) + "' style='font-weight:bold;' readonly></td>" +
+                            "<td><p style='font-size: 0.5em;'><input type='text' name='uom" + i + "' value='" + result[i].uom + "'  readonly></p><input type='text' name='uomb" + i + "' value='" + result[i].user_def_fld_1 + "' style='font-weight:bold;' readonly>" +
+                            "</b></td><td><p onclick='show(" + i + ")' style='width:6em'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no + "' readonly></p><p style='font-size:0.5em;'>" + result[i].qty_on_hand + "</p></td>" +
+                            "<td style='font-size:1.8em;'><input id='CheckValue" + i + "' name='CheckValue" + i + "' type='text' maxlength='2' onchange='compare(" + i + "," + result[i].qty_ordered / parseInt(result[i].user_def_fld_2) + ")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'>" + result[i].user_def_fld_1 + "</td>" +
+                            "<td><select name='pack" + i + "'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><select name='pcode" + i + "' style='width:40px;'><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></td></tr>" +
+                            "<tr id='desc" + i + "' style='display:none;'><td class='infobox' colspan='6'>" + result[i].item_desc_1 + "<b>" + result[i].item_desc_2 + "</b>ORDER DETAIL COMMENT INTERNAL DETAIL COMMENT<b>" + weight + "LB</b><input type='hidden'name='weight" + i + "'value='" + weight + "'>" + result[i].picking_seq + "</td></tr>";
 
 
-                prerender = prerender + "<tr id='comment"+i+"' style='display:none'><td colspan='6'><input name='comment"+i+"' type='text' style='color:red;width:20em' placeholder='input comment for line"+(i+1)+"'><a href='/workers/viewcomments?sonum="+sonum+"'\&lineno="+i+"> <input type='button' value='View Comments' /></a></td></tr>";
+                        prerender = prerender + "<tr id='comment" + i + "' style='display:none'><td colspan='6'><input name='comment" + i + "' type='text' style='color:red;width:20em' placeholder='input comment for line" + (i + 1) + "'><a href='/workers/viewcomments?sonum=" + sonum + "\&lineno=" + i + "'> <input type='button' value='View Comments' /></a></td></tr>";
 
-            }
-            prerender = prerender + "</tbody>";
+                    }
+                    prerender = prerender + "</tbody>";
 
-            res.render('PickTicket',{
-                datetime: (new Date()).toLocaleDateString(),
-                ordnum: sonum,
-                custname: custname,
-                custid: custid,
-                address: address,
-                address2: address2,
-                citystatezip: citystatezip,
-                shipvia: shipvia,
-                ponum: ponum,
-                orddate: orddate,
-                payment: payment,
-                shipinstruct: shipinstruct,
-                shipinstruct2: shipinstruct2,
-                freight: freight,
-                data: prerender,
-                totalweight: totalweight,
-                totallines: i,
-                addcomment: '',
-                layout: 'internal',
-                user: req.user
+                    res.render('PickTicket', {
+                        datetime: (new Date()).toLocaleDateString(),
+                        ordnum: sonum,
+                        custname: custname,
+                        custid: custid,
+                        address: address,
+                        address2: address2,
+                        citystatezip: citystatezip,
+                        shipvia: shipvia,
+                        ponum: ponum,
+                        orddate: orddate,
+                        payment: payment,
+                        shipinstruct: shipinstruct,
+                        shipinstruct2: shipinstruct2,
+                        freight: freight,
+                        data: prerender,
+                        totalweight: totalweight,
+                        totallines: i,
+                        addcomment: '',
+                        layout: 'internal',
+                        user: req.user
+                    });
+                }, function (err) {
+                    console.log(err);
+                    res.redirect('/routes/ticketList');
+                });
+
+            }, function (err) {
+                console.log(err);
             });
-        },function (err) {
-            console.log(err);
-            res.redirect('/routes/ticketList');
-        });
 
-
-
-
+        }
     },function (err) {
         console.log(err);
     });
@@ -142,9 +143,9 @@ router.get('/pickticket',function(req,res){//pticketcmt
 });
 
 router.get('/usedpickticket',function(req,res){
-    var sonum = req.query.SONUM;
-    var sqlFile = './sql/getSavedTicket.sql';
-    var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2,freight, weight, totalweight;
+    var sonum = req.query.sonum;
+    var sqlFile = './sql/getpickticket.sql';
+    var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2,freight, totalweight;
     sql.execute({
         query: sql.fromFile(sqlFile),
         params: {sonum: sonum}
@@ -164,19 +165,30 @@ router.get('/usedpickticket',function(req,res){
         freight = result[0].ship_to_addr_3;
         var prerender = "<thead><tr><th class='gray'>LN</th><th class='gray'>ORDERED</th><th class='gray'>UOM</th><th class='gray'>ITEM NO</th><th class='gray'>PICKED</th><th class='gray'>PACK</th><th class='gray' id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</th></tr></thead>";
 
-        for(var i = 0; i < result.length; i++) {
-            totalweight += result[i].weight;
-            prerender = prerender + "<tr><td><img id='image"+i+"' src='../image/CheckMark.jpg' style='display:none;'/><p onclick='showComment("+i+")'>"+result[i].line_seq_no+"</p><input type='text' name='lineno"+i+"' value='"+i+"'type='hidden'></td>" +
-                "<td><p style='font-size:0.5em;'>"+result[i].qty_ordered+"</p><b>"+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+"</b></td><td><p style='font-size:0.5em;'>"+ result[i].uom+"</p><b>"+result[i].user_def_fld_1+"" +
-                "</b></td><td><p onclick='show("+i+")' style='width:6em'><input name='itemno"+i+"' class='itemnobox' value='"+result[i].item_no+"' readonly></p><p style='font-size:0.5em;'>"+result[i].qty_on_hand+"</p></td>" +
-                "<td style='font-size:1.8em;'><input id='CheckValue"+i+"' type='text' maxlength='2' onchange='compare("+i+","+result[i].qty_ordered/parseInt(result[i].user_def_fld_2)+")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'value='"+result[i].picked+"'>"+result[i].user_def_fld_1+"</td>"+
-                "<td><select name='pack"+i+"' value='"+result[i].pack+"'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><select name='pcode"+i+"' style='width:40px;' value='"+result[i].pcode+"'><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></td></tr>" +
-                "<tr id='desc"+i+"' style='display:none;'><td class='infobox' colspan='6'>"+result[i].item_desc_1+"<b>"+result[i].item_desc_2+"</b>ORDER DETAIL COMMENT INTERNAL DETAIL COMMENT<b>"+weight+"LB</b>"+ result[i].bay_loc+"</td></tr>";
+        sql.execute({
+            query: sql.fromFile("./sql/getSavedTicket.sql"),
+            params: {sonum: sonum}
+        }).then(function (result) {
+            totalweight = 0;
+            prerender = prerender + "<tbody>";
+            for (var i = 0; i < result.length; i++) {
+                if (result[i].picking_seq == null) result[i].picking_seq = " ";
+                if (isNaN(parseInt(result[i].user_def_fld_2))) result[i].user_def_fld_2 = " ";
+                if (result[i].user_def_fld_1 == null) result[i].user_def_fld_1 = " ";
+                totalweight += result[i].weight;
 
+                prerender = prerender + "<tr><td><img id='image" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p><input type='text' name='lineno" + i + "' value='" + i + "'type='hidden'></td>" +
+                    "<td><p style='font-size: 0.5em;'>" + result[i].qty_ordered + "</p><b>" + result[i].qty_ordered / parseInt(result[i].user_def_fld_2) + "</b></td>" +
+                    "<td><p style='font-size: 0.5em;'>" + result[i].uom + "</p><b>" + result[i].user_def_fld_1 + "</b>" +
+                    "</b></td><td><p onclick='show(" + i + ")' style='width:6em'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no + "' readonly></p><p style='font-size: 0.5em;'>" + result[i].qty_on_hand + "</p></td>" +
+                    "<td style='font-size:1.8em;'><input id='CheckValue" + i + "' name='CheckValue" + i + "'type='text' maxlength='2' onchange='compare(" + i + "," + result[i].qty_ordered / parseInt(result[i].user_def_fld_2) + ")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'value='" + result[i].picked + "'>" + result[i].user_def_fld_1 + "</td>" +
+                    "<td><select name='pack" + i + "' value='" + result[i].pack + "'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><select name='pcode" + i + "' style='width:40px;' value='" + result[i].pcode + "'><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></td></tr>" +
+                    "<tr id='desc" + i + "' style='display:none;'><td class='infobox' colspan='6'>" + result[i].item_desc_1 + "<b>" + result[i].item_desc_2 + "</b>ORDER DETAIL COMMENT INTERNAL DETAIL COMMENT<b>" + result[i].weight + "LB</b>" + result[i].picking_seq + "</td></tr>";
 
-            prerender = prerender + "<tr id='comment"+i+"' style='display:none'><td colspan='6'><input name='comment"+i+"' type='text' style='color:red;width:20em' placeholder='input comment for line"+(i+1)+"'><a href='/workers/viewcomments?sonum="+sonum+"'\&lineno="+i+"> <input type='button' value='View Comments' /></a></td></tr>";
+                prerender = prerender + "<tr id='comment" + i + "' style='display:none'><td colspan='6'><input name='comment" + i + "' type='text' style='color:red;width:20em' placeholder='input comment for line" + (i + 1) + "'><a href='/workers/viewcomments?sonum=" + sonum + "\&lineno=" + i + "'> <input type='button' value='View Comments' /></a></td></tr>";
 
-        }
+            }
+
         prerender = prerender + "</tbody>";
         res.render('PickTicket',{
             datetime: (new Date()).toLocaleDateString(),
@@ -200,6 +212,10 @@ router.get('/usedpickticket',function(req,res){
             layout: 'internal',
             user: req.user
         });
+        }, function (err) {
+            console.log(err);
+            res.redirect('/routes/ticketList');
+        });
 
     },function (err) {
         console.log(err);
@@ -210,7 +226,7 @@ router.get('/usedpickticket',function(req,res){
 
 router.post('/pickticket',function(req,res){
     var total = req.body.totallines;
-    var temp, comment, lineno, qty, uom, itemno, qtyonhand, picked, pack, item1, item2, weight, pcode, bayloc;
+    var temp, comment, lineno, itemno, picked, pack, weight, pcode;
     for(var i = 0; i < total; i ++){
         temp = 'comment'+i;
         comment = req.body[temp];
@@ -224,6 +240,10 @@ router.post('/pickticket',function(req,res){
         pcode = req.body[temp];
         temp = 'lineno'+i;
         lineno = req.body[temp];
+        temp = 'weight'+i;
+        weight = req.body[temp];
+
+        qtyonhand = req.body[temp];
 
         console.log(lineno);
         console.log(comment);
@@ -232,33 +252,25 @@ router.post('/pickticket',function(req,res){
         if(comment != "") {
             sql.execute({
                 query: sql.fromFile("./sql/insertComment.sql"),
-                params: {sonum: req.body.sonum, lineno: lineno, commentnum: new Date().valueOf(), comment: comment}
+                params: {sonum: req.body.sonum, lineno: lineno, commentnum: (new Date().valueOf()).toString(), comment: comment}
             });
         }
 
         console.log("complete? "+ req.body.complete);
-        if(req.body.complete == false){
-            //save into incomplete incompticket
+        console.log(req.body.sonum + lineno + itemno+picked+pack+pcode+weight);
+        if(req.body.complete == 'false'){
+            //delete old saved data of specific order line
             var sqlFile = './sql/saveTicket.sql';
             sql.execute({
                 query: sql.fromFile(sqlFile),
-                params: {sonum: sonum,
+                params: {sonum: req.body.sonum,
                     lineno: lineno,
-                    qty: qty,
-                    uom: uom,
                     itemno: itemno,
-                    qtyonhand: qtyonhand,
                     picked: picked,
                     pack: pack,
                     pcode: pcode,
-                    item1: item1,
-                    item2: item2,
                     weight: weight,
-                    bayloc: bayloc
                 }
-            }).then(function (result) {
-            },function (err) {
-                console.log(err);
             });
 
         }
@@ -267,6 +279,8 @@ router.post('/pickticket',function(req,res){
             //oeordlin qty_to_ship
         }
     }
+
+    //save shipping dimensions
     res.redirect('/routes/ticketList');
 });
 router.get('/DetailedReport',function(req,res){

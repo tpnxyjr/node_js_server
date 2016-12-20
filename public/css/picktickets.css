@@ -22,6 +22,7 @@
 }
 .sub, td p{
     word-wrap: break-word;
+
 }
 .under{
     font-family:Arial,Verdana,sans-serif;
@@ -64,4 +65,11 @@
 {
     height: 20px !important; /* Overwrite any previous rules */
     background-color: #FFFFFF;
+}
+.shipping{
+    border-collapse:collapse;
+    align-content: center;
+    padding: 1px;
+    margin: 1px;
+    width: 50%;
 }
