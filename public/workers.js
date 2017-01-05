@@ -24,28 +24,6 @@ workers.get('/home', function(req,res){
     res.render('workerhome', {user: req.user, date:(new Date()).toLocaleDateString(),layout:'date'});
 });
 
-workers.get('/viewcomments', function(req,res){
-    var sonum = req.query.sonum;
-    var lineno = req.query.lineno;
-    var prerender = "<table><tr><th>Time</th><th>Comment</th></tr>";
-    sql.execute({
-        query: sql.fromFile("./sql/getComments.sql"),
-        params: {sonum: sonum, lineno: lineno}
-    }).then(function (result) {
-
-        for(var i = 0; i < result.length; i++) {
-            prerender = prerender + "<tr><td>"+new Date(parseInt(result[i].comment_num)) + "</td><td> "+ result[i].comment +"</td></tr>";
-        }
-        prerender = prerender + "</table>";
-        res.render('blank',{data: prerender, layout: 'date'});
-    },function (err) {
-        console.log(err);
-    });
-});
-
-
-
-
 
 exports.workers = workers;
 module.exports= workers;

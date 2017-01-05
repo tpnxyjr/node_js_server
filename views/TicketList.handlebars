@@ -8,11 +8,16 @@
     <script src="../js/jquery-1.12.4.js"></script>
     <script src="../js/jquery-ui.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript" src="../js/jquery-latest.js"></script>
+    <script type="text/javascript" src="../js/jquery.tablesorter.min.js"></script>
 </head>
 <body>
 <div style="margin-bottom:0.5em;"><a href="/workers/home"> <input type="button" value="BACK" /></a><input type="button" value="Refresh Page" onClick="window.location.reload()"></div>
 <table class = "main">
+    <thead><tr><th width="35%">CUSTOMER ID</th><th width="35%">SO NUMBER</th><th>DATE</th><th>MODIFIED</th></tr></thead>
+    <tbody>
     {{{data}}}
+    </tbody>
 </table>
-
+<script type="text/javascript" src="../js/ticketList.js"></script>
 </body>

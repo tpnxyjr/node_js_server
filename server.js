@@ -67,6 +67,9 @@ sql.setDefaultConfig( config );
 app.get('/', function(req,res){
     res.redirect('/home');
 });
+app.get('/ticketList', function(req,res){
+    res.redirect('/routes/ticketList');
+});
 
 app.get('displaygiven',function(req,res){
     res.render('/blank', {data: req.query.data, layout: 'internal'});

@@ -23,13 +23,15 @@ router.get('/ticketList',function(req,res){
         query: sql.fromFile(sqlFile),
 
     }).then(function (result) {
-        var count = 0;
-        for(count = 0; count < result.length; count++){
+        for(var count = 0; count < result.length; count++){
             //16, 24
+
             if(result[count].new_DeliveryDate == null)result[count].new_DeliveryDate= '                           ';
             prerender = prerender + "<tr><td>"+result[count].cus_no+"</td><td><a href='/routes/pickticket?SONUM="+result[count].ord_no + "'>"+result[count].ord_no+"</a></td><td style='color:black;font-size:0.5em;'>"+
-                result[count].new_DeliveryDate.toString().substring(0,16)+
-                "</td><td><div class='progress'><div class='progress-bar' role='progressbar' aria-valuenow='70' aria-valuemin='0' aria-valuemax='100' style='width:70%'>70%</div></div></td></tr>";
+                result[count].new_DeliveryDate.toString().substring(0,16)+"</td>";
+            if(result[count].user_def_fld_1 != null) prerender = prerender + "<td style='color:red'>YES</td>";
+            else prerender=prerender+ "<td style='color:GREEN'>NO</td>";
+            prerender = prerender +"</tr>";
         }
         res.render('TicketList',{
             data: prerender,
@@ -52,15 +54,16 @@ router.get('/pickticket',function(req,res){//pticketcmt
         query: sql.fromFile(sqlFile),
         params: {sonum: sonum}
     }).then(function (result) {
-        if(result[0] != null) res.redirect('/routes/usedpickticket?sonum='+sonum);
+        if(result[0].pack != null) res.redirect('/routes/usedpickticket?sonum='+sonum);
     else {
 
             sqlFile = './sql/getpickticket.sql';
-            var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2, freight, weight, totalweight;
+            var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2, freight, weight, totalweight, addcomment, updatetime;
             sql.execute({
                 query: sql.fromFile(sqlFile),
                 params: {sonum: sonum}
             }).then(function (result) {
+                updatetime = result[0].user_def_fld_2.replace(/\s+$/, '');
                 custname = result[0].ship_to_name;
                 custid = result[0].cus_no;
                 address = result[0].ship_to_addr_1;
@@ -74,9 +77,10 @@ router.get('/pickticket',function(req,res){//pticketcmt
                 shipinstruct = result[0].ship_instruction_1;
                 shipinstruct2 = result[0].ship_instruction_2;
                 freight = result[0].ship_to_addr_3;
+                if(result[0].user_def_fld_1 != null) addcomment = result[0].user_def_fld_1.trim();
+                else addcomment = "";
 
-
-                var prerender = "<thead><tr><th class='gray'>LN</th><th class='gray'>ORDERED</th><th class='gray'>UOM</th><th class='gray'>ITEM NO</th><th class='gray'>PICKED</th><th class='gray'>PACK</th><th class='gray' id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</th></tr></thead>";
+                var prerender = "<tr class='gray'><th>LN</th><th width='10%'>ORDERED</th><th>UOM</th><th width='35%'>ITEM NO</th><th>PICKED</th><th>PACK</th><th id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</th></tr>";
                 sql.execute({
                     query: sql.fromFile("./sql/getorderlines.sql"),
                     params: {sonum: sonum}
@@ -90,22 +94,22 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         if (isNaN(parseInt(result[i].user_def_fld_2))) result[i].user_def_fld_2 = " ";
                         if (result[i].user_def_fld_1 == null) result[i].user_def_fld_1 = " ";
 
-                        prerender = prerender + "<tr><td><img id='image" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p><input type='hidden' name='lineno" + i + "' value='" + i + "'></td>" +
-                            "<td><p style='font-size: 0.5em;'><input type='text' name='qty" + i + "' value='" + result[i].qty_ordered + "'  readonly></p><input type='text' name='qtyb" + i + "' value='" + result[i].qty_ordered / parseInt(result[i].user_def_fld_2) + "' style='font-weight:bold;' readonly></td>" +
-                            "<td><p style='font-size: 0.5em;'><input type='text' name='uom" + i + "' value='" + result[i].uom + "'  readonly></p><input type='text' name='uomb" + i + "' value='" + result[i].user_def_fld_1 + "' style='font-weight:bold;' readonly>" +
-                            "</b></td><td><p onclick='show(" + i + ")' style='width:6em'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no + "' readonly></p><p style='font-size:0.5em;'>" + result[i].qty_on_hand + "</p></td>" +
+                        prerender = prerender + "<tr><td><img id='imagea" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><img id='imageb" + i + "' src='../image/o.jpg' style='display:none;'/><img id='imagec" + i + "' src='../image/x.png' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p><input type='hidden' name='lineno" + i + "' value='" + i + "'></td>" +
+                            "<td><p style='font-size: 0.5em;'>" + result[i].qty_ordered + "</p><b>" + result[i].qty_ordered / parseInt(result[i].user_def_fld_2) + "</b></td>" +
+                            "<td><p style='font-size: 0.5em;'>" + result[i].uom + "</p><b>" + result[i].user_def_fld_1 + "</b></td>" +
+                            "<td><p onclick='show(" + i + ")' style='width:6em'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no.trim() + "' readonly></p><p style='font-size:0.5em;'>" + result[i].qty_on_hand + "</p></td>" +
                             "<td style='font-size:1.8em;'><input id='CheckValue" + i + "' name='CheckValue" + i + "' type='text' maxlength='2' onchange='compare(" + i + "," + result[i].qty_ordered / parseInt(result[i].user_def_fld_2) + ")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'>" + result[i].user_def_fld_1 + "</td>" +
                             "<td><select name='pack" + i + "'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><select name='pcode" + i + "' style='width:40px;'><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></td></tr>" +
-                            "<tr id='desc" + i + "' style='display:none;'><td class='infobox' colspan='6'>" + result[i].item_desc_1 + "<b>" + result[i].item_desc_2 + "</b>ORDER DETAIL COMMENT INTERNAL DETAIL COMMENT<b>" + weight + "LB</b><input type='hidden'name='weight" + i + "'value='" + weight + "'>" + result[i].picking_seq + "</td></tr>";
+                            "<tr id='desc" + i + "' style='display:none;'><td class='infobox' colspan='6'>" + result[i].item_desc_1 + "<b>" + result[i].item_desc_2 + "</b><b>" + weight + "LB</b><input type='hidden'name='weight" + i + "'value='" + weight + "'>" + result[i].picking_seq + "</td></tr>";
 
 
-                        prerender = prerender + "<tr id='comment" + i + "' style='display:none'><td colspan='6'><input name='comment" + i + "' type='text' style='color:red;width:20em' placeholder='input comment for line" + (i + 1) + "'><a href='/workers/viewcomments?sonum=" + sonum + "\&lineno=" + i + "'> <input type='button' value='View Comments' /></a></td></tr>";
+                        prerender = prerender + "<tr id='comment" + i + "' style='display:none'><td colspan='6'><input name='comment" + i + "' type='text' style='color:red;width:20em;font-size:18pt;' placeholder='input comment for line" + (i + 1) + "'></td></tr>";
 
                     }
                     prerender = prerender + "</tbody>";
 
                     res.render('PickTicket', {
-                        datetime: (new Date()).toLocaleDateString(),
+                        datetime: updatetime,
                         ordnum: sonum,
                         custname: custname,
                         custid: custid,
@@ -122,7 +126,7 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         data: prerender,
                         totalweight: totalweight,
                         totallines: i,
-                        addcomment: '',
+                        addcomment: addcomment,
                         layout: 'internal',
                         user: req.user
                     });
@@ -145,11 +149,12 @@ router.get('/pickticket',function(req,res){//pticketcmt
 router.get('/usedpickticket',function(req,res){
     var sonum = req.query.sonum;
     var sqlFile = './sql/getpickticket.sql';
-    var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2,freight, totalweight;
+    var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2,freight, totalweight, commented, addcomment, updatetime;
     sql.execute({
         query: sql.fromFile(sqlFile),
         params: {sonum: sonum}
     }).then(function (result) {
+        updatetime = result[0].user_def_fld_2.replace(/\s+$/, '');
         custname = result[0].ship_to_name;
         custid = result[0].cus_no;
         address= result[0].ship_to_addr_1;
@@ -163,7 +168,10 @@ router.get('/usedpickticket',function(req,res){
         shipinstruct= result[0].ship_instruction_1;
         shipinstruct2 = result[0].ship_instruction_2;
         freight = result[0].ship_to_addr_3;
-        var prerender = "<thead><tr><th class='gray'>LN</th><th class='gray'>ORDERED</th><th class='gray'>UOM</th><th class='gray'>ITEM NO</th><th class='gray'>PICKED</th><th class='gray'>PACK</th><th class='gray' id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</th></tr></thead>";
+        if(result[0].user_def_fld_1 != null) addcomment = result[0].user_def_fld_1.trim();
+        else addcomment = "";
+
+        var prerender = "<tr class='gray'><th>LN</th><th width='10%'>ORDERED</th><th>UOM</th><th width='35%'>ITEM NO</th><th>PICKED</th><th>PACK</th><th id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</th></tr>";
 
         sql.execute({
             query: sql.fromFile("./sql/getSavedTicket.sql"),
@@ -177,21 +185,24 @@ router.get('/usedpickticket',function(req,res){
                 if (result[i].user_def_fld_1 == null) result[i].user_def_fld_1 = " ";
                 totalweight += result[i].weight;
 
-                prerender = prerender + "<tr><td><img id='image" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p><input type='text' name='lineno" + i + "' value='" + i + "'type='hidden'></td>" +
+                prerender = prerender + "<tr><td><img id='imagea" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><img id='imageb" + i + "' src='../image/o.jpg' style='display:none;'/><img id='imagec" + i + "' src='../image/x.png' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p>";
+                commented = result[i].commented;
+                if(commented == 1) prerender = prerender+"<img src='../image/star.png'>";
+                prerender = prerender + "<input type='hidden' name='lineno" + i + "' value='" + i + "'type='hidden'></td>" +
                     "<td><p style='font-size: 0.5em;'>" + result[i].qty_ordered + "</p><b>" + result[i].qty_ordered / parseInt(result[i].user_def_fld_2) + "</b></td>" +
                     "<td><p style='font-size: 0.5em;'>" + result[i].uom + "</p><b>" + result[i].user_def_fld_1 + "</b>" +
-                    "</b></td><td><p onclick='show(" + i + ")' style='width:6em'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no + "' readonly></p><p style='font-size: 0.5em;'>" + result[i].qty_on_hand + "</p></td>" +
+                    "</b></td><td><p onclick='show(" + i + ")' style='width:6em'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no.trim() + "' readonly></p><p style='font-size: 0.5em;'>" + result[i].qty_on_hand + "</p></td>" +
                     "<td style='font-size:1.8em;'><input id='CheckValue" + i + "' name='CheckValue" + i + "'type='text' maxlength='2' onchange='compare(" + i + "," + result[i].qty_ordered / parseInt(result[i].user_def_fld_2) + ")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'value='" + result[i].picked + "'>" + result[i].user_def_fld_1 + "</td>" +
                     "<td><select name='pack" + i + "' value='" + result[i].pack + "'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select><select name='pcode" + i + "' style='width:40px;' value='" + result[i].pcode + "'><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></td></tr>" +
-                    "<tr id='desc" + i + "' style='display:none;'><td class='infobox' colspan='6'>" + result[i].item_desc_1 + "<b>" + result[i].item_desc_2 + "</b>ORDER DETAIL COMMENT INTERNAL DETAIL COMMENT<b>" + result[i].weight + "LB</b>" + result[i].picking_seq + "</td></tr>";
+                    "<tr id='desc" + i + "' style='display:none;'><td class='infobox' colspan='6'>" + result[i].item_desc_1 + "<b>" + result[i].item_desc_2 + "</b><b>" + result[i].weight + "LB</b><input type='hidden'name='weight" + i + "'value='" + result[i].weight + "'>" + result[i].picking_seq + "</td></tr>";
 
-                prerender = prerender + "<tr id='comment" + i + "' style='display:none'><td colspan='6'><input name='comment" + i + "' type='text' style='color:red;width:20em' placeholder='input comment for line" + (i + 1) + "'><a href='/workers/viewcomments?sonum=" + sonum + "\&lineno=" + i + "'> <input type='button' value='View Comments' /></a></td></tr>";
+                prerender = prerender + "<tr id='comment" + i + "' style='display:none'><td colspan='6'><input name='comment" + i + "' type='text' style='color:red;width:20em;font-size:18pt;' placeholder='input comment for line" + (i + 1) + "'><a href='/routes/viewcomments?sonum=" + sonum + "\&lineno=" + i + "'><input type='button' value='View Comments' /></a></td></tr>";
 
             }
 
         prerender = prerender + "</tbody>";
         res.render('PickTicket',{
-            datetime: (new Date()).toLocaleDateString(),
+            datetime: updatetime,
             ordnum: sonum,
             custname: custname,
             custid: custid,
@@ -208,7 +219,7 @@ router.get('/usedpickticket',function(req,res){
             data: prerender,
             totalweight: totalweight,
             totallines: i,
-            addcomment: '',
+            addcomment: addcomment,
             layout: 'internal',
             user: req.user
         });
@@ -226,7 +237,21 @@ router.get('/usedpickticket',function(req,res){
 
 router.post('/pickticket',function(req,res){
     var total = req.body.totallines;
-    var temp, comment, lineno, itemno, picked, pack, weight, pcode;
+    var temp, comment, lineno, itemno, picked, pack, weight, pcode, commented, addcomment = req.body.addcomment;
+    sql.execute({
+        query: sql.fromFile('./sql/addcomment.sql'),
+        params: {addcomment: addcomment, sonum:req.body.sonum}
+    });
+    var sqlFile = './sql/deletesavedticket.sql';
+
+    //remove old saved data
+    if(req.body.complete == 'false') {
+        sql.execute({
+            query: sql.fromFile(sqlFile),
+            params: {sonum: req.body.sonum}
+        });
+    }
+
     for(var i = 0; i < total; i ++){
         temp = 'comment'+i;
         comment = req.body[temp];
@@ -242,25 +267,25 @@ router.post('/pickticket',function(req,res){
         lineno = req.body[temp];
         temp = 'weight'+i;
         weight = req.body[temp];
+        commented = 0;
 
         qtyonhand = req.body[temp];
 
-        console.log(lineno);
-        console.log(comment);
-        console.log(itemno);
+        //save comment
 
         if(comment != "") {
+            comment = comment.toUpperCase();
             sql.execute({
                 query: sql.fromFile("./sql/insertComment.sql"),
-                params: {sonum: req.body.sonum, lineno: lineno, commentnum: (new Date().valueOf()).toString(), comment: comment}
+                params: {sonum: req.body.sonum, lineno: lineno, commentnum: (new Date().valueOf()).toString(), comment: comment, author: req.user}
             });
+            commented = 1;
         }
 
-        console.log("complete? "+ req.body.complete);
-        console.log(req.body.sonum + lineno + itemno+picked+pack+pcode+weight);
+        //save incomplete ticket
         if(req.body.complete == 'false'){
-            //delete old saved data of specific order line
-            var sqlFile = './sql/saveTicket.sql';
+
+            sqlFile = './sql/saveTicket.sql';
             sql.execute({
                 query: sql.fromFile(sqlFile),
                 params: {sonum: req.body.sonum,
@@ -270,6 +295,7 @@ router.post('/pickticket',function(req,res){
                     pack: pack,
                     pcode: pcode,
                     weight: weight,
+                    commented: commented
                 }
             });
 
@@ -281,8 +307,28 @@ router.post('/pickticket',function(req,res){
     }
 
     //save shipping dimensions
-    res.redirect('/routes/ticketList');
+    res.redirect('/routes/usedpickticket?sonum='+req.body.sonum);
 });
+
+router.get('/viewcomments', function(req,res){
+    var sonum = req.query.sonum;
+    var lineno = req.query.lineno;
+    var prerender = "<table style='font-size:20pt;'><tr><th>Time</th><th>Comment</th><th>Author</th></tr>";
+    sql.execute({
+        query: sql.fromFile("./sql/getComments.sql"),
+        params: {sonum: sonum, lineno: lineno}
+    }).then(function (result) {
+
+        for(var i = 0; i < result.length; i++) {
+            prerender = prerender + "<tr><td>"+new Date(parseInt(result[i].comment_num)) + "</td><td> "+ result[i].comment +"</td><td>"+result[i].author+"</td></tr>";
+        }
+        prerender = prerender + "</table>";
+        res.render('blank',{data: prerender, layout: 'date'});
+    },function (err) {
+        console.log(err);
+    });
+});
+
 router.get('/DetailedReport',function(req,res){
     var data = "";
     sql.execute({

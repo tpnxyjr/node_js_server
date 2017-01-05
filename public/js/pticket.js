@@ -8,8 +8,14 @@ function leavealert(e) {
 
 function compare(i,j){
     var a = "CheckValue"+i;
-    var b = "image"+i;
+    var b = "imagea"+i;
     if(parseInt(document.getElementById(a).value)== j) document.getElementById(b).style.display='block';
+    else document.getElementById(b).style.display='none';
+    b = "imagec"+i;
+    if(parseInt(document.getElementById(a).value)!= j && parseInt(document.getElementById(a).value)!=0) document.getElementById(b).style.display='block';
+    else document.getElementById(b).style.display='none';
+    b = "imageb"+i;
+    if(parseInt(document.getElementById(a).value)== 0) document.getElementById(b).style.display='block';
     else document.getElementById(b).style.display='none';
 }
 
@@ -32,8 +38,7 @@ function checkForm(){
             return false;
         }
         if(document.getElementById(temp).value == ""){
-            alert('line '+ (i+1) +' is empty');
-            return false;
+            document.getElementById(temp).value = 0;
         }
     }
     window.removeEventListener('beforeunload', leavealert);
@@ -130,8 +135,3 @@ function escapeHtml(text) {
 
     return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
-$(document).ready(function()
-    {
-        $("#body").tablesorter();
-    }
-);
