@@ -29,7 +29,7 @@
     <input name="complete" id="complete" value="false" type="hidden">
 <table class = "under">
     <tr class='gray'><td>ADDITIONAL COMMENT </td><td>SHIP INSTRUCTION</td></tr>
-    <tr><td><input type="text" name="addcomment" value="{{addcomment}}"></td><td>{{shipinstruct}}</td></tr>
+    <tr><td><input type="text" name="addcomment" value="{{addcomment}}" maxlength="30"></td><td>{{shipinstruct}}</td></tr>
    <!-- <tr class="blank_row" ><td colspan="3"></td></tr><tr class="blank_row"><td colspan="3"></td></tr>-->
     <tr><td>{{totalweight}} LB</td><td>{{shipinstruct2}}</td></tr>
 </table>
@@ -40,8 +40,9 @@
 
     <table id="dimension" class="shipping">
             <tr><td>TYPE</td><td>LENGTH</td><td>WIDTH</td><td>HEIGHT</td><td>WEIGHT</td></tr>
+        {{{shippingdata}}}
     </table>
-    <div>TOTAL WEIGHT: <input type="text" id="totalweight"></div>
+    <div>TOTAL WEIGHT: <input type="text" id="totalweight"><input type="number" id="totalrows" name="totalrows" value="0" hidden></div>
     <INPUT type="button" value="Add Row" style="height:50px; width:80px;" onclick="addRow('dimension')" /><INPUT type="button" value="Delete Row" style="height:50px; width:80px;" onclick="deleteRow('dimension')" />
 <br>
     <div style="float: right">

@@ -6,13 +6,14 @@ function leavealert(e) {
     return confirmationMessage;              // Gecko, WebKit, Chrome <34
 }
 
-function compare(i,j){
+function compare(i){
     var a = "CheckValue"+i;
     var b = "imagea"+i;
-    if(parseInt(document.getElementById(a).value)== j) document.getElementById(b).style.display='block';
+    var c = "CheckValue2"+i;
+    if(parseInt(document.getElementById(a).value)== parseInt(document.getElementById(c).value)) document.getElementById(b).style.display='block';
     else document.getElementById(b).style.display='none';
     b = "imagec"+i;
-    if(parseInt(document.getElementById(a).value)!= j && parseInt(document.getElementById(a).value)!=0) document.getElementById(b).style.display='block';
+    if(parseInt(document.getElementById(a).value)!= parseInt(document.getElementById(c).value) && parseInt(document.getElementById(a).value)!=0) document.getElementById(b).style.display='block';
     else document.getElementById(b).style.display='none';
     b = "imageb"+i;
     if(parseInt(document.getElementById(a).value)== 0) document.getElementById(b).style.display='block';
@@ -65,11 +66,11 @@ function addRow(tableID){
         var val = "";
 
         if(i == 0){
-            newcell.innerHTML = "<select id = \"" + idstring + "\"><option>BOX</option><option>PALLET</option><option>BUNDLE</option></select>";
+            newcell.innerHTML = "<select id = \"" + idstring + "\" name=\"" + idstring + "\"><option>BOX</option><option>PALLET</option><option>BUNDLE</option></select>";
         }
         else if(i == 4){
             if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
-            newcell.innerHTML = "<input id=\"" + idstring + "\" name=\"" + idstring + "\" size=\"5\" type=\"text\" value=\"" + escapeHtml(val) + "\" onchange='total(\"" + table + "\")'>";
+            newcell.innerHTML = "<input id=\"" + idstring + "\" name=\"" + idstring + "\" size=\"5\" type=\"text\" value=\"" + escapeHtml(val) + "\" onchange='total(\"" + tableID + "\")'>";
         }
         else {
             if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
@@ -77,6 +78,7 @@ function addRow(tableID){
         }
 
     }
+    document.getElementById("totalrows").value++;
 }
 
 function deleteRow(tableID){
@@ -87,6 +89,7 @@ function deleteRow(tableID){
         if (rowCount > 1){
             table.deleteRow(rowCount-1);
             rowCount--;
+            document.getElementById("totalrows").value--;
         }
     }catch(e) {
         alert(e);
@@ -98,9 +101,10 @@ function total(tableID){
     var totalweight = 0;
 
     var rowCount = table.rows.length;
-    for(var i = 0; i < rowCount; i++){
-        var temp = document.getElementById("inside"+i+"at4").value;
-        totalweight+= temp;
+    for(var i = 1; i < rowCount; i++){
+        if(isNaN(document.getElementById("inside"+i+"at4").value) || document.getElementById("inside"+i+"at4").value == "") var temp = 0;
+        else var temp = document.getElementById("inside"+i+"at4").value;
+        totalweight+= parseInt(temp);
     }
 
 
@@ -114,12 +118,11 @@ function addcomment(rowID){
 
 function checkiffinished(tableID){
     var table = document.getElementById(tableID);
-    var rowCount = table.rows.length;
+    var rowCount = table.rows.length/3;
     document.getElementById('complete').value = true;
-
     //for each row check if full
-    for(var i =  0; i < rowCount; i++) {
-        var b = "image"+i;
+    for(var i =  0; i < rowCount-1; i++) {
+        var b = "imagea"+i;
         if (document.getElementById(b).style.display == 'none')document.getElementById('complete').value = false;
     }
     return true;
@@ -134,4 +137,11 @@ function escapeHtml(text) {
     };
 
     return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+window.onload=function() {
+    var event = new Event('change');
+    var rowCount = document.getElementById('body').rows.length/3;
+    for(var i =  0; i < rowCount-1; i++) {
+        document.getElementById("CheckValue"+i).dispatchEvent(event);
+    }
 }
