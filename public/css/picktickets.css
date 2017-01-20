@@ -85,3 +85,7 @@
     font-size: 2em;
 }
 input[type="text"] { padding: 2px; }
+p{
+    -webkit-margin-before:0em;
+    -webkit-margin-after:0em;
+}
