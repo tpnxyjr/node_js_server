@@ -67,6 +67,37 @@ function addRow(tableID){
 
         if(i == 0){
             newcell.innerHTML = "<select id = \"" + idstring + "\" name=\"" + idstring + "\"><option>BOX</option><option>PALLET</option><option>BUNDLE</option></select>";
+
+        }
+        else if(i == 4){
+            if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
+            newcell.innerHTML = "<input id=\"" + idstring + "\" name=\"" + idstring + "\" size=\"5\" type=\"text\" value=\"" + escapeHtml(val) + "\" onchange='total(\"" + tableID + "\")'>";
+        }
+        else {
+            if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
+            newcell.innerHTML = "<input id=\"" + idstring + "\" name=\"" + idstring + "\" size=\"5\" type=\"text\" value=\"" + escapeHtml(val) + "\">";
+        }
+
+    }
+    document.getElementById("totalrows").value++;
+}
+function addRows(tableID, pack, amount){
+    var table = document.getElementById(tableID);
+
+    var rowCount = table.rows.length;
+    var row = table.insertRow(rowCount);
+
+    var colCount = table.rows[0].cells.length;
+    for(var i=0; i<colCount; i++) {
+
+        var newcell = row.insertCell(i);
+        var idstring = "inside"+rowCount+"at"+i;
+        var val = "";
+
+        if(i == 0){
+            newcell.innerHTML = "<select id = \"" + idstring + "\" name=\"" + idstring + "\" ><option>BOX</option><option>PALLET</option><option>BUNDLE</option></select> " +
+                "<input type = 'text' id = \"" + idstring + "a\" name=\"" + idstring + "a\" value='"+escapeHtml(pack+" x"+amount)+"'>";
+
         }
         else if(i == 4){
             if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
@@ -116,16 +147,34 @@ function addcomment(rowID){
     alert(user);
 }
 
-function checkiffinished(tableID){
-    var table = document.getElementById(tableID);
-    var rowCount = table.rows.length/3;
-    document.getElementById('complete').value = true;
-    //for each row check if full
-    for(var i =  0; i < rowCount-1; i++) {
-        var b = "imagea"+i;
-        if (document.getElementById(b).style.display == 'none')document.getElementById('complete').value = false;
+function checkiffinished(){
+    var rowCount = document.getElementById("tl").value;
+    if(document.getElementById('complete').value == true) {
+        for (var i = 0; i < rowCount - 1; i++) {
+            if (document.getElementById("CheckField2" + i).value == document.getElementById("converted" + i).innerHTML)
+                document.getElementById("CheckValue" + i).value *= document.getElementById("multiplier" + i).value;
+        }
     }
     return true;
+}
+
+function countItems(){
+    var packaging = [];
+    var rows = document.getElementById('tl').value;
+    for(var i = 0; i < rows; i++){
+        var temp = document.getElementById('pickfield'+i).value.split(',');
+        for(var j = 0; j < temp.length; j++)
+            packaging.push(temp[j].trim());
+    }
+    for (var stats = {}, j, i = packaging.length; i--;) {
+        if (!((j=packaging[i]) in stats))
+            stats[j]=0;
+        stats[j]++;
+    }
+    for (var key in stats)
+    {
+        addRows('dimension', key, stats[key]);
+    }
 }
 function escapeHtml(text) {
     var map = {
@@ -140,8 +189,9 @@ function escapeHtml(text) {
 }
 window.onload=function() {
     var event = new Event('change');
-    var rowCount = document.getElementById('body').rows.length/3;
-    for(var i =  0; i < rowCount-1; i++) {
+    var rowCount = document.getElementById('tl').value;
+    for(var i =  0; i < rowCount; i++) {
         document.getElementById("CheckValue"+i).dispatchEvent(event);
     }
+    document.getElementById("lower").style.marginTop = document.getElementById("upper").offsetHeight+"px";
 }

@@ -34,7 +34,6 @@
     font-size:1.5em;
     width: 99%;
     align-content: center;
-    margin-top: 6em;
     padding-top:1px;
     border-collapse: collapse;
 }
@@ -47,6 +46,7 @@
     top:0;
     background-color: white;
     border-collapse: collapse;
+    z-index: 2;
 }
 .infobox{
     background-color:yellow;
@@ -62,7 +62,6 @@
     border:none;
     font-weight:bold;
     font-size:1.3em;
-    width: 9em;
     word-wrap: break-word;
     word-break: break-all;
 }
@@ -79,5 +78,10 @@
     margin: 5px;
     width: 75%;
     padding-top:10px;
+}
+.navigationbutton{
+    height:70px;
+    width:150px;
+    font-size: 2em;
 }
 input[type="text"] { padding: 2px; }

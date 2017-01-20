@@ -9,7 +9,7 @@
     <script src="../js/jquery-ui.js"></script>
 </head>
 <body>
-<table class = "fixed" width="100%" align="center">
+<table class = "fixed" id="upper" width="100%" align="center">
     <tr class='gray'><td>PRINT DATE</td><td>CUST ID</td><td>SHIP VIA</td><td>SO NUMBER</td></tr>
     <tr><td>{{datetime}}</td><td>{{custid}}</td><td>{{shipvia}}</td><td>{{ordnum}}</td></tr>
     <tr class='gray'><td>ORDER DATE</td><td>SHIP TO NAME</td><td>FRT POLICY</td><td>PO NUMBER</td></tr>
@@ -25,16 +25,18 @@
 <form id="processpicks" action="pickticket" method="post" onsubmit="return checkForm()">
     <input name="sonum" id="sonum" value='{{ordnum}}' type="hidden">
     <input name="totallines" id="tl" value='{{totallines}}' type="hidden">
-    <input name="user" value="{{user}}" type="hidden">
     <input name="complete" id="complete" value="false" type="hidden">
-<table class = "under">
+<table class = "under" id="lower">
     <tr class='gray'><td>ADDITIONAL COMMENT </td><td>SHIP INSTRUCTION</td></tr>
     <tr><td><input type="text" name="addcomment" value="{{addcomment}}" maxlength="30"></td><td>{{shipinstruct}}</td></tr>
    <!-- <tr class="blank_row" ><td colspan="3"></td></tr><tr class="blank_row"><td colspan="3"></td></tr>-->
     <tr><td>{{totalweight}} LB</td><td>{{shipinstruct2}}</td></tr>
+    <tr>        <input type="file" accept="image/*;capture=camera"/>
+        <input type="submit"/></tr>
 </table>
-    <input type="button" onclick="location.href='/routes/ticketList';" style="height:50px; width:80px; background-color:red" value="Go Back"></a><input type="submit" value="Submit" style="height:50px; width:80px; background-color:green">
+    <input type="button" onclick="location.href='/routes/ticketList';" style="height:50px; width:80px; background-color:red" value="Go Back"></a><input type="submit" value="Submit" style="height:50px; width:80px; background-color:green" onclick="checkiffinished();">
 <table class = "sub" id='body' border="1">
+    <tr class='gray'><th>LN</th><th width='10%'>ORDERED</th><th>UOM</th><th width='35%'>ITEM NO</th><th>PICKED</th><th>PACK</th><th id='desctitle' style='display:none;'>ITEM DESCRIPTION/PACKAGING</th></tr>
     {{{data}}}
 </table>
 
@@ -42,12 +44,13 @@
             <tr><td>TYPE</td><td>LENGTH</td><td>WIDTH</td><td>HEIGHT</td><td>WEIGHT</td></tr>
         {{{shippingdata}}}
     </table>
-    <div>TOTAL WEIGHT: <input type="text" id="totalweight"><input type="number" id="totalrows" name="totalrows" value="0" hidden></div>
-    <INPUT type="button" value="Add Row" style="height:50px; width:80px;" onclick="addRow('dimension')" /><INPUT type="button" value="Delete Row" style="height:50px; width:80px;" onclick="deleteRow('dimension')" />
+    <div>TOTAL WEIGHT: <input type="text" id="totalweight"><input type="number" id="totalrows" name="totalrows" value={{totalrows}} hidden></div>
+    <INPUT type="button" value="Add Row" style="height:50px; width:80px;" onclick="addRow('dimension')" /><INPUT type="button" value="Delete Row" style="height:50px; width:80px;" onclick="deleteRow('dimension')" /><INPUT type="button" value="Add Pack" style="height:50px; width:80px;" onclick="countItems()" />
 <br>
     <div style="float: right">
-    <input type="button" onclick="location.href='/routes/ticketList';" style="height:50px; width:80px; background-color:red" value="Go Back"></a><input type="submit" value="Submit" style="height:50px; width:80px; background-color:green" onclick="checkiffinished('body');">
-        </div>
+        <label><input type="checkbox" id="cbox" onchange="document.getElementById('complete').value = document.getElementById('cbox').checked; "> Check If Complete</label>
+    <input type="button" class="navigationbutton" onclick="location.href='/routes/ticketList';" style="background-color:red" value="Go Back"></a><input type="submit" class="navigationbutton" value="Submit" style="background-color:green" onclick="checkiffinished();">
+    </div>
 </form>
 <script src='../js/pticket.js'></script>
 </body>

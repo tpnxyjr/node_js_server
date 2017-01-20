@@ -374,7 +374,27 @@ app.get('/logout', function(req, res){
     res.redirect('/signin');
     req.session.notice = "You have successfully been logged out " + name + "!";
 });
+app.get('/error', function(req, res){
+    res.render('error', {user:req.user});
+});
+app.use(function(req, res, next){
+    res.status(404);
 
+    // respond with html page
+    if (req.accepts('html')) {
+        res.render('error', { url: req.url, user:req.user });
+        return;
+    }
+
+    // respond with json
+    if (req.accepts('json')) {
+        res.send({ error: 'Not found' });
+        return;
+    }
+
+    // default to plain-text. send()
+    res.type('txt').send('Not found');
+});
 // Simple route middleware to ensure user is authenticated.
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) { return next(); }
