@@ -100,16 +100,16 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         if(result[i].item_no.trim().substr(0,3) == "INV") prerender = prerender + "<tr style='display:none'>";
                         else prerender = prerender + "<tr>";
                         prerender = prerender + "<td rowspan='2'><img id='imagea" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><img id='imageb" + i + "' src='../image/o.jpg' style='display:none;'/><img id='imagec" + i + "' src='../image/x.png' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p><input type='hidden' name='lineno" + i + "' value='" + i + "'></td>" +
-                            "<td rowspan='2'><p style='font-size: 0.5em;'>" + result[i].qty_ordered + "</p><p style='font-size: 1.5em;'><b>" + temp + "</b></p></td>" +
+                            "<td rowspan='2'><p style='font-size: 0.5em;'>" + result[i].qty_ordered + "</p><p style='font-size: 1.5em;'><b>" + temp.toFixed(2).replace(/[.,]00$/, "") + "</b></p></td>" +
                             "<td rowspan='2'><p style='font-size: 0.5em;'>" + result[i].uom + "</p><p id='converted"+i+"' style='font-size: 1.5em;'><b>" + result[i].user_def_fld_1 + "</b></p></td>" +
                             "<td colspan='4'><p onclick='show(" + i + ")' style='font-size:1.5em;'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no.trim() + "' readonly></p></td></tr>";
 
                         if(result[i].item_no.trim().substr(0,3) == "INV") prerender = prerender + "<tr style='display:none'><td>";
                         else prerender = prerender + "<tr><td>";
 
-                        if (result[i].commented2 == 1) prerender = prerender + "<a href='/routes/viewordercomments?sonum=" + sonum + "\&lineno=" + (i+1) + "'><input type='button' value='View Order Comments' /></a>";
+                        if (result[i].commented2 == 1) prerender = prerender + "<a href='/routes/viewordercomments?sonum=" + sonum + "\&lineno=" + (i+1) + "'><input type='button' value='C' /></a>";
 
-                        prerender = prerender + "</td><td><p style='font-size: 0.5em;'>" + result[i].qty_on_hand + "</p></td><td style='font-size:1.8em;'><input id='multiplier"+i+"' value='"+parseInt(result[i].user_def_fld_2)+"' hidden><input id='CheckValue" + i + "' name='CheckValue" + i + "' type='text' maxlength='3' onchange='compare(" + i + ")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'><input type='text' id='CheckField2"+i+"' name='CheckField2" + i + "' maxlength='4' style='width:30px;position:absolute;' value='"+result[i].user_def_fld_1+"'><select id='CheckValue2" + i + "' name='CheckValue2" + i + "' style='position:relative;' onchange='compare(" + i + "); document.getElementById(\"CheckField2"+i+"\").value = this.options[ this.selectedIndex ].text;;'><option value='"+result[i].qty_ordered+"'>"+ result[i].uom +"</option><option value = '"+temp+"' selected='selected'>" + result[i].user_def_fld_1 + "</option></select></td>" +
+                        prerender = prerender + "</td><td><p style='font-size: 0.5em;'>" + result[i].qty_on_hand + "</p></td><td style='font-size:1.8em;'><input id='multiplier"+i+"' value='"+parseInt(result[i].user_def_fld_2)+"' hidden><input id='CheckValue" + i + "' name='CheckValue" + i + "' type='text' maxlength='3' onchange='compare(" + i + ")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;'><input type='text' id='CheckFieldB"+i+"' name='CheckFieldB" + i + "' maxlength='4' style='width:30px;position:absolute;' value='"+result[i].user_def_fld_1+"'><select id='CheckValueB" + i + "' name='CheckValueB" + i + "' style='position:relative;' onchange='compare(" + i + "); document.getElementById(\"CheckFieldB"+i+"\").value = this.options[ this.selectedIndex ].text;;'><option value='"+result[i].qty_ordered+"'>"+ result[i].uom +"</option><option value = '"+temp+"' selected='selected'>" + result[i].user_def_fld_1 + "</option></select></td>" +
                             "<td><p><input type='text' id='packfield"+i+"' name='packfield"+i+"'style='width:60px;' value='BOX'><input type='text' id='pickfield"+i+"' name='pickfield"+i+"'style='width:60px;' VALUE='A'></p>" +
                             "<select name='pack" + i + "' onchange='document.getElementById(\"packfield"+i+"\").value = this.value'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE</option></select>" +
                             "<select name='pcode" + i + "'  onchange='document.getElementById(\"pickfield"+i+"\").value = (document.getElementById(\"pickfield"+i+"\").value == \"\")?this.value: document.getElementById(\"pickfield"+i+"\").value + \",\"+this.value'><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select><button type='button' onclick='document.getElementById(\"pickfield"+i+"\").value = \"\"'>Clear</button></td></tr>" +
@@ -207,17 +207,18 @@ router.get('/usedpickticket',function(req,res){
                     commented = result[i].commented;
                     if (commented == 1) prerender = prerender + "<img src='../image/star.png'>";
                     var temp = result[i].qty_ordered / parseInt(result[i].user_def_fld_2);
+                    if(result[i].picked == null) result[i].picked = 0;
 
                     prerender = prerender + "<input type='hidden' name='lineno" + i + "' value='" + i + "'type='hidden'></td>" +
-                        "<td rowspan='2'><p style='font-size: 0.5em;'>" + result[i].qty_ordered + "</p><p style='font-size: 1.5em;'><b>" + temp + "</b></p></td>" +
+                        "<td rowspan='2'><p style='font-size: 0.5em;'>" + result[i].qty_ordered + "</p><p style='font-size: 1.5em;'><b>" + temp.toFixed(2).replace(/[.,]00$/, "") + "</b></p></td>" +
                         "<td rowspan='2'><p style='font-size: 0.5em;'>" + result[i].uom + "</p><p id='converted"+i+"' style='font-size: 1.5em;'><b>" + result[i].user_def_fld_1 + "</b></p>" +
                         "</b></td><td colspan='4'><p onclick='show(" + i + ")' style='width:6em; font-size:1.5em;'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no.trim() + "' readonly></p></td></tr>";
                 if(result[i].item_no.trim().substr(0,3) == "INV") prerender = prerender + "<tr style='display:none'><td>";
                 else prerender = prerender + "<tr><td>";
 
-                    if (result[i].commented2 == 1) prerender = prerender + "<a href='/routes/viewordercomments?sonum=" + sonum + "\&lineno=" + (i+1) + "'><input type='button' value='View Order Comments' /></a>";
+                    if (result[i].commented2 == 1) prerender = prerender + "<a href='/routes/viewordercomments?sonum=" + sonum + "\&lineno=" + (i+1) + "'><input type='button' value='C' /></a>";
 
-                    prerender = prerender + "</td><td><p style='font-size: 0.5em;'>" + result[i].qty_on_hand + "</p></td><td style='font-size:1.8em;'><input id='multiplier"+i+"' value='"+parseInt(result[i].user_def_fld_2)+"' hidden><input id='CheckValue" + i + "' name='CheckValue" + i + "' type='text' maxlength='3' onchange='compare(" + i + ")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;' value='" + result[i].picked + "'><input type='text' id='CheckField2" + i + "' name='CheckField2" + i + "' maxlength='4' style='width:30px;position:absolute;' value='" + result[i].pickeduom + "'><select id='CheckValue2" + i + "' name='CheckValue2" + i + "' style='position:relative;' onchange='compare(" + i + ");document.getElementById(\"CheckField2" + i + "\").value = this.options[ this.selectedIndex ].text;'><option value='" + result[i].qty_ordered + "'>" + result[i].uom + "</option><option value = '" + temp + "' ";
+                    prerender = prerender + "</td><td><p style='font-size: 0.5em;'>" + result[i].qty_on_hand + "</p></td><td style='font-size:1.8em;'><input id='multiplier"+i+"' value='"+parseInt(result[i].user_def_fld_2)+"' hidden><input id='CheckValue" + i + "' name='CheckValue" + i + "' type='text' maxlength='3' onchange='compare(" + i + ")' style='font-size:1em;width:1.1em;height:1em;vertical-align:middle;' value='" + result[i].picked + "'><input type='text' id='CheckFieldB" + i + "' name='CheckFieldB" + i + "' maxlength='4' style='width:30px;position:absolute;' value='" + result[i].pickeduom + "'><select id='CheckValueB" + i + "' name='CheckValueB" + i + "' style='position:relative;' onchange='compare(" + i + ");document.getElementById(\"CheckFieldB" + i + "\").value = this.options[ this.selectedIndex ].text;'><option value='" + result[i].qty_ordered + "'>" + result[i].uom + "</option><option value = '" + temp + "' ";
                     if (result[i].user_def_fld_1 == null)result[i].user_def_fld_1 = "";
                     if (result[i].pickeduom == null)result[i].pickeduom = "";
                     if (result[i].pickeduom.trim() == result[i].user_def_fld_1.trim())
@@ -306,7 +307,7 @@ router.post('/pickticket',function(req,res){
             itemno = req.body[temp];
             temp = 'CheckValue' + i;
             picked = req.body[temp];
-            temp = 'CheckField2' + i;
+            temp = 'CheckFieldB' + i;
             pickeduom = req.body[temp];
             temp = 'packfield' + i;
             pack = req.body[temp];
@@ -334,7 +335,7 @@ router.post('/pickticket',function(req,res){
                 });
                 commented = 1;
             }
-
+console.log(lineno + ":" + picked);
             //save ticket
             sql.execute({
                 query: sql.fromFile('./sql/saveTicket.sql'),
@@ -357,8 +358,8 @@ router.post('/pickticket',function(req,res){
                     query: sql.fromFile('./sql/deductInv.sql'),
                     params: {
                         qty: picked,
-                        ordno: req.body.sonum,
-                        item_no: itemno
+                        ordno: ("     " + req.body.sonum).slice(-8),
+                        itemno: itemno
                     }
                 });
             }
@@ -396,7 +397,7 @@ router.post('/pickticket',function(req,res){
 
 
 
-    if(req.body.complete = "true")res.redirect('/routes/ticketList');
+    if(req.body.complete == "true")res.redirect('/routes/ticketList');
     else res.redirect('/routes/usedpickticket?sonum='+req.body.sonum);
 });
 
@@ -422,14 +423,14 @@ router.get('/viewcomments', function(req,res){
 router.get('/viewordercomments', function(req,res){
     var sonum = req.query.sonum;
     var lineno = req.query.lineno;
-    var prerender = "<table style='font-size:20pt;'><tr><th>Time</th><th colspan='2'>Comment</th><th>Author</th></tr>";
+    var prerender = "<table style='font-size:20pt;'><tr><th>Line</th><th colspan='2'>Comment</th></tr>";
     sql.execute({
         query: sql.fromFile("./sql/getOrderComments.sql"),
         params: {sonum: sonum, lineno: lineno}
     }).then(function (result) {
 
         for(var i = 0; i < result.length; i++) {
-            prerender = prerender + "<tr><td>"+new Date(parseInt(result[i].comment_num)).toString().substring(0,16) + "</td><td colspan='2'> "+ result[i].comment +"</td><td>"+result[i].author+"</td></tr>";
+            prerender = prerender + "<tr><td>"+result[i].comment_num + "</td><td colspan='2'> "+ result[i].comment +"</td></tr>";
         }
         prerender = prerender + "</table>";
         res.render('blank',{data: prerender, layout: 'date'});
