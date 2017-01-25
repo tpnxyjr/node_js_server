@@ -4,6 +4,17 @@
     <p>{{{date}}}</p>
 </head>
 <body>
+{{#if error}}
+    <p class="alert alert-warning">{{error}}</p>
+{{/if}}
+
+{{#if success}}
+    <p class="alert alert-success">{{success}}</p>
+{{/if}}
+
+{{#if notice}}
+    <p class="alert alert-info">{{notice}}</p>
+{{/if}}
 {{{body}}}
 </body>
 </html>

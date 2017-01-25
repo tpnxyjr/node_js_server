@@ -84,8 +84,31 @@
     width:150px;
     font-size: 2em;
 }
-input[type="text"] { padding: 2px; }
 p{
     -webkit-margin-before:0em;
     -webkit-margin-after:0em;
+}
+
+label {
+    border: 2px solid black;
+    padding: 2px;
+}
+.CheckValue{
+    font-size:1em;
+    width:1.1em;
+    height:1em;
+    vertical-align:middle;
+}
+input[type=checkbox], input[type=radio] {
+    vertical-align: middle;
+    position: relative;
+    bottom: 1px;
+}
+
+input[type=radio] {
+    bottom: 2px;
+}
+input[type="text"] {
+    background-color: yellow;
+    padding: 2px;
 }

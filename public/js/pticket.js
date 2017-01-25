@@ -9,7 +9,7 @@ function leavealert(e) {
 function compare(i){
     var a = "CheckValue"+i;
     var b = "imagea"+i;
-    var c = "CheckValue2"+i;
+    var c = "CheckValueB"+i;
     if(parseInt(document.getElementById(a).value)== parseInt(document.getElementById(c).value)) document.getElementById(b).style.display='block';
     else document.getElementById(b).style.display='none';
     b = "imagec"+i;
@@ -38,14 +38,22 @@ function checkForm(){
             alert('line '+ (i+1) +' is not a number');
             return false;
         }
-        if(document.getElementById(temp).value == ""){
+        if(document.getElementById(temp).value == "" || document.getElementById(temp).value == "null"){
             document.getElementById(temp).value = 0;
         }
     }
     window.removeEventListener('beforeunload', leavealert);
     return true;
 }
-
+function checkFilled(FieldID) {
+    var inputVal = document.getElementById(FieldID);
+    if (inputVal.value == "") {
+        inputVal.style.backgroundColor = "yellow";
+    }
+    else{
+        inputVal.style.backgroundColor = "";
+    }
+}
 function showComment(element){
     var comment = 'comment'+element;
     if(document.getElementById(comment).style.display == 'none') document.getElementById(comment).style.display = 'table-row';
@@ -147,12 +155,13 @@ function addcomment(rowID){
     alert(user);
 }
 
-function checkiffinished(){
+function checkiffinished() {
     var rowCount = document.getElementById("tl").value;
-    if(document.getElementById('complete').value == true) {
-        for (var i = 0; i < rowCount - 1; i++) {
-            if (document.getElementById("CheckField2" + i).value == document.getElementById("converted" + i).innerHTML)
-                document.getElementById("CheckValue" + i).value *= document.getElementById("multiplier" + i).value;
+    if (document.getElementById('complete').value == "true") {
+        for (var i = 0; i < rowCount; i++) {
+            if (document.getElementById("CheckFieldB" + i).value.trim() == document.getElementById("converted" + i).innerText.trim())
+                document.getElementById("CheckValue" + i).value = parseInt(document.getElementById("CheckValue" + i).value) * parseInt(document.getElementById("multiplier" + i).value);
+            document.getElementById("CheckFieldB" + i).value = document.getElementById("convertedB" + i).innerHTML;
         }
     }
     return true;

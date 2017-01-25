@@ -8,3 +8,7 @@ npm install passport
 npm install bcrypt
 npm install knockout
 
+@echo off
+cd (nodejs server directory)
+taskkill /F /IM  node.exe
+npm start
