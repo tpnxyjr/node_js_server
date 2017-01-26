@@ -112,3 +112,7 @@ input[type="text"] {
     background-color: yellow;
     padding: 2px;
 }
+
+tr:hover {
+    background-color: #ffa;
+}

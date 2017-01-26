@@ -10,16 +10,24 @@ function compare(i){
     var a = "CheckValue"+i;
     var b = "imagea"+i;
     var c = "CheckValueB"+i;
-    if(parseInt(document.getElementById(a).value)== parseInt(document.getElementById(c).value)) document.getElementById(b).style.display='block';
+    var d = "CheckFieldB"+i;
+    if(parseInt(document.getElementById(a).value)== parseInt(document.getElementById(c).options[indexMatchingText(document.getElementById(c), document.getElementById(d).value.trim())].value)) document.getElementById(b).style.display='block';
     else document.getElementById(b).style.display='none';
     b = "imagec"+i;
-    if(parseInt(document.getElementById(a).value)!= parseInt(document.getElementById(c).value) && parseInt(document.getElementById(a).value)!=0) document.getElementById(b).style.display='block';
+    if(parseInt(document.getElementById(a).value)!= parseInt(document.getElementById(c).options[indexMatchingText(document.getElementById(c), document.getElementById(d).value.trim())].value) && parseInt(document.getElementById(a).value)!=0) document.getElementById(b).style.display='block';
     else document.getElementById(b).style.display='none';
     b = "imageb"+i;
     if(parseInt(document.getElementById(a).value)== 0) document.getElementById(b).style.display='block';
     else document.getElementById(b).style.display='none';
 }
-
+function indexMatchingText(ele, text) {
+    for (var i=0; i<ele.length;i++) {
+        if (ele[i].childNodes[0] != null && ele[i].childNodes[0].nodeValue == text){
+            return i;
+        }
+    }
+    return 1;
+}
 function show(element){
     //var info = "info"+element;
     var desc = "desc"+element;
@@ -103,7 +111,7 @@ function addRows(tableID, pack, amount){
         var val = "";
 
         if(i == 0){
-            newcell.innerHTML = "<select id = \"" + idstring + "\" name=\"" + idstring + "\" ><option>BOX</option><option>PALLET</option><option>BUNDLE</option></select> " +
+            newcell.innerHTML = "<input type='text' id = \"" + idstring + "\" name=\"" + idstring + "\" value='' hidden>" +
                 "<input type = 'text' id = \"" + idstring + "a\" name=\"" + idstring + "a\" value='"+escapeHtml(pack+" x"+amount)+"'>";
 
         }
@@ -173,7 +181,7 @@ function countItems(){
     for(var i = 0; i < rows; i++){
         var temp = document.getElementById('pickfield'+i).value.split(',');
         for(var j = 0; j < temp.length; j++)
-            packaging.push(temp[j].trim());
+            packaging.push(document.getElementById('packfield'+i).value + " " + temp[j].trim());
     }
     for (var stats = {}, j, i = packaging.length; i--;) {
         if (!((j=packaging[i]) in stats))
