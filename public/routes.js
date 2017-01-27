@@ -1,6 +1,7 @@
 var express = require('express'),
     sql  = require("seriate"),
     path = require('path'),
+    bodyParser = require("body-parser"),
     passport = require('passport');
 var router = express.Router();
 var myConfig = require('../config.js');
@@ -9,7 +10,8 @@ sql.setDefaultConfig( config );
 router.use(passport.initialize());
 router.use(passport.session());
 router.use(express.static(path.join(__dirname, 'public')));
-
+router.use(bodyParser.urlencoded({ extended: true }));
+router.use(bodyParser.json());
 
 router.get('/reports', function(req,res){
     res.render('DetailedReport',{SONUM: null,
@@ -17,26 +19,72 @@ router.get('/reports', function(req,res){
     });
 });
 router.get('/ticketList',function(req,res){
-    var sqlFile = './sql/gettickets.sql';
-    var prerender = "";
+    var prerender = "", prerender2="", prerender3 = "";
     sql.execute({
-        query: sql.fromFile(sqlFile),
-
+        query: sql.fromFile('./sql/gettickets.sql')
     }).then(function (result) {
         for(var count = 0; count < result.length; count++){
+            if(result[count].user_def_fld_5 != null && result[count].user_def_fld_5.trim() != ''){
+                for(var a = 0; a < result.length; a++){
+                    if(result[a].ord_no.trim() == result[count].user_def_fld_5.trim()){
+                        if(result[count].modified != null){
+                            if(result[a].modified == null) {
+                                count = a-1;
+                                result[a].modified = 1;
+                            }
+                        }
+                        if(result[a].modified != null) result[count].modified = 1;
+                        if(result[count].sent != 1){
+                            if(result[a].sent ==1){
+                                count = a-1;
+                                result[a].sent = 0;
+                            }
+                        }
+                        if(result[a].sent != 1) result[count].sent = 0;
+                    }
+                }
+            }
+        }
+        for(count = 0; count < result.length; count++){
             //16, 24
             var date = result[count].new_DeliveryDate;
+            var color = 't';
+            if(result[count].user_def_fld_4 != null) color = result[count].user_def_fld_4.trim();
             if(result[count].new_DeliveryDate == null)result[count].new_DeliveryDate= '                           ';
-            prerender = prerender + "<tr><td>"+result[count].cus_no+"</td><td><a href='/routes/pickticket?SONUM="+result[count].ord_no + "'>"+result[count].ord_no+"</a></td><td style='color:black;font-size:0.5em;'>"+
-                date.toString().substring(0,4)+(date.getMonth() + 1) + '/' + date.getDate() + '/' +  date.getFullYear()+"</td>";
-            if(result[count].user_def_fld_1 != null) prerender = prerender + "<td style='color:red'>YES</td>";
-            else prerender=prerender+ "<td style='color:GREEN'>NO</td>";
-            if(result[count].sent == 1) prerender = prerender + "<td style='color:red'>SENT</td>";
-            else prerender=prerender+ "<td style='color:GREEN'>NOT SENT</td>";
-            prerender = prerender +"</tr>";
+
+            if(result[count].modified == null && result[count].sent!= 1) {
+                prerender = prerender + "<tr id='" + result[count].ord_no + "'><td class='index' style='display:none;'>" + (count + 1) + "</td><td class='" + color + "' ondblclick='cSwap(this)'>" + result[count].cus_no + "</td><td><a href='/routes/pickticket?SONUM=" + result[count].ord_no + "'><div style='height:100%;width:100%'>" + result[count].ord_no + "</div></a></td><td style='color:black;font-size:0.5em;'>" +
+                    date.toString().substring(0, 4) + (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + "</td>";
+                if (result[count].modified != null) prerender = prerender + "<td style='color:red'>YES</td>";
+                else prerender = prerender + "<td style='color:GREEN'>NO</td>";
+                if (result[count].sent == 1) prerender = prerender + "<td style='color:red'>SENT</td>";
+                else prerender = prerender + "<td style='color:GREEN'>NOT SENT</td>";
+                prerender = prerender + "</tr>";
+            }
+            else if(result[count].modified != null && result[count].sent!= 1) {
+                prerender2 = prerender2 + "<tr id='" + result[count].ord_no + "'><td class='index' style='display:none;'>" + (count + 1) + "</td><td class='" + color + "' ondblclick='cSwap(this)'>" + result[count].cus_no + "</td><td><a href='/routes/pickticket?SONUM=" + result[count].ord_no + "'><div style='height:100%;width:100%'>" + result[count].ord_no + "</div></a></td><td style='color:black;font-size:0.5em;'>" +
+                    date.toString().substring(0, 4) + (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + "</td>";
+                if (result[count].modified != null) prerender2 = prerender2 + "<td style='color:red'>YES</td>";
+                else prerender2 = prerender2 + "<td style='color:GREEN'>NO</td>";
+                if (result[count].sent == 1) prerender2 = prerender2 + "<td style='color:red'>SENT</td>";
+                else prerender2 = prerender2 + "<td style='color:GREEN'>NOT SENT</td>";
+                prerender2 = prerender2 + "</tr>";
+            }
+            else if(result[count].sent == 1) {
+                prerender3 = prerender3 + "<tr id='" + result[count].ord_no + "'><td class='index' style='display:none;'>" + (count + 1) + "</td><td class='" + color + "' ondblclick='cSwap(this)'>" + result[count].cus_no + "</td><td><a href='/routes/pickticket?SONUM=" + result[count].ord_no + "'><div style='height:100%;width:100%'>" + result[count].ord_no + "</div></a></td><td style='color:black;font-size:0.5em;'>" +
+                    date.toString().substring(0, 4) + (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + "</td>";
+                if (result[count].modified != null) prerender3 = prerender3 + "<td style='color:red'>YES</td>";
+                else prerender3 = prerender3 + "<td style='color:GREEN'>NO</td>";
+                if (result[count].sent == 1) prerender3 = prerender3 + "<td style='color:red'>SENT</td>";
+                else prerender3 = prerender3 + "<td style='color:GREEN'>NOT SENT</td>";
+                prerender3 = prerender3 + "</tr>";
+            }
+
         }
         res.render('TicketList',{
             data: prerender,
+            data2: prerender2,
+            data3: prerender3,
             date: (new Date()),
             layout: 'date',
             user: req.user
@@ -48,8 +96,46 @@ router.get('/ticketList',function(req,res){
 
 
 });
-router.get('/ticketOptions', function(req,res){
-
+router.post('/refreshList', function (req,res){
+    if(req.body.ids != null) {
+        var newOrder = req.body.ids;
+        for (var i = 0; i < newOrder.length; i++) {
+            sql.execute({
+                query: sql.fromFile('./sql/updatePriority.sql'),
+                params: {
+                    position: i,
+                    sonum: newOrder[i]
+                }
+            });
+        }
+    }
+    else if(req.body.t2 != null || req.body.t != null){
+        var t2 = req.body.t2;
+        var t = req.body.t;
+        if(t2 != null)
+        for (var i = 0; i < t2.length; i++) {
+            sql.execute({
+                query: sql.fromFile('./sql/updateColors.sql'),
+                params: {
+                    color: 't2',
+                    parent: req.body.parent[i],
+                    sonum: t2[i]
+                }
+            });
+        }
+        if(t != null)
+        for (var i = 0; i < t.length; i++) {
+            sql.execute({
+                query: sql.fromFile('./sql/updateColors.sql'),
+                params: {
+                    color: 't',
+                    parent: '',
+                    sonum: t[i]
+                }
+            });
+        }
+    }
+    res.redirect('/ticketList');
 });
 router.get('/pickticket',function(req,res){//pticketcmt
     var sonum = req.query.SONUM;
@@ -63,7 +149,7 @@ router.get('/pickticket',function(req,res){//pticketcmt
             req.session.error = "This order no longer exists";
             res.redirect('/routes/ticketList');
         }
-        if(result[0].pack != null) res.redirect('/routes/usedpickticket?sonum='+sonum);
+        else if(result[0].pack != null) res.redirect('/routes/usedpickticket?sonum='+sonum);
     else {
 
             sqlFile = './sql/getpickticket.sql';
@@ -307,7 +393,6 @@ router.post('/pickticket',function(req,res){
         query: sql.fromFile('./sql/addcomment.sql'),
         params: {addcomment: addcomment, sonum:req.body.sonum}
     });
-
     //remove old saved data
    // if(req.body.complete == 'false') {
         sql.execute({
@@ -334,6 +419,7 @@ router.post('/pickticket',function(req,res){
             temp = 'weight' + i;
             weight = req.body[temp];
             commented = 0;
+
             if (req.body.complete == "true")sent = 1;
             else sent = 0;
 
@@ -409,10 +495,10 @@ router.post('/pickticket',function(req,res){
                     }
                 });
             }
+
         },function (err) {
             console.log(err);
         });
-
 
 
     if(req.body.complete == "true"){

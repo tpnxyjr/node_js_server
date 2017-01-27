@@ -51,9 +51,9 @@
 .infobox{
     background-color:yellow;
 }
-.gray{
-    background-color:#d3d3d3;
-}
+.gray{ background-color:#d3d3d3;}
+.t  { color: #00f }
+.t2 { color: white }
 .nothing{
     margin: 0;
     padding: 0;
