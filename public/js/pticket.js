@@ -11,13 +11,13 @@ function compare(i){
     var b = "imagea"+i;
     var c = "CheckValueB"+i;
     var d = "CheckFieldB"+i;
-    if(parseInt(document.getElementById(a).value)== parseInt(document.getElementById(c).options[indexMatchingText(document.getElementById(c), document.getElementById(d).value.trim())].value)) document.getElementById(b).style.display='block';
+    if(parseFloat(document.getElementById(a).value)== parseFloat(document.getElementById(c).options[indexMatchingText(document.getElementById(c), document.getElementById(d).value.trim())].value)) document.getElementById(b).style.display='block';
     else document.getElementById(b).style.display='none';
     b = "imagec"+i;
-    if(parseInt(document.getElementById(a).value)!= parseInt(document.getElementById(c).options[indexMatchingText(document.getElementById(c), document.getElementById(d).value.trim())].value) && parseInt(document.getElementById(a).value)!=0) document.getElementById(b).style.display='block';
+    if(parseFloat(document.getElementById(a).value)!= parseFloat(document.getElementById(c).options[indexMatchingText(document.getElementById(c), document.getElementById(d).value.trim())].value) && parseFloat(document.getElementById(a).value)!=0) document.getElementById(b).style.display='block';
     else document.getElementById(b).style.display='none';
     b = "imageb"+i;
-    if(parseInt(document.getElementById(a).value)== 0) document.getElementById(b).style.display='block';
+    if(parseFloat(document.getElementById(a).value)== 0) document.getElementById(b).style.display='block';
     else document.getElementById(b).style.display='none';
 }
 function indexMatchingText(ele, text) {
@@ -151,7 +151,7 @@ function total(tableID){
     for(var i = 1; i < rowCount; i++){
         if(isNaN(document.getElementById("inside"+i+"at4").value) || document.getElementById("inside"+i+"at4").value == "") var temp = 0;
         else var temp = document.getElementById("inside"+i+"at4").value;
-        totalweight+= parseInt(temp);
+        totalweight+= parseFloat(temp);
     }
 
 
@@ -168,7 +168,7 @@ function checkiffinished() {
     if (document.getElementById('complete').value == "true") {
         for (var i = 0; i < rowCount; i++) {
             if (document.getElementById("CheckFieldB" + i).value.trim() == document.getElementById("converted" + i).innerText.trim())
-                document.getElementById("CheckValue" + i).value = parseInt(document.getElementById("CheckValue" + i).value) * parseInt(document.getElementById("multiplier" + i).value);
+                document.getElementById("CheckValue" + i).value = parseFloat(document.getElementById("CheckValue" + i).value) * parseFloat(document.getElementById("multiplier" + i).value);
             document.getElementById("CheckFieldB" + i).value = document.getElementById("convertedB" + i).innerHTML;
         }
     }

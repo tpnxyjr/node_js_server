@@ -313,8 +313,8 @@ router.get('/usedpickticket',function(req,res){
                     if(result[i].pcode == null)result[i].pcode = "";
 
                     prerender = prerender + "<input type='hidden' name='lineno" + i + "' value='" + result[i].line_seq_no + "'type='hidden'></td>" +
-                        "<td rowspan='2'><p style='font-size: 0.9em;'>" + result[i].qty_ordered + "</p><p style='font-size: 1.5em;'><b>" + temp.toFixed(2).replace(/[.,]00$/, "") + "</b></p></td>" +
-                        "<td rowspan='2'><p id='convertedB"+i+"' style='font-size: 0.9em;'>" + result[i].uom + "</p><p id='converted"+i+"' style='font-size: 1.5em;'><b>" + result[i].user_def_fld_1 + "</b></p>" +
+                        "<td rowspan='2'><p style='font-size: 0.9em;' onclick='document.getElementById(\"CheckValue"+i+"\").value = this.innerText;compare(" + i + ");'>" + result[i].qty_ordered + "</p><p style='font-size: 1.5em;'onclick='document.getElementById(\"CheckValue"+i+"\").value = this.innerText;compare(" + i + ");'><b>" + temp.toFixed(2).replace(/[.,]00$/, "") + "</b></p></td>" +
+                        "<td rowspan='2'><p id='convertedB"+i+"' style='font-size: 0.9em;' onclick='document.getElementById(\"CheckFieldB"+i+"\").value = this.innerText;compare(" + i + ");'>" + result[i].uom + "</p><p id='converted"+i+"' style='font-size: 1.5em;'onclick='document.getElementById(\"CheckValue"+i+"\").value = this.innerText;compare(" + i + ");'><b>" + result[i].user_def_fld_1 + "</b></p>" +
                         "</b></td><td colspan='4'><p onclick='show(" + i + ")' style='width:6em; font-size:1.5em;'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no.trim() + "' readonly></p></td></tr>";
                 if(result[i].item_no.trim().substr(0,3) == "INV") prerender = prerender + "<tr style='display:none'><td>";
                 else prerender = prerender + "<tr><td>";
