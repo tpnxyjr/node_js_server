@@ -307,7 +307,7 @@ router.get('/usedpickticket',function(req,res){
                     else prerender = prerender + "<tr>";
                     prerender = prerender + "<td rowspan='2'><img id='imagea" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><img id='imageb" + i + "' src='../image/o.jpg' style='display:none;'/><img id='imagec" + i + "' src='../image/x.png' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p>";
                     commented = result[i].commented;
-                    if (commented == 1) prerender = prerender + "<img src='../image/star.png'>";
+                    if (commented == 1) prerender = prerender + "<img onclick='showComment(" + i + ")' src='../image/star.png'>";
                     var temp = result[i].qty_ordered / parseInt(result[i].user_def_fld_2);
                     if(result[i].picked == null) result[i].picked = 0;
                     if(result[i].pcode == null)result[i].pcode = "";
@@ -511,43 +511,33 @@ router.post('/pickticket',function(req,res){
 router.get('/viewcomments', function(req,res){
     var sonum = req.query.sonum;
     var lineno = req.query.lineno;
-    var prerender = "<a href='/routes/usedpickticket?sonum="+sonum+"'><input type='button' value='Back to Pick Ticket'></a><table style='font-size:20pt;'><tr><th>Time</th><th colspan='2'>Comment</th><th>Author</th><th></th></tr>";
+    var prerender = "<a href='/routes/usedpickticket?sonum="+sonum+"'><input type='button' value='Back to Pick Ticket'></a>" +
+        "<form action='/routes/deletecomment' method='post'>" +
+        "<input type='text' id='sonum'name='sonum' hidden><input type='text' id='lineno'name='lineno' hidden><input type='text' id='commentnum'name='commentnum' hidden>" +
+        "<table style='font-size:20pt;'><tr><th>Time</th><th colspan='2'>Comment</th><th>Author</th><th></th></tr>";
     sql.execute({
         query: sql.fromFile("./sql/getComments.sql"),
         params: {sonum: sonum, lineno: lineno}
     }).then(function (result) {
 
         for(var i = 0; i < result.length; i++) {
-            prerender = prerender + "<tr><td>"+new Date(parseInt(result[i].comment_num)).toString().substring(0,16) + "</td><td colspan='2'> "+ result[i].comment +"</td><td>"+result[i].author+"</td><td><a href='/routes/deleteComment?sonum="+sonum+"&lineno="+lineno+"&commentnum="+result[i].comment_num+"'><input type='button' value='Delete Comment'></a></tr>";
+            prerender = prerender + "<tr><td>"+new Date(parseInt(result[i].comment_num)).toString().substring(0,16) + "</td><td colspan='2'> "+ result[i].comment +"</td><td>"+result[i].author+"</td><td><button type='submit' onclick='document.getElementById(\"sonum\").value=\""+sonum+"\";document.getElementById(\"lineno\").value="+lineno+";document.getElementById(\"commentnum\").value="+parseInt(result[i].comment_num)+";'>Delete Comment</button></td></tr>";
         }
-        prerender = prerender + "</table>";
+        prerender = prerender + "</table></form>";
         res.render('blank',{data: prerender, layout: 'date'});
     },function (err) {
         console.log(err);
     });
 });
-router.get('/deletecomment', function(req,res){
-    var sonum = req.query.sonum;
-    var lineno = req.query.lineno;
-    var commentnum = req.query.commentnum;
+router.post('/deletecomment', function(req,res){
+    var sonum = req.body.sonum;
+    var lineno = req.body.lineno;
+    var commentnum = req.body.commentnum;
     sql.execute({
         query: sql.fromFile("./sql/deleteComment.sql"),
         params:{sonum: sonum, lineno: lineno, commentnum:commentnum}
     });
-    var prerender = "<a href='/routes/usedpickticket?sonum="+sonum+"'><input type='button' value='Back to Pick Ticket'></a><table style='font-size:20pt;'><tr><th>Time</th><th colspan='2'>Comment</th><th>Author</th><th></th></tr>";
-    sql.execute({
-        query: sql.fromFile("./sql/getComments.sql"),
-        params: {sonum: sonum, lineno: lineno}
-    }).then(function (result) {
-
-        for(var i = 0; i < result.length; i++) {
-            prerender = prerender + "<tr><td>"+new Date(parseInt(result[i].comment_num)).toString().substring(0,16) + "</td><td colspan='2'> "+ result[i].comment +"</td><td>"+result[i].author+"</td><td><a href='/routes/deleteComment?sonum="+sonum+"&lineno="+lineno+"&commentnum="+result[i].comment_num+"'><input type='button' value='Delete Comment'></a></tr>";
-        }
-        prerender = prerender + "</table>";
-        res.render('blank',{data: prerender, layout: 'date'});
-    },function (err) {
-        console.log(err);
-    });
+    res.redirect(req.get('referer'));
 });
 router.get('/viewordercomments', function(req,res){
     var sonum = req.query.sonum;
