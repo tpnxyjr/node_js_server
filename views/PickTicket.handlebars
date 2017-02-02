@@ -11,9 +11,9 @@
 <body>
 <form id="processpicks" action="pickticket" method="post" onsubmit="return checkForm()">
 <table class = "fixed" id="upper" width="100%" align="center">
-    <tr class='gray'><td>PRINT DATE</td><td width="25%">SHIP TO NAME</td><td>SHIP VIA</td><td width="20%">CUST ID</td><td rowspan="2"><input type="button" onclick="location.href='/routes/ticketList';" style="height:50px; width:80px; background-color:red; color:white;" value="GO BACK"></td></tr>
+    <tr class='gray'><td>PRINT DATE</td><td width="18%">SHIP TO NAME</td><td width="20%">SHIP VIA</td><td width="20%">CUST ID</td><td rowspan="2"><input type="button" onclick="location.href='/routes/ticketList';" style="height:70px; width:120px; background-color:red; color:white;" value="GO BACK"></td></tr>
     <tr><td>{{datetime}}</td><td>{{custname}}</td><td>{{shipvia}}</td><td><b>{{custid}}</b></td></tr>
-    <tr class='gray'><td>ORDER DATE</td><td>PO NUMBER</td><td>FRT POLICY</td><td>SO NUMBER</td><td rowspan="2"><input type="submit" value="UPDATE" style="height:50px; width:80px; background-color:green;color:white;" onclick="checkiffinished();"><div><label style="position:relative;font-size:0.5em;"><input type="checkbox" id="cbox" onchange="document.getElementById('complete').value = document.getElementById('cbox').checked; "> To Data</label></div></td></tr>
+    <tr class='gray'><td>ORDER DATE</td><td>PO NUMBER</td><td>FRT POLICY</td><td>SO NUMBER</td><td rowspan="2"><input type="submit" value="UPDATE" style="height:50px; width:120px; background-color:green;color:white;" onclick="checkiffinished();"><div><label style="position:relative;font-size:0.5em;"><input type="checkbox" id="cbox" onchange="document.getElementById('complete').value = document.getElementById('cbox').checked; "> To Data</label></div></td></tr>
     <tr><td>{{orddate}}</td><td>{{ponum}}</td><td>{{freight}}</td><td><b>{{ordnum}}</b></td></tr>
 <!--
     <tr class='gray'><td>PRINT DATE</td><td width="30%">CUST ID</td><td>SHIP VIA</td><td>SO NUMBER</td><td rowspan="2"><input type="button" onclick="location.href='/routes/ticketList';" style="height:50px; width:80px; background-color:red" value="Go Back"></td></tr>

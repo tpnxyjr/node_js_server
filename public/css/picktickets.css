@@ -6,14 +6,29 @@
     align-content: center;
     margin-left: auto;
     margin-right: auto;
+    border-spacing: 10px;
+    border-collapse: separate;
+    margin-bottom: auto;
+    border: 3px solid black;
 }
 .main > thead > tr > th{
     text-align: center !important;
     vertical-align:middle !important;
     color: black;
+    background: gray;
+    border: 3px solid black;
 }
-.main, th, td{
-    border: 1px solid black;
+.main> tbody> th> td{
+    border: 3px solid black;
+    margin: 3px;
+    padding: 3px;
+    text-align: center;
+}
+.main>tbody>tr>td{
+    border: 3px solid black;
+    margin: 3px;
+    padding: 3px;
+    text-align: center;
 }
 .sub{
     font-family:Arial,Verdana,sans-serif;
@@ -22,12 +37,12 @@
     align-content: center;
     border-collapse: collapse;
 }
-.sub, td{
+.sub > tbody> tr> td{
+    border: 2px solid black;
     text-align: center;
 }
-.sub, td p{
+.sub > tbody> tr>td p{
     word-wrap: break-word;
-
 }
 .under{
     font-family:Arial,Verdana,sans-serif;
@@ -36,6 +51,11 @@
     align-content: center;
     padding-top:1px;
     border-collapse: collapse;
+    border: 1px solid black;
+}
+.under>tbody>tr>td{
+    border: 2px solid black;
+    text-align: center;
 }
 .fixed{
     font-family:Arial,Verdana,sans-serif;
@@ -46,7 +66,12 @@
     top:0;
     background-color: white;
     border-collapse: collapse;
+    border: 2px solid black;
     z-index: 2;
+}
+.fixed > tbody> tr> td{
+    border: 2px solid black;
+    text-align: center;
 }
 .infobox{
     background-color:yellow;
@@ -78,6 +103,10 @@
     margin: 5px;
     width: 75%;
     padding-top:10px;
+}
+.shipping>tbody>tr>td{
+    border: 2px solid black;
+    text-align: center;
 }
 .navigationbutton{
     height:70px;
