@@ -153,7 +153,7 @@ router.get('/pickticket',function(req,res){//pticketcmt
     else {
 
             sqlFile = './sql/getpickticket.sql';
-            var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2, freight, weight, totalweight, addcomment, updatetime;
+            var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2, freight, weight, totalweight, addcomment, updatetime, hiddenlines=0;
             sql.execute({
                 query: sql.fromFile(sqlFile),
                 params: {sonum: sonum}
@@ -194,6 +194,11 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         if (isNaN(parseInt(result[i].user_def_fld_2))) result[i].user_def_fld_2 = " ";
                         if (result[i].user_def_fld_1 == null) result[i].user_def_fld_1 = " ";
                         if(result[i].user_def_fld_2.trim() == "") result[i].user_def_fld_2 = 1;
+                        if(result[i].item_no.trim().substr(0,3) == "INV"){
+                            prerender = prerender + "<tr style='display:none'>";
+                            hiddenlines++;
+                        }
+                        else prerender = prerender + "<tr>";
                         var temp = result[i].qty_ordered / parseInt(result[i].user_def_fld_2);
                         if(result[i].item_no.trim().substr(0,3) == "INV") prerender = prerender + "<tr style='display:none'>";
                         else prerender = prerender + "<tr>";
@@ -237,7 +242,7 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         freight: freight,
                         data: prerender,
                         totalweight: totalweight,
-                        totallines: i,
+                        totallines: (i-hiddenlines),
                         totalrows: 0,
                         addcomment: addcomment,
                         layout: 'internal',
@@ -303,7 +308,10 @@ router.get('/usedpickticket',function(req,res){
                     if (result[i].user_def_fld_1 == null) result[i].user_def_fld_1 = " ";
                     totalweight += result[i].weight;
                     if (result[i].user_def_fld_2.trim() == "") result[i].user_def_fld_2 = 1;
-                    if(result[i].item_no.trim().substr(0,3) == "INV") prerender = prerender + "<tr style='display:none'>";
+                    if(result[i].item_no.trim().substr(0,3) == "INV"){
+                        prerender = prerender + "<tr style='display:none'>";
+                        hiddenlines++;
+                    }
                     else prerender = prerender + "<tr>";
                     prerender = prerender + "<td rowspan='2'><img id='imagea" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><img id='imageb" + i + "' src='../image/o.jpg' style='display:none;'/><img id='imagec" + i + "' src='../image/x.png' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p>";
                     commented = result[i].commented;

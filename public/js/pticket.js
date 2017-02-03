@@ -167,6 +167,7 @@ function checkiffinished() {
     var rowCount = document.getElementById("tl").value;
     if (document.getElementById('complete').value == "true") {
         for (var i = 0; i < rowCount; i++) {
+            if(isNaN(document.getElementById("CheckValue" + i).value))document.getElementById("CheckValue" + i).value = 0;
             if (document.getElementById("CheckFieldB" + i).value.trim() == document.getElementById("converted" + i).innerText.trim())
                 document.getElementById("CheckValue" + i).value = parseFloat(document.getElementById("CheckValue" + i).value) * parseFloat(document.getElementById("multiplier" + i).value);
             document.getElementById("CheckFieldB" + i).value = document.getElementById("convertedB" + i).innerHTML;
