@@ -306,6 +306,7 @@ router.get('/usedpickticket',function(req,res){
                     if (result[i].picking_seq == null) result[i].picking_seq = " ";
                     if (isNaN(parseInt(result[i].user_def_fld_2))) result[i].user_def_fld_2 = " ";
                     if (result[i].user_def_fld_1 == null) result[i].user_def_fld_1 = " ";
+                    if(result[i].pickeduom == null) result[i].pickeduom = " ";
                     totalweight += result[i].weight;
                     if (result[i].user_def_fld_2.trim() == "") result[i].user_def_fld_2 = 1;
                     if(result[i].item_no.trim().substr(0,3) == "INV"){
@@ -519,7 +520,7 @@ router.post('/pickticket',function(req,res){
 router.get('/viewcomments', function(req,res){
     var sonum = req.query.sonum;
     var lineno = req.query.lineno;
-    var prerender = "<a href='/routes/usedpickticket?sonum="+sonum+"'><input type='button' value='Back to Pick Ticket'></a>" +
+    var prerender = "<a href='/routes/pickticket?SONUM="+sonum+"'><input type='button' value='Back to Pick Ticket'></a>" +
         "<form action='/routes/deletecomment' method='post'>" +
         "<input type='text' id='sonum'name='sonum' hidden><input type='text' id='lineno'name='lineno' hidden><input type='text' id='commentnum'name='commentnum' hidden>" +
         "<table style='font-size:20pt;'><tr><th>Time</th><th colspan='2'>Comment</th><th>Author</th><th></th></tr>";
@@ -550,7 +551,7 @@ router.post('/deletecomment', function(req,res){
 router.get('/viewordercomments', function(req,res){
     var sonum = req.query.sonum;
     var lineno = req.query.lineno;
-    var prerender = "<a href='/routes/usedpickticket?sonum="+sonum+"'><input type='button' value='Back to Pick Ticket'></a><table style='font-size:20pt;'><tr><th>Line</th><th colspan='2'>Comment</th></tr>";
+    var prerender = "<a href='/routes/pickticket?SONUM="+sonum+"'><input type='button' value='Back to Pick Ticket'></a><table style='font-size:20pt;'><tr><th>Line</th><th colspan='2'>Comment</th></tr>";
     sql.execute({
         query: sql.fromFile("./sql/getOrderComments.sql"),
         params: {sonum: sonum, lineno: lineno}

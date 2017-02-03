@@ -207,9 +207,9 @@ function escapeHtml(text) {
 }
 window.onload=function() {
     var event = new Event('change');
-    var rowCount = document.getElementById('tl').value;
+    var rowCount = document.getElementById('body').rows.length;
     for(var i =  0; i < rowCount; i++) {
-        document.getElementById("CheckValue"+i).dispatchEvent(event);
+        if(document.getElementById("CheckValue"+i)!=null)document.getElementById("CheckValue"+i).dispatchEvent(event);
     }
     document.getElementById("lower").style.marginTop = document.getElementById("upper").offsetHeight+"px";
 }
