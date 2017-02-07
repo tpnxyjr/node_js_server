@@ -72,3 +72,7 @@ function cSwap(cell){
         });
     });
 }
+
+$('a').click(function(){
+    $('<div id="WaitDialog" style="text-align:center;z-index:3;opacity:0.5;width:100%;height:100%;top:0;left:0;right:0;bottom:0;position:absolute; background:black;"><img src="../image/loading.gif" /><div style="margin-top: 10px; color: white; font-size: 25px;"><b>Please wait</b></div></div>').prependTo(document.body);
+});

@@ -193,6 +193,15 @@ function countItems(){
     {
         addRows('dimension', key, stats[key]);
     }
+    /* var str = "|User=0101|Name=ImNewUser|IsAdmin=0|RefId=23ae2123cd223bf235|";
+
+
+     var result = {};
+     str.split('|').forEach(function(x){
+     var arr = x.split('=');
+     arr[1] && (result[arr[0]] = arr[1]);
+     });
+     */
 }
 function escapeHtml(text) {
     var map = {
