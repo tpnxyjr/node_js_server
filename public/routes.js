@@ -200,22 +200,22 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         }
                         else prerender = prerender + "<tr>";
                         var temp = result[i].qty_ordered / parseInt(result[i].user_def_fld_2);
-                        if(result[i].item_no.trim().substr(0,3) == "INV") prerender = prerender + "<tr style='display:none'>";
-                        else prerender = prerender + "<tr>";
                         prerender = prerender + "<td rowspan='2'><img id='imagea" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><img id='imageb" + i + "' src='../image/o.jpg' style='display:none;'/><img id='imagec" + i + "' src='../image/x.png' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p><input type='hidden' name='lineno" + i + "' value='" + result[i].line_seq_no + "'></td>" +
                             "<td rowspan='2'><p style='font-size: 0.9em;' onclick='document.getElementById(\"CheckValue"+i+"\").value = this.innerText;compare(" + i + ");'>" + result[i].qty_ordered + "</p><p style='font-size: 1.5em;'onclick='document.getElementById(\"CheckValue"+i+"\").value = this.innerText;compare(" + i + ");'><b>" + temp.toFixed(2).replace(/[.,]00$/, "") + "</b></p></td>" +
                             "<td rowspan='2'><p id='convertedB"+i+"' style='font-size: 0.9em;' onclick='document.getElementById(\"CheckFieldB"+i+"\").value = this.innerText;compare(" + i + ");'>" + result[i].uom + "</p><p id='converted"+i+"' style='font-size: 1.5em;' onclick='document.getElementById(\"CheckFieldB"+i+"\").value = this.innerText;compare(" + i + ");'><b>" + result[i].user_def_fld_1 + "</b></p></td>" +
                             "<td colspan='4'><p onclick='show(" + i + ")' style='font-size:1.5em;'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no.trim() + "' readonly></p></td></tr>";
 
                         if(result[i].item_no.trim().substr(0,3) == "INV") prerender = prerender + "<tr style='display:none'><td>";
+                        else if(result[i].aud_action == 'D') prerender = prerender + "<tr style='display:none'><td>";
                         else prerender = prerender + "<tr><td>";
 
                         if (result[i].commented == 1) prerender = prerender + "<a href='/routes/viewordercomments?sonum=" + sonum + "\&lineno=" + (i+1) + "'><input type='button' value='CM' style='width:3em;height:3em;background-color:blue;color:white;'/></a>";
 
                         prerender = prerender + "</td><td><p style='font-size: 0.9em;'>" + result[i].qty_on_hand + "</p></td><td style='font-size:1.8em;'><input id='multiplier"+i+"' value='"+parseInt(result[i].user_def_fld_2)+"' hidden><input class='CheckValue' id='CheckValue" + i + "' name='CheckValue" + i + "' type='text' maxlength='4' onchange='compare(" + i + ")' ><input type='text' id='CheckFieldB"+i+"' name='CheckFieldB" + i + "' maxlength='4' style='width:30px;position:absolute;' value='"+result[i].user_def_fld_1+"'><select id='CheckValueB" + i + "' name='CheckValueB" + i + "' style='position:relative;' onchange='compare(" + i + "); document.getElementById(\"CheckFieldB"+i+"\").value = this.options[ this.selectedIndex ].text;'><option value='"+result[i].qty_ordered+"'>"+ result[i].uom +"</option><option value = '"+temp+"' selected='selected'>" + result[i].user_def_fld_1.trim() + "</option></select></td>" +
                             "<td><p><input type='text' id='packfield"+i+"' name='packfield"+i+"'style='width:60px;' value='BOX'><input type='text' id='pickfield"+i+"' name='pickfield"+i+"'style='width:60px;' VALUE='A'></p>" +
-                            "<input type='text' id='shipping"+i+"'><input type='number' name='qtypack"+i+"' id='qtypack"+i+"' placeholder='How Many'> <select name='pack" + i + "' onchange='document.getElementById(\"packfield"+i+"\").value = this.value'><option value='BOX'>BOX</option><option value='BUNDLE'>BUNDLE/TUBE</option></select> IN <select name='pack2" + i + "' id='pack2" + i + "'><option value='PALLET'>PALLET</option><option value='NO PALLET'>NO PALLET</option></select>" +
-                            "<select name='pcode" + i + "'  onchange='document.getElementById(\"pickfield"+i+"\").value = (document.getElementById(\"pickfield"+i+"\").value == \"\")?this.value: document.getElementById(\"pickfield"+i+"\").value + \",\"+this.value'><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select><button type='button' onclick='document.getElementById(\"shipping"+i+"\").value = document.getElementById(\"shipping"+i+"\").value+\"|\"+document.getELementById(pickfield"+i+").value+\"=\"+document.getElementById(qtypack"+i+").value + \"|\"'>ADD</button><button type='button' onclick='document.getElementById(\"pickfield"+i+"\").value = \"\"'>CLEAR</button></td></tr>" +
+                            //"<input type='text' id='shipping"+i+"'><input type='number' name='qtypack"+i+"' id='qtypack"+i+"' placeholder='How Many'> <select name='pack" + i + "' onchange='document.getElementById(\"packfield"+i+"\").value = this.value'><option value='BOX'>BOX</option><option value='BUNDLE'>BUNDLE/TUBE</option></select> IN <select name='pack2" + i + "' id='pack2" + i + "'><option value='PALLET'>PALLET</option><option value='NO PALLET'>NO PALLET</option></select>" +
+                            "<select name='pack" + i + "' onchange='document.getElementById(\"packfield"+i+"\").value = this.value'><option value='BOX'>BOX</option><option value='PALLET'>PALLET</option><option value='BUNDLE'>BUNDLE/TUBE</option></select>" +
+                            "<select name='pcode" + i + "'  onchange='document.getElementById(\"pickfield"+i+"\").value = (document.getElementById(\"pickfield"+i+"\").value == \"\")?this.value: document.getElementById(\"pickfield"+i+"\").value + \",\"+this.value'><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select><button type='button' onclick='document.getElementById(\"pickfield"+i+"\").value = \"\"'>CLEAR</button></td></tr>" +
 
                             "<tr id='desc" + i + "' style='display:none;'><td class='infobox' colspan='6'>" + result[i].item_desc_1 + "<b>" + result[i].item_desc_2 + "</b><b>" + weight + "LB</b><input type='hidden'name='weight" + i + "'value='" + weight + "'>" + result[i].picking_seq + "</td></tr>";
 
@@ -223,8 +223,19 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         prerender = prerender + "<tr id='comment" + i + "' style='display:none'><td colspan='6'><input name='comment" + i + "' type='text' style='color:red;width:20em;font-size:18pt;' placeholder='input comment for line" + (i + 1) + "'></td></tr>";
 
                     }
+                    sql.execute({
+                        query: sql.fromFile("./sql/getdeletedlines.sql"),
+                        params: {sonum: sonum}
+                    }).then(function (resultset) {
+                        for (var j = 0; j < resultset.length; j++) {
+                            prerender = prerender + "<tr class='locked'>";
+                            var temp = resultset[j].qty_ordered / parseInt(resultset[j].user_def_fld_2);
+                            prerender = prerender + "<td>" + resultset[j].line_seq_no + "</td>" +
+                                "<td><p>" + resultset[j].qty_ordered + "</p><p><b>" + temp.toFixed(2).replace(/[.,]00$/, "") + "</b></p></td>" +
+                                "<td><p>" + resultset[j].uom + "</p><p><b>" + resultset[j].user_def_fld_1 + "</b></p></td>" +
+                                "<td colspan='4'><p><input class='itemnobox' value='" + resultset[j].item_no.trim() + "' readonly></p></td></tr>";
+                        }
                     prerender = prerender + "</tbody>";
-
                     res.render('PickTicket', {
                         datetime: updatetime,
                         ordnum: sonum,
@@ -247,6 +258,7 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         addcomment: addcomment,
                         layout: 'internal',
                         user: req.user
+                    });
                     });
                 }, function (err) {
                     console.log(err);
@@ -343,7 +355,18 @@ router.get('/usedpickticket',function(req,res){
 
                     prerender = prerender + "<tr id='comment" + i + "' style='display:none'><td colspan='6'><input name='comment" + i + "' type='text' style='color:red;width:20em;font-size:18pt;' placeholder='input comment for line" + (i + 1) + "'><a href='/routes/viewcomments?sonum=" + sonum + "\&lineno=" + (i+1) + "'><input type='button' value='View Comments' /></a></td></tr>";
             }
-
+            sql.execute({
+                query: sql.fromFile("./sql/getdeletedlines.sql"),
+                params: {sonum: sonum}
+            }).then(function (resultset) {
+                for (var j = 0; j < resultset.length; j++) {
+                    prerender = prerender + "<tr class='locked'>";
+                    var temp = resultset[j].qty_ordered / parseInt(resultset[j].user_def_fld_2);
+                    prerender = prerender + "<td>" + resultset[j].line_seq_no + "</td>" +
+                        "<td><p>" + resultset[j].qty_ordered + "</p><p><b>" + temp.toFixed(2).replace(/[.,]00$/, "") + "</b></p></td>" +
+                        "<td><p>" + resultset[j].uom + "</p><p><b>" + resultset[j].user_def_fld_1 + "</b></p></td>" +
+                        "<td colspan='4'><p><input class='itemnobox' value='" + resultset[j].item_no.trim() + "' readonly></p></td></tr>";
+                }
         prerender = prerender + "</tbody>";
 
         var shippingdata = "", totalrows = 0;
@@ -358,7 +381,7 @@ router.get('/usedpickticket',function(req,res){
 
 
 
-        res.render('PickTicket',{
+        res.render('PickTicket', {
             datetime: updatetime,
             ordnum: sonum,
             custname: custname,
@@ -374,13 +397,14 @@ router.get('/usedpickticket',function(req,res){
             shipinstruct2: shipinstruct2,
             freight: freight,
             data: prerender,
-            shippingdata:shippingdata,
+            shippingdata: shippingdata,
             totalweight: totalweight,
-            totallines: (i-hiddenlines),
+            totallines: (i - hiddenlines),
             totalrows: totalrows,
             addcomment: addcomment,
             layout: 'internal',
             user: req.user
+        });
         });
         }, function (err) {
             console.log(err);
