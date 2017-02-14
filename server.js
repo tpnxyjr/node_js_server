@@ -59,6 +59,8 @@ var routes = require('./public/routes');
 app.use('/routes',routes);
 var workers = require('./public/workers');
 app.use('/workers',workers);
+var customers = require('./public/customers');
+app.use('/customers', customers);
 //require('./config').config;
 sql.setDefaultConfig( config );
 

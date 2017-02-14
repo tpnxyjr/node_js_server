@@ -130,8 +130,8 @@ label {
 }
 .locked{
     background-color: red !important;
-    height: 0.5em !important;
-    font-size: 0.4em !important;
+    height: 1em !important;
+    font-size: 1em !important;
     color: white;
 }
 .locked input{

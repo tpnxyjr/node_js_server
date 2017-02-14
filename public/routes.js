@@ -19,9 +19,13 @@ router.get('/reports', function(req,res){
     });
 });
 router.get('/ticketList',function(req,res){
-    var prerender = "", prerender2="", prerender3 = "";
+    var prerender = "", prerender2="", prerender3 = "",status;
+    if(req.query.status == 'check') status = ('6','7','8','9');
+    else if(req.query.status =='history') status = 'P';
+    else status = '4';
     sql.execute({
-        query: sql.fromFile('./sql/gettickets.sql')
+        query: sql.fromFile('./sql/gettickets.sql'),
+        params: {status: status}
     }).then(function (result) {
         for(var count = 0; count < result.length; count++){
             if(result[count].user_def_fld_5 != null && result[count].user_def_fld_5.trim() != ''){
@@ -47,13 +51,13 @@ router.get('/ticketList',function(req,res){
         }
         for(count = 0; count < result.length; count++){
             //16, 24
-            var date = result[count].new_DeliveryDate;
             var color = 't';
-            if(result[count].user_def_fld_4 != null) color = result[count].user_def_fld_4.trim();
-            if(result[count].new_DeliveryDate == null)result[count].new_DeliveryDate= '                           ';
+            if(result[count].user_def_fld_4 != null && status != 'P') color = result[count].user_def_fld_4.trim();
+            if(result[count].new_DeliveryDate == null)result[count].new_DeliveryDate= new Date();
+            var date = result[count].new_DeliveryDate;
 
             if(result[count].modified == null && result[count].sent!= 1) {
-                prerender = prerender + "<tr id='" + result[count].ord_no + "'><td class='index' style='display:none;'>" + (count + 1) + "</td><td class='" + color + "' ondblclick='cSwap(this)'>" + result[count].cus_no + "</td><td><a href='/routes/pickticket?SONUM=" + result[count].ord_no + "'><div style='height:100%;width:100%'>" + result[count].ord_no + "</div></a></td><td style='color:black;font-size:0.5em;'>" +
+                prerender = prerender + "<tr id='" + result[count].ord_no + "'><td class='index' style='display:none;'>" + (count + 1) + "</td><td class='" + color + "' ondblclick='cSwap(this)'>" + result[count].cus_no + "</td><td><a href='/routes/pickticket?SONUM=" + result[count].ord_no + "&status="+status+"'><div style='height:100%;width:100%'>" + result[count].ord_no + "</div></a></td><td style='color:black;font-size:0.5em;'>" +
                     date.toString().substring(0, 4) + (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + "</td>";
                 if (result[count].modified != null) prerender = prerender + "<td style='color:red'>YES</td>";
                 else prerender = prerender + "<td style='color:GREEN'>NO</td>";
@@ -62,7 +66,7 @@ router.get('/ticketList',function(req,res){
                 prerender = prerender + "</tr>";
             }
             else if(result[count].modified != null && result[count].sent!= 1) {
-                prerender2 = prerender2 + "<tr id='" + result[count].ord_no + "'><td class='index' style='display:none;'>" + (count + 1) + "</td><td class='" + color + "' ondblclick='cSwap(this)'>" + result[count].cus_no + "</td><td><a href='/routes/pickticket?SONUM=" + result[count].ord_no + "'><div style='height:100%;width:100%'>" + result[count].ord_no + "</div></a></td><td style='color:black;font-size:0.5em;'>" +
+                prerender2 = prerender2 + "<tr id='" + result[count].ord_no + "'><td class='index' style='display:none;'>" + (count + 1) + "</td><td class='" + color + "' ondblclick='cSwap(this)'>" + result[count].cus_no + "</td><td><a href='/routes/pickticket?SONUM=" + result[count].ord_no + "&status="+status+"'><div style='height:100%;width:100%'>" + result[count].ord_no + "</div></a></td><td style='color:black;font-size:0.5em;'>" +
                     date.toString().substring(0, 4) + (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + "</td>";
                 if (result[count].modified != null) prerender2 = prerender2 + "<td style='color:red'>YES</td>";
                 else prerender2 = prerender2 + "<td style='color:GREEN'>NO</td>";
@@ -71,7 +75,7 @@ router.get('/ticketList',function(req,res){
                 prerender2 = prerender2 + "</tr>";
             }
             else if(result[count].sent == 1) {
-                prerender3 = prerender3 + "<tr id='" + result[count].ord_no + "'><td class='index' style='display:none;'>" + (count + 1) + "</td><td class='" + color + "' ondblclick='cSwap(this)'>" + result[count].cus_no + "</td><td><a href='/routes/pickticket?SONUM=" + result[count].ord_no + "'><div style='height:100%;width:100%'>" + result[count].ord_no + "</div></a></td><td style='color:black;font-size:0.5em;'>" +
+                prerender3 = prerender3 + "<tr id='" + result[count].ord_no + "'><td class='index' style='display:none;'>" + (count + 1) + "</td><td class='" + color + "' ondblclick='cSwap(this)'>" + result[count].cus_no + "</td><td><a href='/routes/pickticket?SONUM=" + result[count].ord_no + "&status="+status+"'><div style='height:100%;width:100%'>" + result[count].ord_no + "</div></a></td><td style='color:black;font-size:0.5em;'>" +
                     date.toString().substring(0, 4) + (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + "</td>";
                 if (result[count].modified != null) prerender3 = prerender3 + "<td style='color:red'>YES</td>";
                 else prerender3 = prerender3 + "<td style='color:GREEN'>NO</td>";
@@ -139,24 +143,27 @@ router.post('/refreshList', function (req,res){
 });
 router.get('/pickticket',function(req,res){//pticketcmt
     var sonum = req.query.SONUM;
+    var status = req.query.status;
     //check unfinished pick tickets checkforticket.sql
     var sqlFile = './sql/getSavedTicket.sql';
     sql.execute({
         query: sql.fromFile(sqlFile),
-        params: {sonum: sonum}
+        params: {sonum: sonum,
+            status: status}
     }).then(function (result) {
         if(result[0] == null){
             req.session.error = "This order no longer exists";
-            res.redirect('/routes/ticketList');
+            res.redirect('/routes/ticketList?status='+status);
         }
-        else if(result[0].modified != null) res.redirect('/routes/usedpickticket?sonum='+sonum);
+        else if(result[0].modified != null) res.redirect('/routes/usedpickticket?sonum='+sonum+'&status='+status);
     else {
-
             sqlFile = './sql/getpickticket.sql';
-            var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2, freight, weight, totalweight, addcomment, updatetime, hiddenlines=0;
+            var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2, freight, weight, totalweight, addcomment, updatetime, hiddenlines= 0,userdef234;
             sql.execute({
                 query: sql.fromFile(sqlFile),
-                params: {sonum: sonum}
+                params: {sonum: sonum,
+                        status: req.query.status
+                }
             }).then(function (result) {
                 if(result[0] == null){
                     req.session.error = "This order no longer exists";
@@ -183,7 +190,7 @@ router.get('/pickticket',function(req,res){//pticketcmt
                 var prerender = "";
                 sql.execute({
                     query: sql.fromFile("./sql/getorderlines.sql"),
-                    params: {sonum: sonum}
+                    params: {sonum: sonum, status:status}
                 }).then(function (result) {
                     totalweight = 0;
                     prerender = prerender + "<tbody>";
@@ -193,6 +200,7 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         if (result[i].picking_seq == null) result[i].picking_seq = " ";
                         if (isNaN(parseInt(result[i].user_def_fld_2))) result[i].user_def_fld_2 = " ";
                         if (result[i].user_def_fld_1 == null) result[i].user_def_fld_1 = " ";
+                        userdef234 = (result[i].user_fld_2 == null ? "" : result[i].user_fld_2)+(result[i].user_def_fld_3 == null ? "" : result[i].user_def_fld_3)+(result[i].user_def_fld_4 == null ? "" : result[i].user_def_fld_4);
                         if(result[i].user_def_fld_2.trim() == "") result[i].user_def_fld_2 = 1;
                         if(result[i].item_no.trim().substr(0,3) == "INV"){
                             prerender = prerender + "<tr style='display:none'>";
@@ -203,7 +211,9 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         prerender = prerender + "<td rowspan='2'><img id='imagea" + i + "' src='../image/CheckMark.jpg' style='display:none;'/><img id='imageb" + i + "' src='../image/o.jpg' style='display:none;'/><img id='imagec" + i + "' src='../image/x.png' style='display:none;'/><p onclick='showComment(" + i + ")'>" + result[i].line_seq_no + "</p><input type='hidden' name='lineno" + i + "' value='" + result[i].line_seq_no + "'></td>" +
                             "<td rowspan='2'><p style='font-size: 0.9em;' onclick='document.getElementById(\"CheckValue"+i+"\").value = this.innerText;compare(" + i + ");'>" + result[i].qty_ordered + "</p><p style='font-size: 1.5em;'onclick='document.getElementById(\"CheckValue"+i+"\").value = this.innerText;compare(" + i + ");'><b>" + temp.toFixed(2).replace(/[.,]00$/, "") + "</b></p></td>" +
                             "<td rowspan='2'><p id='convertedB"+i+"' style='font-size: 0.9em;' onclick='document.getElementById(\"CheckFieldB"+i+"\").value = this.innerText;compare(" + i + ");'>" + result[i].uom + "</p><p id='converted"+i+"' style='font-size: 1.5em;' onclick='document.getElementById(\"CheckFieldB"+i+"\").value = this.innerText;compare(" + i + ");'><b>" + result[i].user_def_fld_1 + "</b></p></td>" +
-                            "<td colspan='4'><p onclick='show(" + i + ")' style='font-size:1.5em;'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no.trim() + "' readonly></p></td></tr>";
+                            "<td colspan='4'><p onclick='show(" + i + ")' style='font-size:1.5em;'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no.trim() + "' ";
+                        if(result[i].picked_dt == null) prerender = prerender + "style='background-color:#76EE00;' ";
+                        prerender = prerender+"readonly></p></td><td>"+userdef234+"</td></tr>";
 
                         if(result[i].item_no.trim().substr(0,3) == "INV") prerender = prerender + "<tr style='display:none'><td>";
                         else if(result[i].aud_action == 'D') prerender = prerender + "<tr style='display:none'><td>";
@@ -236,6 +246,9 @@ router.get('/pickticket',function(req,res){//pticketcmt
                                 "<td colspan='4'><p><input class='itemnobox' value='" + resultset[j].item_no.trim() + "' readonly></p></td></tr>";
                         }
                     prerender = prerender + "</tbody>";
+                        if(status == '9') status = 'check';
+                        else if(status == 'P') status = 'history';
+                        else if(status == '4') status = 'now';
                     res.render('PickTicket', {
                         datetime: updatetime,
                         ordnum: sonum,
@@ -256,6 +269,7 @@ router.get('/pickticket',function(req,res){//pticketcmt
                         totallines: (i-hiddenlines),
                         totalrows: 0,
                         addcomment: addcomment,
+                        status: status,
                         layout: 'internal',
                         user: req.user
                     });
@@ -278,11 +292,12 @@ router.get('/pickticket',function(req,res){//pticketcmt
 
 router.get('/usedpickticket',function(req,res){
     var sonum = req.query.sonum;
+    var status = req.query.status;
     var sqlFile = './sql/getpickticket.sql';
-    var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2,freight, totalweight, commented, addcomment, updatetime, hiddenlines=0;
+    var custname, custid, address, address2, citystatezip, shipvia, ponum, orddate, payment, shipinstruct, shipinstruct2,freight, totalweight, commented, addcomment, updatetime, hiddenlines= 0,userdef234;
     sql.execute({
         query: sql.fromFile(sqlFile),
-        params: {sonum: sonum}
+        params: {sonum: sonum, status: status}
     }).then(function (result) {
         if(result[0] == null){
             req.session.error = "This order no longer exists";
@@ -310,7 +325,8 @@ router.get('/usedpickticket',function(req,res){
 
         sql.execute({
             query: sql.fromFile("./sql/getSavedTicket.sql"),
-            params: {sonum: sonum}
+            params: {sonum: sonum,
+                    status: status}
         }).then(function (result) {
             totalweight = 0;
             prerender = prerender + "<tbody>";
@@ -320,7 +336,8 @@ router.get('/usedpickticket',function(req,res){
                     if (result[i].user_def_fld_1 == null) result[i].user_def_fld_1 = " ";
                     if(result[i].pickeduom == null) result[i].pickeduom = " ";
                     totalweight += result[i].weight;
-                    if (result[i].user_def_fld_2.trim() == "") result[i].user_def_fld_2 = 1;
+                    userdef234 = (result[i].user_fld_2 == null ? "" : result[i].user_fld_2)+(result[i].user_def_fld_3 == null ? "" : result[i].user_def_fld_3)+(result[i].user_def_fld_4 == null ? "" : result[i].user_def_fld_4);
+                    if(result[i].user_def_fld_2.trim() == "") result[i].user_def_fld_2 = 1;
                     if(result[i].item_no.trim().substr(0,3) == "INV"){
                         prerender = prerender + "<tr style='display:none'>";
                         hiddenlines++;
@@ -336,7 +353,10 @@ router.get('/usedpickticket',function(req,res){
                     prerender = prerender + "<input type='hidden' name='lineno" + i + "' value='" + result[i].line_seq_no + "'type='hidden'></td>" +
                         "<td rowspan='2'><p style='font-size: 0.9em;' onclick='document.getElementById(\"CheckValue"+i+"\").value = this.innerText;compare(" + i + ");'>" + result[i].qty_ordered + "</p><p style='font-size: 1.5em;'onclick='document.getElementById(\"CheckValue"+i+"\").value = this.innerText;compare(" + i + ");'><b>" + temp.toFixed(2).replace(/[.,]00$/, "") + "</b></p></td>" +
                         "<td rowspan='2'><p id='convertedB"+i+"' style='font-size: 0.9em;' onclick='document.getElementById(\"CheckFieldB"+i+"\").value = this.innerText;compare(" + i + ");'>" + result[i].uom + "</p><p id='converted"+i+"' style='font-size: 1.5em;'onclick='document.getElementById(\"CheckValue"+i+"\").value = this.innerText;compare(" + i + ");'><b>" + result[i].user_def_fld_1 + "</b></p>" +
-                        "</b></td><td colspan='4'><p onclick='show(" + i + ")' style='width:6em; font-size:1.5em;'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no.trim() + "' readonly></p></td></tr>";
+                        "</b></td><td colspan='3'><p onclick='show(" + i + ")' style='width:6em; font-size:1.5em;'><input name='itemno" + i + "' class='itemnobox' value='" + result[i].item_no.trim() + "' ";
+                if(result[i].picked_dt == null) prerender = prerender + "style='background-color:#76EE00;' ";
+                        prerender = prerender +"readonly></p></td><td>"+userdef234+"</td></tr>";
+
                 if(result[i].item_no.trim().substr(0,3) == "INV") prerender = prerender + "<tr style='display:none'><td>";
                 else prerender = prerender + "<tr><td>";
 
@@ -380,7 +400,9 @@ router.get('/usedpickticket',function(req,res){
             }
 
 
-
+            if(status == '9') status = 'check';
+            else if(status == 'P') status = 'history';
+            else if(status == '4') status = 'now';
         res.render('PickTicket', {
             datetime: updatetime,
             ordnum: sonum,
@@ -402,6 +424,7 @@ router.get('/usedpickticket',function(req,res){
             totallines: (i - hiddenlines),
             totalrows: totalrows,
             addcomment: addcomment,
+            status: status,
             layout: 'internal',
             user: req.user
         });
@@ -420,7 +443,7 @@ router.get('/usedpickticket',function(req,res){
 
 router.post('/pickticket',function(req,res){
     var total = req.body.totallines;
-    var temp, comment, lineno, itemno, picked, pickeduom, pack, weight, pcode, commented, addcomment = req.body.addcomment.toUpperCase(), sent;
+    var temp, comment, lineno, itemno, picked, pickeduom, pack, weight, pcode, commented, addcomment = req.body.addcomment.toUpperCase(), sent,modified=0;
     var type, len, width, height, weight;
     sql.execute({
         query: sql.fromFile('./sql/addcomment.sql'),
@@ -441,6 +464,7 @@ router.post('/pickticket',function(req,res){
             itemno = req.body[temp];
             temp = 'CheckValue' + i;
             picked = req.body[temp];
+            if(picked != 0)modified = 1;
             temp = 'CheckFieldB' + i;
             pickeduom = req.body[temp];
             temp = 'packfield' + i;
@@ -532,7 +556,33 @@ router.post('/pickticket',function(req,res){
         },function (err) {
             console.log(err);
         });
-
+     if(sent == 1){
+         sql.execute({
+             query: sql.fromFile('./sql/updateOrderStatus.sql'),
+             params: {
+                 sonum: req.body.sonum.trim(),
+                 status: '100000009'
+             }
+         });
+     }
+     else if(modified == 1){
+         sql.execute({
+             query: sql.fromFile('./sql/updateOrderStatus.sql'),
+             params: {
+                 sonum: req.body.sonum.trim(),
+                 status: '100000010'
+             }
+         });
+     }
+     else{
+         sql.execute({
+             query: sql.fromFile('./sql/updateOrderStatus.sql'),
+             params: {
+                 sonum: req.body.sonum.trim(),
+                 status: '100000002'
+             }
+         });
+     }
 
     if(req.body.complete == "true"){
         req.session.success = "Successfully sent order to database.";

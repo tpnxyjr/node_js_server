@@ -1,0 +1,24 @@
+button {
+    background: #428BCA;
+    color: #fff;
+    font-family: Sans-serif;
+    font-size: 20px;
+    height: 60px;
+    width: 150px;
+    line-height: 60px;
+    margin: 25px 25px;
+    text-align: center;
+    border: 0;
+    transition: all 0.3s ease 0s;
+}
+
+button:hover {
+    background: #3071A9
+}
+
+
+.jumbotron{
+    background-color: #2a6496;
+    text-align:center;
+    color: white;
+}

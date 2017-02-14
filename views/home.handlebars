@@ -1,7 +1,8 @@
 <!-- views/home.handlebars -->
 {{#if user}}
     <div class="jumbotron">
-        <h1>YOUR PROFILE PAGE</h1>
+        <h1>THANK YOU FOR USING</h1>
+        <h1>CBC CUSTOMER PORTAL</h1>
         <p>Below is your profile information!</p>
     </div>
     <div class="panel panel-default">
@@ -11,8 +12,12 @@
         <div class="panel-body">
             <p>Username: {{user.user_name}}</p>
             <!--<p>Avatar: <img src="{{user.avatar}}"/></p>-->
-            <p><a href="/changePassword">Change Password</a></p>
-            <p><a href="/orderForm">Order Form</a></p>
+            <p><a href="/changePassword"><input type="button" value="Change Password"></a></p>
+            <p><a href="/orderForm"><input type="button" value="NEW ORDER"></a></p>
+            <p>ORDER STATUS</p>
+            <p>ACCOUNTING</p>
+            <p>ACCOUNT SETTINGS</p>
+            <p>OTHER REQUEST</p>
         </div>
 
     </div>

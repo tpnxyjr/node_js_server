@@ -220,6 +220,7 @@ function subtotal(tableID){
             //modulo does not work in extreme cases length%12 == 0
         }
         var ctrlfat = 0;
+        if(document.getElementById("inside"+i+"at12").value == null || document.getElementById("inside"+i+"at12").value == '')document.getElementById("inside"+i+"at12").value = 'C';
         if(document.getElementById("inside"+i+"at1").value.indexOf("VERTICAL") != -1){
             ctrlfat = ctrlhash["V"+document.getElementById("inside"+i+"at12").value];
         }
