@@ -40,11 +40,11 @@
 </table>
 
     <table id="dimension" class="shipping">
-            <tr><td>TYPE</td><td>LENGTH</td><td>WIDTH</td><td>HEIGHT</td><td>WEIGHT</td></tr>
+            <tr><td>TYPE</td><td>LENGTH</td><td>WIDTH</td><td>HEIGHT</td><td>WEIGHT</td><td>DELETE</td></tr>
         {{{shippingdata}}}
     </table>
     <div>TOTAL WEIGHT: <input type="text" id="totalweight"><input type="number" id="totalrows" name="totalrows" value={{totalrows}} hidden></div>
-    <INPUT type="button" value="ADD ROW" style="height:50px; width:80px;" onclick="addRow('dimension')" /><INPUT type="button" value="DELETE" style="height:50px; width:80px;" onclick="deleteRow('dimension')" /><INPUT type="button" value="ADD PACK" style="height:50px; width:80px;" onclick="countItems()" />
+    <INPUT type="button" value="ADD ROW" style="height:50px; width:80px;" onclick="addRow('dimension')" /><INPUT type="button" value="DELETE" style="height:50px; width:80px;" onclick="deleteRow('dimension')" /><!-- <INPUT type="button" value="ADD PACK" style="height:50px; width:80px;" onclick="countItems()" />-->
 <br>
     <!-- <div style="float: right">
          <label><input type="checkbox" id="cbox" onchange="document.getElementById('complete').value = document.getElementById('cbox').checked; "> To Data</label>

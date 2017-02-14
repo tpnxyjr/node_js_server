@@ -20,7 +20,7 @@ router.get('/reports', function(req,res){
 });
 router.get('/ticketList',function(req,res){
     var prerender = "", prerender2="", prerender3 = "",status;
-    if(req.query.status == 'check') status = ('6','7','8','9');
+    if(req.query.status == 'check') status = '6';
     else if(req.query.status =='history') status = 'P';
     else status = '4';
     sql.execute({
@@ -246,7 +246,7 @@ router.get('/pickticket',function(req,res){//pticketcmt
                                 "<td colspan='4'><p><input class='itemnobox' value='" + resultset[j].item_no.trim() + "' readonly></p></td></tr>";
                         }
                     prerender = prerender + "</tbody>";
-                        if(status == '9') status = 'check';
+                        if(status == '6') status = 'check';
                         else if(status == 'P') status = 'history';
                         else if(status == '4') status = 'now';
                     res.render('PickTicket', {
@@ -395,12 +395,12 @@ router.get('/usedpickticket',function(req,res){
             params: {sonum: sonum}
         }).then(function (result) {
             for (var j = 0; j < result.length; j++) {
-                shippingdata = shippingdata + "<tr><td><input type='text' id='inside"+(j+1)+"at0' name='inside"+(j+1)+"at0' size=\"5\" value='"+result[j].type+"'></td><td><input type='text' id='inside"+(j+1)+"at1' name='inside"+(j+1)+"at1' size=\"5\" value='"+result[j].length+"'</td><td><input type='text' id='inside"+(j+1)+"at2' name='inside"+(j+1)+"at2' size=\"5\" value='"+result[j].width+"'</td><td><input type='text' id='inside"+(j+1)+"at3' name='inside"+(j+1)+"at3' size=\"5\" value='"+result[j].height+"'</td><td><input type='text' id='inside"+(j+1)+"at4' name='inside"+(j+1)+"at4' size=\"5\" value='"+result[j].weight+"' onchange='total(\"dimension\")'</td></tr>";
+                shippingdata = shippingdata + "<tr><td><input type='text' id='inside"+(j+1)+"at0' name='inside"+(j+1)+"at0' size=\"5\" value='"+result[j].type+"'></td><td><input type='text' id='inside"+(j+1)+"at1' name='inside"+(j+1)+"at1' size=\"5\" value='"+result[j].length+"'</td><td><input type='text' id='inside"+(j+1)+"at2' name='inside"+(j+1)+"at2' size=\"5\" value='"+result[j].width+"'</td><td><input type='text' id='inside"+(j+1)+"at3' name='inside"+(j+1)+"at3' size=\"5\" value='"+result[j].height+"'</td><td><input type='text' id='inside"+(j+1)+"at4' name='inside"+(j+1)+"at4' size=\"5\" value='"+result[j].weight+"' onchange='total(\"dimension\")'</td><td><input type='checkbox' id = 'shippingrow"+(j+1)+"'></td></tr>";
                 totalrows++;
             }
 
 
-            if(status == '9') status = 'check';
+            if(status == '6') status = 'check';
             else if(status == 'P') status = 'history';
             else if(status == '4') status = 'now';
         res.render('PickTicket', {

@@ -89,6 +89,9 @@ function addRow(tableID){
             if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
             newcell.innerHTML = "<input id=\"" + idstring + "\" name=\"" + idstring + "\" size=\"5\" type=\"text\" value=\"" + escapeHtml(val) + "\" onchange='total(\"" + tableID + "\")'>";
         }
+        else if(i == 5){
+            newcell.innerHTML = "<input type='checkbox' id = 'shippingrow"+rowCount+"'>";
+        }
         else {
             if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
             newcell.innerHTML = "<input id=\"" + idstring + "\" name=\"" + idstring + "\" size=\"5\" type=\"text\" value=\"" + escapeHtml(val) + "\">";
@@ -119,12 +122,16 @@ function addRows(tableID, pack, amount){
             if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
             newcell.innerHTML = "<input id=\"" + idstring + "\" name=\"" + idstring + "\" size=\"5\" type=\"text\" value=\"" + escapeHtml(val) + "\" onchange='total(\"" + tableID + "\")'>";
         }
+        else if(i == 5){
+            var newcell = row.insertCell(i);
+            newcell.innerHTML = "<input type='checkbox' id = 'shippingrow"+rowCount+"'>";
+        }
         else {
             if (rowCount > 1) val = document.getElementById("inside" + (rowCount - 1) + "at" + i).value;
             newcell.innerHTML = "<input id=\"" + idstring + "\" name=\"" + idstring + "\" size=\"5\" type=\"text\" value=\"" + escapeHtml(val) + "\">";
         }
-
     }
+
     document.getElementById("totalrows").value++;
 }
 
@@ -132,12 +139,38 @@ function deleteRow(tableID){
     try {
         var table = document.getElementById(tableID);
         var rowCount = table.rows.length;
-
-        if (rowCount > 1){
-            table.deleteRow(rowCount-1);
-            rowCount--;
-            document.getElementById("totalrows").value--;
+        var i = 1, deleted = 0;
+        while( i < rowCount-1){
+            if(document.getElementById('shippingrow'+i).checked == true) {
+                deleted = 1;
+                table.deleteRow(i);
+                for(var j = i+1; j < rowCount; j++){
+                    document.getElementById('inside'+j+'at'+0).name = 'inside'+(j-1)+'at'+0;
+                    document.getElementById('inside'+j+'at'+0).id = 'inside'+(j-1)+'at'+0;
+                    document.getElementById('inside'+j+'at'+1).name = 'inside'+(j-1)+'at'+1;
+                    document.getElementById('inside'+j+'at'+1).id = 'inside'+(j-1)+'at'+1;
+                    document.getElementById('inside'+j+'at'+2).name = 'inside'+(j-1)+'at'+2;
+                    document.getElementById('inside'+j+'at'+2).id = 'inside'+(j-1)+'at'+2;
+                    document.getElementById('inside'+j+'at'+3).name = 'inside'+(j-1)+'at'+3;
+                    document.getElementById('inside'+j+'at'+3).id = 'inside'+(j-1)+'at'+3;
+                    document.getElementById('inside'+j+'at'+4).name = 'inside'+(j-1)+'at'+4;
+                    document.getElementById('inside'+j+'at'+4).id = 'inside'+(j-1)+'at'+4;
+                    document.getElementById('shippingrow'+j).id = 'shippingrow'+(j-1);
+                }
+                rowCount-=1;
+                document.getElementById("totalrows").value--;
+                i--;
+            }
+            i++;
         }
+        if(deleted == 0){
+            if (rowCount > 1){
+                table.deleteRow(rowCount-1);
+                rowCount--;
+                document.getElementById("totalrows").value--;
+            }
+        }
+
     }catch(e) {
         alert(e);
     }
