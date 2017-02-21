@@ -16,7 +16,7 @@ function addRow(tableID) {
             var script = document.createElement('script');
             script.type = "text/javascript";
 
-            var scriptString = "$('#"+idstring+"').autocomplete({ source: function(req,res) {  $.ajax({   url: 'http://localhost:8080/customers/search?key='+req.term,dataType: 'json',type: 'GET',"+
+            var scriptString = "$('#"+idstring+"').autocomplete({ source: function(req,res) {  $.ajax({   url: '/customers/search?key='+req.term,dataType: 'json',type: 'GET',"+
                     "data: {  term: req.term }, success: function(data) { res($.map(data, function(item) { return { label: item,  value: item };}));},error: function(xhr){alert(xhr.status + ' : ' + xhr.statusText);}"+
                 "}); },  select: function(event, ui) {  } });";
 
