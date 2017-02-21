@@ -65,11 +65,11 @@ exports.localAuth = function (username, password) {
         params: {username: username}
     }).then(function (result) {
         if(result[0]!= null) {
-            console.log("FOUND USER");
-            console.log(result);
+            //console.log("FOUND USER");
+            //console.log(result);
             var hash = result[0].user_password;
-            console.log(hash);
-            console.log(bcrypt.compareSync(password, hash));
+            //console.log(hash);
+            //console.log(bcrypt.compareSync(password, hash));
             if (bcrypt.compareSync(password, hash)) {
                 deferred.resolve(result[0]);
             } else {

@@ -1,0 +1,70 @@
+{{#if user}}
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<head>
+    <title>Home Page</title>
+    <link rel="stylesheet" type="text/css" href="./css/customers.css">
+</head>
+<body>
+<div id="header" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+    <div class="jumbotron">
+        <h1>THANK YOU FOR USING</h1>
+        <h1>CBC CUSTOMER PORTAL</h1>
+    </div>
+    </div>
+</div>
+<div id="wrapper">
+    <div id="sidebar-wrapper" class="col-md-1">
+        <div id="sidebar">
+            <ul class="nav list-group">
+                <li>
+                    <a class="list-group-item list-group-item-info" href="#submenu"  data-toggle="collapse" data-parent="#sidebar" style="margin-bottom:0;">New Order</a>
+                    <div class="collapse" id="submenu">
+                        <a href="/customers/RegularOrder" class="list-group-item">Components & Readymade</a>
+                        <a href="/orderForm" class="list-group-item">Contract Orders</a>
+                    </div>
+                </li>
+                <li>
+                    <a class="list-group-item list-group-item-info" href="#"><i class="icon-home icon-1x"></i>Order Status</a>
+                </li>
+                <li>
+                    <a class="list-group-item list-group-item-info" href="#"><i class="icon-home icon-1x"></i>Accounting</a>
+                </li>
+                <li>
+                    <a class="list-group-item list-group-item-info" href="/changePassword"><i class="icon-home icon-1x"></i>Account Settings</a>
+                </li>
+                <li>
+                    <a class="list-group-item list-group-item-info" href="#"><i class="icon-home icon-1x"></i>Other Request</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="main-wrapper" class="col-md-11 pull-right">
+        <div id="main">
+            <div class="page-header">
+                <h3>OPEN ORDERS</h3>
+                {{data}}
+            </div>
+            <p>.</p>
+        </div>
+
+        <div class="col-md-12 footer">
+
+        </div>
+
+    </div>
+</div>
+</body>
+{{else}}
+    <div class="jumbotron">
+        <h1>You are not logged in</h1>
+        <p>Sign in and view your profile!</p>
+        <p>
+            <a href="/signin" class="btn btn-primary btn-lg" role="button">
+                <span class="glyphicon glyphicon-user"></span>
+                Sign in!
+            </a>
+        </p>
+    </div>
+
+{{/if}}

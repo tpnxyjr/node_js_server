@@ -67,7 +67,7 @@ sql.setDefaultConfig( config );
 //ROUTES
 
 app.get('/', function(req,res){
-    res.redirect('/home');
+    res.redirect('/customers/home');
 });
 app.get('/ticketList', function(req,res){
     res.redirect('/routes/ticketList');
@@ -78,17 +78,18 @@ app.get('displaygiven',function(req,res){
 });
 
 app.get('/orderForm', function(req,res){
-    var custid;
+    var custid = req.user.custid;
+    /*
     var sqlFile = './public/sql/getCust.sql';
     if(!req.user){
         res.redirect('/signin');
     }
     sql.execute({
         query: sql.fromFile(sqlFile),
-        params: {username: req.user.user_name}
+        params: {username: req.user}
     }).then(function(result){
         custid = result[0].custid;
-
+*/
 
 
     var sqlFile = './public/sql/getInfo.sql';
@@ -151,15 +152,16 @@ app.get('/orderForm', function(req,res){
         });
     },function (err) {
         console.log(err);
+        res.redirect('/signin');
     });
 
 
-
+/*
     },function (err) {
         console.log(err);
         res.redirect('/signin');
     });
-
+*/
 });
 
 app.post('/orderForm',function(req,res){
@@ -272,7 +274,8 @@ app.post('/orderForm',function(req,res){
 });
 
 app.get('/home', function(req, res){
-    res.render('home', {user: req.user});
+    //res.render('home', {user: req.user});
+    res.redirect('/customers/home');
 });
 app.get('/signin', function(req, res){
     res.render('signin');
@@ -293,11 +296,11 @@ app.post('/changePassword', function(req,res){
         params: {username: req.body.username}
     }).then(function (result) {
         if(result[0]!= null) {
-            console.log("FOUND USER");
-            console.log(result);
+            //console.log("FOUND USER");
+            //console.log(result);
             var hash = result[0].user_password;
-            console.log(hash);
-            console.log(bcrypt.compareSync(req.body.password, hash));
+            //console.log(hash);
+            //console.log(bcrypt.compareSync(req.body.password, hash));
             if (bcrypt.compareSync(req.body.password, hash)) {
                 var hash = bcrypt.hashSync(req.body.newpassword, 8);
                 var sqlFile = './public/sql/changePassword';
@@ -406,12 +409,12 @@ function ensureAuthenticated(req, res, next) {
 //PASSPORT
 // Passport session setup.
 passport.serializeUser(function(user, done) {
-    console.log("serializing " + user.user_name);
+    //console.log("serializing " + user.user_name);
     done(null, user);
 });
 
 passport.deserializeUser(function(obj, done) {
-    console.log("deserializing " + obj);
+    //console.log("deserializing " + obj);
     done(null, obj);
 });
 // Use the LocalStrategy within Passport to login/”signin” users.

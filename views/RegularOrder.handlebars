@@ -1,0 +1,28 @@
+<link rel="stylesheet" type="text/css" href="./css/form.css">
+<link rel="stylesheet" type="text/css" href="./css/jquery-ui-1.12.0.css">
+<div class="panel panel-default">
+        <div class="panel-heading">
+            <h1>Regular Order</h1>
+        </div>
+<div class="panel-body">
+<form action="/RegularOrder" method="post">
+    <table id="body" width="100%" align="center">
+        <tr><th width="2%"><B>LN</B></th><td>ITEM NO</td><td>QTY</td><td>UOM</td><td>STATUS</td><td>DESCRIPTION</td><td>UNIT PRICE</td><td>TOTAL PRICE</td></tr>
+
+
+    </table>
+    <INPUT type="button" value="Add Row" onclick="addRow('body')" />
+    <INPUT type="button" value="Delete Row" onclick="deleteRow('body')" />
+    <table id="footer" align="right">
+        <tr><td>TOTAL</td><td><input id="total" type="number" readonly></td></tr>
+        <tr><td><INPUT type="button" value="Calculate Total" onclick="subtotal('body');timeEst('body');" /></td><td><input type="submit" value="Submit Order" /></td></tr>
+    </table>
+</form>
+
+</div>
+</div>
+
+<script src="./js/jquery-1.12.4.js"></script>
+<script src="./js/jquery-ui.js"></script>
+<script src="./js/typeahead.min.js"></script>
+<script src="./js/regorder.js"></script>

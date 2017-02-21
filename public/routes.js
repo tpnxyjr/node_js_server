@@ -338,6 +338,8 @@ router.get('/usedpickticket',function(req,res){
                     totalweight += result[i].weight;
                     userdef234 = (result[i].user_fld_2 == null ? "" : result[i].user_fld_2)+(result[i].user_def_fld_3 == null ? "" : result[i].user_def_fld_3)+(result[i].user_def_fld_4 == null ? "" : result[i].user_def_fld_4);
                     if(result[i].user_def_fld_2.trim() == "") result[i].user_def_fld_2 = 1;
+                    if(result[i].weight == null) result[i].weight = 0;
+                    if(result[i].pack == 'null') result[i].pack = 'BOX';
                     if(result[i].item_no.trim().substr(0,3) == "INV"){
                         prerender = prerender + "<tr style='display:none'>";
                         hiddenlines++;
@@ -465,6 +467,7 @@ router.post('/pickticket',function(req,res){
             temp = 'CheckValue' + i;
             picked = req.body[temp];
             if(picked != 0)modified = 1;
+            if(picked == null) picked = 0;
             temp = 'CheckFieldB' + i;
             pickeduom = req.body[temp];
             temp = 'packfield' + i;
@@ -525,7 +528,7 @@ router.post('/pickticket',function(req,res){
                 });
             }
         }
-            for(var j = 0; j < req.body.totalrows; j++ ){
+        for(var j = 0; j < req.body.totalrows; j++ ){
                 //save shipping table
                 temp = "inside"+(j+1)+"at"+0;
                 type = req.body[temp];
@@ -551,7 +554,7 @@ router.post('/pickticket',function(req,res){
                         weight: weight
                     }
                 });
-            }
+        }
 
         },function (err) {
             console.log(err);
