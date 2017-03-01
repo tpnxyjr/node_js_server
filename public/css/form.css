@@ -114,3 +114,6 @@ span>input[type="text"]{
 .tt-suggestion p {
     margin: 0;
 }
+button{
+    border-radius: 12px;
+}

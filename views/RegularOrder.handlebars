@@ -1,3 +1,5 @@
+{{#if user}}
+
 <link rel="stylesheet" type="text/css" href="./css/form.css">
 <link rel="stylesheet" type="text/css" href="./css/jquery-ui-1.12.0.css">
 <div class="panel panel-default">
@@ -12,7 +14,7 @@
 
     </table>
     <INPUT type="button" value="Add Row" onclick="addRow('body')" />
-    <INPUT type="button" value="Delete Row" onclick="deleteRow('body')" />
+    <INPUT type="button" value="Delete Row" onclick="deleteRow('body')" /><div id="loadmsg">Loading...Please Wait</div><noscript>This page requires Javascript to run.</noscript>
     <table id="footer" align="right">
         <tr><td>TOTAL</td><td><input id="total" type="number" readonly></td></tr>
         <tr><td><INPUT type="button" value="Calculate Total" onclick="subtotal('body');timeEst('body');" /></td><td><input type="submit" value="Submit Order" /></td></tr>
@@ -25,3 +27,17 @@
 <script src="./js/jquery-1.12.4.js"></script>
 <script src="./js/jquery-ui.js"></script>
 <script src="./js/regorder.js"></script>
+
+{{else}}
+    <div class="jumbotron">
+        <h1>You are not logged in</h1>
+        <p>Sign in and view your profile!</p>
+        <p>
+            <a href="/signin" class="btn btn-primary btn-lg" role="button">
+                <span class="glyphicon glyphicon-user"></span>
+                Sign in!
+            </a>
+        </p>
+    </div>
+
+{{/if}}

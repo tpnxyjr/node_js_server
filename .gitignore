@@ -1,0 +1,5 @@
+*.sql
+config.js
+/.idea*
+/node_modules/*
+/bower_components

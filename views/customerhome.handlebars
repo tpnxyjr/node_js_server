@@ -41,9 +41,13 @@
     </div>
     <div id="main-wrapper" class="col-md-11 pull-right">
         <div id="main">
-            <div class="page-header">
+            <div class="container" style="align-content: center">
                 <h3>OPEN ORDERS</h3>
-                {{data}}
+                <div class="container" id="table-scroll">
+                <table class = "main">
+                    {{{data}}}
+                </table>
+                </div>
             </div>
             <p>.</p>
         </div>
