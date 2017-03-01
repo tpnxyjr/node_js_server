@@ -122,7 +122,7 @@ function subtotal(tableID){
     var rowCount = table.rows.length;
     var total = 0;
     for(var i = 1; i < rowCount; i++){
-        total+= parseInt(document.getElementById("inside"+i+"at"+7).value);
+        total+= parseFloat(document.getElementById("inside"+i+"at"+7).value);
     }
     document.getElementById("total").value = total;
 }

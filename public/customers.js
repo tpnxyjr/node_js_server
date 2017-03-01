@@ -30,7 +30,7 @@ customers.get('/RegularOrder',function(req,res){
    res.render('RegularOrder',{user: req.user})
 });
 customers.post('/RegularOrder',function(req,res){
-
+    //submitOrder
 });
 customers.get('/getItem',function(req,res){
     var itemno = req.query.itemno;
@@ -60,6 +60,7 @@ customers.get('/getItem',function(req,res){
     });
 });
 customers.get('/getPrice',function(req,res){
+    var data = [];
     sql.execute({
         query: sql.fromFile("./sql/getItemPrice.sql"),
         params:{ itemno : req.query.itemno}
@@ -73,30 +74,30 @@ customers.get('/getPrice',function(req,res){
         }
         else{
             var baseprice = result[0].price;
+            var prodcat = result[0].prod_cat;
 
             sql.execute({
                 query: sql.fromFile("./sql/Code68.sql"),
-                params:{ itemno : req.query.itemno, code : '6', cat : ''}
+                params:{ itemno : req.query.itemno, code : '6', cat : prodcat}
             }).then(function(result){
-               if(result == null){
+               if(result[0] == null){
                    sql.execute({
                        query: sql.fromFile("./sql/Code68.sql"),
-                       params:{ itemno : req.query.itemno, code: '8', cat : ''}
+                       params:{ itemno : req.query.itemno, code: '8', cat : prodcat}
                    }).then(function(result) {
-                        if(result == null){
+                        if(result[0] == null){
+                            sql.execute({
+                                query: sql.fromFile("./sql/getCustomerCode.sql"),
+                                params:{ name : req.user.custid}
+                            }).then(function(result) {
+
+                            var custcode = result[0].AccountTypeCode;
                             sql.execute({
                                 query: sql.fromFile("./sql/getDiscount.sql"),
-                                params:{ itemno : req.query.itemno}
+                                params:{ itemno : req.query.itemno, custid: req.user.custid, custcode: custcode}
                             }).then(function(result) {
-                                // code 1,2,3,4,5,6,7
-                                if(result == null){
-                                    sql.execute({
-                                        query: sql.fromFile("./sql/getCustomerCode.sql"),
-                                        params:{ itemno : req.query.itemno}
-                                    }).then(function(result) {
+                                // code 1,2,3,4,5,7
 
-                                    });
-                                }
                                 var discount = 0;
                                 if(result[0].minimum_qty_5 != 0 && req.query.qty > result[0].minimum_qty_5) discount = result[0].prc_or_disc_5;
                                 else if(result[0].minimum_qty_4 != 0 && req.query.qty > result[0].minimum_qty_4) discount = result[0].prc_or_disc_4;
@@ -108,6 +109,8 @@ customers.get('/getPrice',function(req,res){
                                     "totalprice" : baseprice*discount*0.01*req.query.qty
                                 });
                                 res.end(JSON.stringify(data));
+                            });
+
                             });
                         }
                        else{
