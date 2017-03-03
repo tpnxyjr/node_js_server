@@ -24,7 +24,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(methodOverride('X-HTTP-Method-Override'));
-app.use(session({secret: 'CBCINC', saveUninitialized: false, resave: false}));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -55,13 +54,13 @@ var funct = require('./public/js/functions.js'); //funct file contains our helpe
 var numbers = require('./public/js/numbers.js');
 var myConfig = require('./config.js');
 var config = myConfig.config;
+app.use(session({secret: myConfig.secret, saveUninitialized: false, resave: false}));
 var routes = require('./public/routes');
 app.use('/routes',routes);
 var workers = require('./public/workers');
 app.use('/workers',workers);
 var customers = require('./public/customers');
 app.use('/customers', customers);
-//require('./config').config;
 sql.setDefaultConfig( config );
 
 //ROUTES

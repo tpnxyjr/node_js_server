@@ -169,7 +169,7 @@ customers.get('/iteminfo',function(req,res){
 //custom orders
 customers.get('/orderForm', function(req,res){
     if(req.user == null) res.redirect('/signin');
-    var custid = req.user.custid;
+    var custid = (req.user != null)? req.user.custid : 0;
     /*
      var sqlFile = './public/sql/getCust.sql';
      if(!req.user){
