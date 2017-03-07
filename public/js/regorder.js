@@ -125,6 +125,7 @@ function subtotal(tableID){
         total+= parseFloat(document.getElementById("inside"+i+"at"+7).value);
     }
     document.getElementById("total").value = total;
+    document.getElementById('rowlength').value = rowCount;
 }
 $(document).ready(function() {
     $('#loadmsg').hide();

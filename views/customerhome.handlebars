@@ -3,6 +3,10 @@
 <head>
     <title>Home Page</title>
     <link rel="stylesheet" type="text/css" href="./css/customers.css">
+    <link rel="stylesheet" type="text/css" href="../css/jquery-ui-1.12.0.css">
+    <script src="../js/jquery-1.12.4.js"></script>
+    <script src="../js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.tablesorter.min.js"></script>
 </head>
 <body>
 <div id="header" class="navbar navbar-default navbar-fixed-top">
@@ -22,6 +26,7 @@
                     <div class="collapse" id="submenu">
                         <a href="/customers/RegularOrder" class="list-group-item">Components & Readymade</a>
                         <a href="/customers/orderForm" class="list-group-item">Contract Orders</a>
+                        <a href="/customers/shoppingCart" class="list-group-item">View Shopping Cart</a>
                     </div>
                 </li>
                 <li>
@@ -41,15 +46,18 @@
     </div>
     <div id="main-wrapper" class="col-md-11 pull-right">
         <div id="main">
-            <div class="container" style="align-content: center">
+            <div class="container" style="align-content: center;">
                 <h3>OPEN ORDERS</h3>
-                <div class="container" id="table-scroll">
-                <table class = "main">
+                <div class="left" id="table-scroll">
+                <table class = "main" id="sort">
                     {{{data}}}
                 </table>
                 </div>
             </div>
-            <p>.</p>
+            <div class="right" >
+                <h3>KEY</h3>
+                <table class="main"><thead><th>Status</th><th>Definition</th></thead><tr><td>1</td><td></td></tr></table>
+            </div>
         </div>
 
         <div class="col-md-12 footer">

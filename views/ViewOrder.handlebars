@@ -1,0 +1,22 @@
+{{#if user}}
+    <body>
+        <table border="1">
+            <tr class='gray'><th>LN</th><th width='7%'>ORDERED</th><th>UOM</th><th width='35%' colspan="2">ITEM NO</th></tr>
+            {{{data}}}
+        </table>
+
+    </body>
+    <footer><a href="/customers/cancel"><input type="button" value="Cancel Order"></a></footer>
+{{else}}
+    <div class="jumbotron">
+        <h1>You are not logged in</h1>
+        <p>Sign in and view your profile!</p>
+        <p>
+            <a href="/signin" class="btn btn-primary btn-lg" role="button">
+                <span class="glyphicon glyphicon-user"></span>
+                Sign in!
+            </a>
+        </p>
+    </div>
+
+{{/if}}

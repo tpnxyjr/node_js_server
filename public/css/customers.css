@@ -11,6 +11,20 @@ body {
     padding:1px;
     height:190px;
 }
+.left{
+    display:inline-block;
+    position: absolute;
+    left:0;
+    margin:5px 20px;
+    width:65%;
+}
+.right{
+    display:inline-block;
+    position: absolute;
+    right:0;
+    align-content: center;
+    margin: 5px 100px;
+}
 h3{
     text-align: center;
 }
@@ -27,8 +41,11 @@ h3{
     padding: 3px;
     text-align: center;
 }
+.main>tbody>tr:nth-child(even) {
+    background-color: cadetblue;
+}
 #table-scroll {
-    height:400px;
+    height:60%;
     overflow:auto;
     margin-top:20px;
 }

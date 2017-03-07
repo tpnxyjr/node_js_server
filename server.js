@@ -26,7 +26,9 @@ app.use(cookieParser());
 app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(passport.initialize());
 app.use(passport.session());
-
+var myConfig = require('./config.js');
+var config = myConfig.config;
+app.use(session({secret: myConfig.secret, saveUninitialized: false, resave: false}));
 // Session-persisted message middleware
 app.use(function(req, res, next){
     var err = req.session.error,
@@ -52,9 +54,6 @@ app.set('view engine', 'handlebars');
 
 var funct = require('./public/js/functions.js'); //funct file contains our helper functions for our Passport and database work
 var numbers = require('./public/js/numbers.js');
-var myConfig = require('./config.js');
-var config = myConfig.config;
-app.use(session({secret: myConfig.secret, saveUninitialized: false, resave: false}));
 var routes = require('./public/routes');
 app.use('/routes',routes);
 var workers = require('./public/workers');

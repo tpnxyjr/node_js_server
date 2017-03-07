@@ -18,7 +18,7 @@ customers.get('/home',function(req,res){
             params: {cusno: req.user.custid}
         }).then(function(result){
             for(var i = 0; i < result.length; i++){
-                data = data + "<tr><td>"+result[i].ord_no+"</td><td>"+result[i].ord_dt.toString().substring(0,16)+"</td><td>"+result[i].ord_type+"</td><td>"+result[i].oe_po_no+"</td><td>"+result[i].status+"</td></tr>"
+                data = data + "<tr><td>"+result[i].ord_no+"</td><td>"+result[i].ord_dt.toString().substring(0,16)+"</td><td>"+result[i].ord_type+"</td><td>"+result[i].oe_po_no+"</td><td>"+result[i].status+"</td><td><a href='/customers/ViewOrder?sonum='+result[i].ord_no><input type='button' value='View'></a></td></tr>"
             }
             data = data + "</tbody>"
             res.render('customerhome',{user: req.user, data: data});
@@ -31,6 +31,26 @@ customers.get('/RegularOrder',function(req,res){
 });
 customers.post('/RegularOrder',function(req,res){
     //submitOrder
+    for(var i = 1; i < req.body['rowlength'];i++) {
+        var itemno = "inside"+i+"at1";
+        var qty = "inside"+i+"at2";
+
+        sql.execute({
+            query: sql.fromFile("./sql/saveRegularOrder.sql"),
+            params:{itemno: itemno,
+                    qty: qty,
+                    custid: req.user.custid
+            }
+        }).then(function(){
+            req.session.success = "Order was placed";
+            res.redirect('/customers/shoppingCart');
+        },function(error){
+            console.log(error);
+            req.session.error = "Order failed";
+            res.redirect('/customers/shoppingCart');
+        });
+    }
+
 });
 customers.get('/getItem',function(req,res){
     var itemno = req.query.itemno;
@@ -105,8 +125,8 @@ customers.get('/getPrice',function(req,res){
                                 else if(result[0].minimum_qty_2 != 0 && req.query.qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
                                 else if(req.query.qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
                                 data.push({
-                                    "baseprice" : baseprice*discount*0.01,
-                                    "totalprice" : baseprice*discount*0.01*req.query.qty
+                                    "baseprice" : baseprice*(100-discount)*0.01,
+                                    "totalprice" : baseprice*(100-discount)*0.01*req.query.qty
                                 });
                                 res.end(JSON.stringify(data));
                             });
@@ -122,8 +142,8 @@ customers.get('/getPrice',function(req,res){
                             else if(result[0].minimum_qty_2 != 0 && req.query.qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
                             else if(req.query.qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
                             data.push({
-                                "baseprice" : baseprice*discount*0.01,
-                                "totalprice" : baseprice*discount*0.01*req.query.qty
+                                "baseprice" : baseprice*(100-discount)*0.01,
+                                "totalprice" : baseprice*(100-discount)*0.01*req.query.qty
                             });
                             res.end(JSON.stringify(data));
                         }
@@ -215,7 +235,7 @@ customers.get('/orderForm', function(req,res){
             contfaux=result[0].numberfield1,
             twovnvvald=result[0].textfield4;
 
-        res.render('OrderForm', {
+        res.render('CustomOrder', {
             custid: customerid,
             custname: customername,
             ordnum: ordernumber,
@@ -356,7 +376,7 @@ customers.post('/orderForm',function(req,res){
                 console.log("Error");
                 console.log(err);
                 req.session.error = 'Something went wrong';
-                res.redirect('/orderForm');
+                res.redirect('/CustomOrder');
             });
         console.log(sm+custid+custname+sonum+ponum+numbers.convert(product)+numbers.convert(profile)+numbers.convert(color)+qty+width+height
             +mt+val+valadd+valrt+ct+itemnum+(product + ' ' + profile + ' ' + color)+color+serial+i+(new Date()).toLocaleDateString());
@@ -365,5 +385,20 @@ customers.post('/orderForm',function(req,res){
     res.redirect('/home');
 });
 
+customers.get('/ViewOrder', function(req,res){
+    var sonum = req.query.sonum;
+
+});
+
+customers.get('/shoppingCart',function(req,res){
+    var custid = (req.user != null)? req.user.custid : 0;
+    sql.execute({
+        query: sql.fromFile("./sql/getShoppingCart"),
+        params: {custid: custid}
+    }).then(function(result){
+        var data = ''
+        res.render('PrintableOrder',{user:req.user, data:data});
+    });
+});
 exports.customers = customers;
 module.exports= customers;
