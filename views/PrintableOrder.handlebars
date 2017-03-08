@@ -1,13 +1,18 @@
 {{#if user}}
 <head>
     <title>Shopping Cart</title>
+    <link rel="stylesheet" type="text/css" href="./css/basic.css">
 </head>
 <body>
 
-    <table>
-        {{{data}}}
+    <table id="body">
+        <thead><tr><th width="4%"><B>LN</B></th><th>Item</th><th>Quantity</th><th>Action</th></tr></thead>
+        <tbody>
+            {{{data}}}
+        </tbody>
     </table>
-
+    <script src="./js/jquery-1.12.4.js"></script>
+    <script src="./js/shopcart.js"></script>
 </body>
 
 

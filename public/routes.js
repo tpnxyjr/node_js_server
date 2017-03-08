@@ -12,6 +12,26 @@ router.use(passport.session());
 router.use(express.static(path.join(__dirname, 'public')));
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
+router.use(function(req, res, next){
+    var err = req.session.error,
+        msg = req.session.notice,
+        success = req.session.success;
+
+    delete req.session.error;
+    delete req.session.success;
+    delete req.session.notice;
+
+    if (err) res.locals.error = err;
+    if (msg) res.locals.notice = msg;
+    if (success) res.locals.success = success;
+
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+
+    next();
+});
 
 router.get('/reports', function(req,res){
     res.render('DetailedReport',{SONUM: null,

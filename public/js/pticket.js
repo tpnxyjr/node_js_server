@@ -1,6 +1,6 @@
 window.addEventListener("beforeunload", leavealert);
 function leavealert(e) {
-    var confirmationMessage = "\o/";
+    var confirmationMessage = "Leaving Page Will Not Save Picks";
 
     e.returnValue = confirmationMessage;     // Gecko, Trident, Chrome 34+
     return confirmationMessage;              // Gecko, WebKit, Chrome <34

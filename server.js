@@ -43,6 +43,11 @@ app.use(function(req, res, next){
     if (msg) res.locals.notice = msg;
     if (success) res.locals.success = success;
 
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+
     next();
 });
 
@@ -87,7 +92,7 @@ app.get('/signin', function(req, res){
     res.render('signin');
 });
 app.get('/changePassword', function(req, res){
-    res.render('changepw', {user: req.user});
+    res.redirect('/customers/changePassword');
 });
 app.get('/forgot',function(req,res){
     res.render('/forgot', {user: req.user});
@@ -96,9 +101,8 @@ app.post('/forgot', function(req,res){
     res.render('signin');
 });
 app.post('/changePassword', function(req,res){
-    sqlFile = './public/sql/login.sql';
     sql.execute({
-        query: sql.fromFile(sqlFile),
+        query: sql.fromFile('./public/sql/login.sql'),
         params: {username: req.body.username}
     }).then(function (result) {
         if(result[0]!= null) {
@@ -128,6 +132,7 @@ app.post('/changePassword', function(req,res){
         }
     },function (err) {
     });
+
     res.render('changepw', {user: req.user});
 });
 

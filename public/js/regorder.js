@@ -21,11 +21,11 @@ function addRow(tableID) {
                 "}); },  select: function(event, ui) {  } });";
 
             script[(script.innerText===undefined?"textContent":"innerText")] = scriptString;
-            newcell.innerHTML = "<input type='text' name='typeahead' id='"+idstring+"' class='typeahead tt-query' autocomplete='off' spellcheck='false' placeholder='Item Number' onchange='autofill("+rowCount+","+colCount+")'>";
+            newcell.innerHTML = "<input type='text' name='"+idstring+"' id='"+idstring+"' class='typeahead tt-query' autocomplete='off' spellcheck='false' placeholder='Item Number' onchange='autofill("+rowCount+","+colCount+")'>";
             newcell.appendChild(script);
         }
         else if(i==2){
-            newcell.innerHTML = "<input type = 'text' id='"+idstring+"' placeholder='Qty' onchange='autofill("+rowCount+","+colCount+")'>";
+            newcell.innerHTML = "<input type = 'text' name='"+idstring+"' id='"+idstring+"' placeholder='Qty' onchange='autofill("+rowCount+","+colCount+")'>";
         }
         else{
             newcell.innerHTML = "<input type = 'text' id='"+idstring+"' readonly>";
@@ -61,7 +61,7 @@ function addDuplicate(tableID) {
             newcell.appendChild(script);
         }
         else if(i==2){
-            newcell.innerHTML = "<input type = 'text' id='"+idstring+"' placeholder='Qty' onchange='autofill("+rowCount+","+colCount+")'>";
+            newcell.innerHTML = "<input type = 'number' id='"+idstring+"' placeholder='Qty' onchange='autofill("+rowCount+","+colCount+")'>";
         }
         else{
             newcell.innerHTML = "<input type = 'text' id='"+idstring+"' readonly>";
@@ -100,6 +100,7 @@ function autofill(rowCount,colCount){
                      }
             });
         });
+    if(document.getElementById(idstring+2).value < 0) document.getElementById(idstring+2).value = 0;
         if(document.getElementById(idstring+2).value!='' && !isNaN(document.getElementById(idstring+2).value)){
             $.ajax({
                 data: { itemno: item, qty: document.getElementById(idstring+2).value },

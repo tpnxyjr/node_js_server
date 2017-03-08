@@ -1,14 +1,36 @@
 var express = require('express'),
     sql  = require("seriate"),
     path = require('path'),
-    passport = require('passport');
+    passport = require('passport'),
+    bodyParser = require("body-parser");
 var customers = express.Router();
 var myConfig = require('../config.js');
 var config = myConfig.config;
 sql.setDefaultConfig( config );
 customers.use(passport.initialize());
-customers.use(passport.session());
+customers.use(passport.session({secret: myConfig.secret, saveUninitialized: false, resave: false}));
 customers.use(express.static( 'public'));
+customers.use(function(req, res, next){
+    var err = req.session.error,
+        msg = req.session.notice,
+        success = req.session.success;
+
+    delete req.session.error;
+    delete req.session.success;
+    delete req.session.notice;
+
+    if (err) res.locals.error = err;
+    if (msg) res.locals.notice = msg;
+    if (success) res.locals.success = success;
+
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+
+    next();
+});
+customers.use(bodyParser.json());
 
 customers.get('/home',function(req,res){
     var data="<thead><tr><th>Order Number</th><th>Order Date</th><th>Order Type</th><th>PO Number</th><th>Order Status</th></tr></thead></tbody>";
@@ -18,13 +40,16 @@ customers.get('/home',function(req,res){
             params: {cusno: req.user.custid}
         }).then(function(result){
             for(var i = 0; i < result.length; i++){
-                data = data + "<tr><td>"+result[i].ord_no+"</td><td>"+result[i].ord_dt.toString().substring(0,16)+"</td><td>"+result[i].ord_type+"</td><td>"+result[i].oe_po_no+"</td><td>"+result[i].status+"</td><td><a href='/customers/ViewOrder?sonum='+result[i].ord_no><input type='button' value='View'></a></td></tr>"
+                data = data + "<tr><td>"+result[i].ord_no+"</td><td>"+result[i].ord_dt.toString().substring(0,16)+"</td><td>"+result[i].ord_type+"</td><td>"+result[i].oe_po_no+"</td><td>"+result[i].status+"</td><td><a href='/customers/ViewOrder?sonum="+result[i].ord_no+"'><input type='button' value='View'></a></td></tr>"
             }
             data = data + "</tbody>"
             res.render('customerhome',{user: req.user, data: data});
         });
     }
     else res.render('customerhome',{user: req.user, data: "You have no open orders"});
+});
+customers.get('/changePassword', function(req, res){
+    res.render('changepw', {user: req.user});
 });
 customers.get('/RegularOrder',function(req,res){
    res.render('RegularOrder',{user: req.user})
@@ -34,11 +59,10 @@ customers.post('/RegularOrder',function(req,res){
     for(var i = 1; i < req.body['rowlength'];i++) {
         var itemno = "inside"+i+"at1";
         var qty = "inside"+i+"at2";
-
         sql.execute({
             query: sql.fromFile("./sql/saveRegularOrder.sql"),
-            params:{itemno: itemno,
-                    qty: qty,
+            params:{itemno: req.body[itemno],
+                    qty: req.body[qty],
                     custid: req.user.custid
             }
         }).then(function(){
@@ -95,7 +119,7 @@ customers.get('/getPrice',function(req,res){
         else{
             var baseprice = result[0].price;
             var prodcat = result[0].prod_cat;
-
+            if(req.query.qty < 0 || isNaN(req.query.qty)) req.query.qty = 0;
             sql.execute({
                 query: sql.fromFile("./sql/Code68.sql"),
                 params:{ itemno : req.query.itemno, code : '6', cat : prodcat}
@@ -387,18 +411,41 @@ customers.post('/orderForm',function(req,res){
 
 customers.get('/ViewOrder', function(req,res){
     var sonum = req.query.sonum;
+    var data = '';
+    sql.execute({
+        query: sql.fromFile("./sql/getOrder.sql"),
+        params: { sonum: sonum, custid: req.user.custid }
+    }).then(function(result){
+        if(result[0] == null) data = "An error occured when pulling up this order";
+        else {
+
+
+        }
+        res.render('ViewOrder',{data: data});
+    });
 
 });
 
 customers.get('/shoppingCart',function(req,res){
-    var custid = (req.user != null)? req.user.custid : 0;
+    var custid = (req.user != null)? req.user.custid : 'A';
     sql.execute({
-        query: sql.fromFile("./sql/getShoppingCart"),
+        query: sql.fromFile("./sql/getShoppingCart.sql"),
         params: {custid: custid}
     }).then(function(result){
-        var data = ''
+        var data = '';
+        for(var i = 1; i < result.length+1; i++){
+            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' value='"+result[i-1].itemno+"' style='border:none' readonly></td><td>"+result[i-1].qty+"</td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
+        }
         res.render('PrintableOrder',{user:req.user, data:data});
     });
+});
+customers.post('/removeFromCart',function(req,res){
+    var itemno = req.body.itemno;
+    sql.execute({
+        query: sql.fromFile('./sql/removeOrder.sql'),
+        params: {custid: req.user.custid, itemno: itemno}
+    });
+    res.json({success : "Updated Successfully", status : 200});
 });
 exports.customers = customers;
 module.exports= customers;
