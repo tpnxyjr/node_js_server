@@ -8,9 +8,11 @@
         </div>
 <div class="panel-body">
 <form action="/customers/RegularOrder" method="post">
-    <input type="text" id="rowlength" name="rowlength" readonly hidden>
+    <div style="display: inline;vertical-align: top;float:left;width:50%;">PO Number:<input type="text" name="PONUM" style='vertical-align: top;width:40%' placeholder="Purchase Order Number"><br>SM Number:<input type="text" name="SMNUM" style='width:40%;' placeholder="Side Mark Number"><br>Delivery Method:<input type="text" name="delivery" style='width:40%;' placeholder="Delivery Method"></div><div style="display: inline;vertical-align: top;">Special Instructions:<textarea name="instructions" cols="60" rows="2" placeholder="Special Instructions"></textarea></div>
+
+    <input type="number" id="rowlength" name="rowlength" readonly hidden>
     <table id="body" width="100%" align="center">
-        <tr><th width="2%"><B>LN</B></th><td>ITEM NO</td><td>QTY</td><td>UOM</td><td>INVENTORY STATUS</td><td>DESCRIPTION</td><td>UNIT PRICE</td><td>TOTAL PRICE</td></tr>
+        <tr><th width="2%"><B>LN</B></th><td>ITEM NO</td><td width="5%">QTY</td><td width="5%">UOM</td><td>INVENTORY STATUS</td><td>DESCRIPTION</td><td>DESCRIPTION 2</td><td>UNIT PRICE</td><td>TOTAL PRICE</td></tr>
 
 
     </table>
@@ -18,7 +20,7 @@
     <INPUT type="button" value="Delete Row" onclick="deleteRow('body')" /><div id="loadmsg">Loading...Please Wait</div><noscript>This page requires Javascript to run.</noscript>
     <table id="footer" align="right">
         <tr><td>TOTAL</td><td><input id="total" type="number" readonly></td></tr>
-        <tr><td><INPUT type="button" value="Calculate Total" onclick="subtotal('body');timeEst('body');" /></td><td><input type="submit" value="Submit Order" /></td></tr>
+        <tr><td><INPUT type="button" value="Calculate Total" onclick="subtotal('body');timeEst('body');" /></td><td><input type="submit" value="Submit Order" onclick="document.getElementById('rowlength').value = document.getElementById('body').rows.length;"/></td></tr>
     </table>
 </form>
 

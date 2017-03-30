@@ -12,6 +12,7 @@ function remove(i){
                     url: '/customers/removeFromCart',
                     success: function() {
                         alert("Item was removed");
+                        location.reload();
                     }
                     ,error: function(xhr){alert(xhr.status + ' : ' + xhr.statusText);
                     }

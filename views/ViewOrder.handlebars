@@ -1,8 +1,16 @@
 {{#if user}}
+    <head>
+        <title>View Order</title>
+        <link rel="stylesheet" type="text/css" href="./css/basic.css">
+    </head>
     <body>
         <table border="1">
-            <tr class='gray'><th>LN</th><th width='7%'>ORDERED</th><th>UOM</th><th width='35%' colspan="2">ITEM NO</th></tr>
+            <thead>
+            <tr class='gray'><th width='10%'>LN</th><th width='10%'>ORDERED</th><th>UOM</th><th colspan="2">ITEM NO</th></tr>
+            </thead>
+            <tbody>
             {{{data}}}
+            </tbody>
         </table>
 
     </body>

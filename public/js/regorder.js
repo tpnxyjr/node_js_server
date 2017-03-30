@@ -75,7 +75,6 @@ function deleteRow(tableID) {
 
         if (rowCount > 1){
             table.deleteRow(rowCount-1);
-            rowCount--;
         }
     }catch(e) {
         alert(e);
@@ -94,6 +93,7 @@ function autofill(rowCount,colCount){
                     $.each(data, function(index, element) {
                         document.getElementById(idstring+3).value = element.uom;
                         document.getElementById(idstring+5).value = element.item_desc;
+                        document.getElementById(idstring+6).value = element.item_desc_2;
                     });
                 }
                 ,error: function(xhr){alert(xhr.status + ' : ' + xhr.statusText);
@@ -109,8 +109,8 @@ function autofill(rowCount,colCount){
                 url: '/customers/getPrice',
                 success: function(data) {
                     $.each(data, function(index, element) {
-                        document.getElementById(idstring+6).value = element.baseprice;
-                        document.getElementById(idstring+7).value = element.totalprice;
+                        document.getElementById(idstring+7).value = element.baseprice;
+                        document.getElementById(idstring+8).value = element.totalprice;
                     });
                 }
                 ,error: function(xhr){alert(xhr.status + ' : ' + xhr.statusText);
@@ -123,7 +123,7 @@ function subtotal(tableID){
     var rowCount = table.rows.length;
     var total = 0;
     for(var i = 1; i < rowCount; i++){
-        total+= parseFloat(document.getElementById("inside"+i+"at"+7).value);
+        total+= parseFloat(document.getElementById("inside"+i+"at"+8).value);
     }
     document.getElementById("total").value = total;
     document.getElementById('rowlength').value = rowCount;

@@ -2,7 +2,9 @@ var express = require('express'),
     sql  = require("seriate"),
     path = require('path'),
     passport = require('passport'),
-    bodyParser = require("body-parser");
+    bodyParser = require("body-parser"),
+    mailer = require('./mailer'),
+    pdfmaker = require('./pdfmaker');
 var customers = express.Router();
 var myConfig = require('../config.js');
 var config = myConfig.config;
@@ -23,24 +25,32 @@ customers.use(function(req, res, next){
     if (msg) res.locals.notice = msg;
     if (success) res.locals.success = success;
 
-    res.header('Access-Control-Allow-Credentials', true);
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
-
     next();
 });
 customers.use(bodyParser.json());
+customers.get('/logout', function(req, res){
+    if(req.user) {
+        var name = req.user.user_name;
+        console.log("LOGGING OUT " + req.user.user_name);
+    }
+    req.logout();
+    res.redirect('/signin');
+    req.session.notice = "You have successfully been logged out " + name + "!";
+});
 
 customers.get('/home',function(req,res){
-    var data="<thead><tr><th>Order Number</th><th>Order Date</th><th>Order Type</th><th>PO Number</th><th>Order Status</th></tr></thead></tbody>";
+    var data="";
     if(req.user){
         sql.execute({
             query: sql.fromFile("./sql/getCustomerOrders.sql"),
             params: {cusno: req.user.custid}
         }).then(function(result){
             for(var i = 0; i < result.length; i++){
-                data = data + "<tr><td>"+result[i].ord_no+"</td><td>"+result[i].ord_dt.toString().substring(0,16)+"</td><td>"+result[i].ord_type+"</td><td>"+result[i].oe_po_no+"</td><td>"+result[i].status+"</td><td><a href='/customers/ViewOrder?sonum="+result[i].ord_no+"'><input type='button' value='View'></a></td></tr>"
+                if(result[i].status == '6')result[i].status = '7';
+                if(result[i].web_status == null) result[i].web_status = '000000';
+                data = data + "<tr";
+                if(result[i].older == 1) data = data + " class='older' style='display:none;'";
+                data = data + "><td>"+result[i].web_status+"</td><td>"+result[i].ord_no+"</td><td>"+result[i].ord_dt.toString().substring(0,16)+"</td><td>"+result[i].ord_type+"</td><td>"+result[i].oe_po_no+"</td><td>"+result[i].status+"</td><td><a href='/customers/ViewOrder?sonum="+result[i].ord_no+"'><input type='button' value='View'></a></td></tr>"
             }
             data = data + "</tbody>"
             res.render('customerhome',{user: req.user, data: data});
@@ -55,26 +65,51 @@ customers.get('/RegularOrder',function(req,res){
    res.render('RegularOrder',{user: req.user})
 });
 customers.post('/RegularOrder',function(req,res){
-    //submitOrder
-    for(var i = 1; i < req.body['rowlength'];i++) {
-        var itemno = "inside"+i+"at1";
-        var qty = "inside"+i+"at2";
-        sql.execute({
-            query: sql.fromFile("./sql/saveRegularOrder.sql"),
-            params:{itemno: req.body[itemno],
-                    qty: req.body[qty],
-                    custid: req.user.custid
-            }
-        }).then(function(){
-            req.session.success = "Order was placed";
-            res.redirect('/customers/shoppingCart');
-        },function(error){
-            console.log(error);
-            req.session.error = "Order failed";
-            res.redirect('/customers/shoppingCart');
-        });
+    if(req.body['rowlength'] <= 1){
+        req.session.error = "Empty Order";
+        res.redirect('/customers/RegularOrder');
     }
+    else {
+        var ponum = req.body.PONUM;
+        var smnum = req.body.SMNUM;
+        var instructions = req.body.instructions;
+        var delivery = req.body.delivery;
 
+        sql.execute({
+            query: sql.fromFile("./sql/saveRegularOrderHeader.sql"),
+            params:{
+                ponum: ponum,
+                smnum: smnum,
+                instructions: instructions,
+                delivery: delivery
+            }
+        });
+        try {
+            for (var i = 1; i < req.body['rowlength']; i++) {
+                var itemno = "inside" + i + "at1";
+                var qty = "inside" + i + "at2";
+                sql.execute({
+                    query: sql.fromFile("./sql/saveRegularOrder.sql"),
+                    params: {
+                        itemno: req.body[itemno],
+                        qty: req.body[qty],
+                        custid: req.user.custid
+                    }
+                }).then(function () {
+                }, function (error) {
+                    console.log(error);
+                    req.session.error = "Order failed";
+                    res.redirect('/customers/shoppingCart');
+                });
+            }
+        }
+        catch(err){
+            req.session.error = "Invalid page modification";
+            res.redirect('/customers/RegularOrder');
+        }
+        req.session.success = "Order submitted, please confirm and send using the button below";
+        res.redirect('/customers/shoppingCart');
+    }
 });
 customers.get('/getItem',function(req,res){
     var itemno = req.query.itemno;
@@ -95,6 +130,7 @@ customers.get('/getItem',function(req,res){
             var data = [];
             data.push({
                 "item_desc": result[0].item_desc_1,
+                "item_desc_2": result[0].item_desc_2,
                 "uom": result[0].uom
             });
             res.end(JSON.stringify(data));
@@ -141,16 +177,19 @@ customers.get('/getPrice',function(req,res){
                                 params:{ itemno : req.query.itemno, custid: req.user.custid, custcode: custcode}
                             }).then(function(result) {
                                 // code 1,2,3,4,5,7
-
+                                var price = 0;
                                 var discount = 0;
                                 if(result[0].minimum_qty_5 != 0 && req.query.qty > result[0].minimum_qty_5) discount = result[0].prc_or_disc_5;
                                 else if(result[0].minimum_qty_4 != 0 && req.query.qty > result[0].minimum_qty_4) discount = result[0].prc_or_disc_4;
                                 else if(result[0].minimum_qty_3 != 0 && req.query.qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
                                 else if(result[0].minimum_qty_2 != 0 && req.query.qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
                                 else if(req.query.qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
+                                if(result[0].cd_tp == 1) price = discount;
+                                else price = baseprice*(100-discount)*0.01;
+                                price = roundToTwo(price);
                                 data.push({
-                                    "baseprice" : baseprice*(100-discount)*0.01,
-                                    "totalprice" : baseprice*(100-discount)*0.01*req.query.qty
+                                    "baseprice" : price,
+                                    "totalprice" : price * req.query.qty
                                 });
                                 res.end(JSON.stringify(data));
                             });
@@ -165,6 +204,7 @@ customers.get('/getPrice',function(req,res){
                             else if(result[0].minimum_qty_3 != 0 && req.query.qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
                             else if(result[0].minimum_qty_2 != 0 && req.query.qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
                             else if(req.query.qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
+                            price = roundToTwo(price);
                             data.push({
                                 "baseprice" : baseprice*(100-discount)*0.01,
                                 "totalprice" : baseprice*(100-discount)*0.01*req.query.qty
@@ -181,6 +221,7 @@ customers.get('/getPrice',function(req,res){
                    else if(result[0].minimum_qty_3 != 0 && req.query.qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
                    else if(result[0].minimum_qty_2 != 0 && req.query.qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
                    else if(req.query.qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
+                   price = roundToTwo(price);
                    data.push({
                        "baseprice" : baseprice*(100-discount)*0.01,
                        "totalprice" : baseprice*(100-discount)*0.01*req.query.qty
@@ -192,6 +233,9 @@ customers.get('/getPrice',function(req,res){
 
     });
 });
+function roundToTwo(num) {
+    return +(Math.round(num + "e+2")  + "e-2");
+}
 customers.get('/search',function(req,res){
     sql.execute({
         query: sql.fromFile("./sql/search.sql"),
@@ -210,22 +254,10 @@ customers.get('/iteminfo',function(req,res){
 
 });
 
-//custom orders
+//orderform = contract orders
 customers.get('/orderForm', function(req,res){
     if(req.user == null) res.redirect('/signin');
     var custid = (req.user != null)? req.user.custid : 0;
-    /*
-     var sqlFile = './public/sql/getCust.sql';
-     if(!req.user){
-     res.redirect('/signin');
-     }
-     sql.execute({
-     query: sql.fromFile(sqlFile),
-     params: {username: req.user}
-     }).then(function(result){
-     custid = result[0].custid;
-     */
-
 
     var sqlFile = './sql/getInfo.sql';
     var customerid,customername,ordernumber,telfax,orderdate,shipto,shipdate,address1,confirmdate,address2,requiredtime,city,state,zip,ponum,sm,shipvia;
@@ -301,15 +333,10 @@ customers.get('/orderForm', function(req,res){
 });
 
 customers.post('/orderForm',function(req,res){
-    //send order to database
-    /*    for(var key in req.body) {
-     if(req.body.hasOwnProperty(key)){
-     console.log(key + ": "+JSON.stringify(req.body[key],null,4));
-     }
-     }*/
     var custid= req.body['CUSTID'],custname= req.body['CUSTNAME'],sonum= req.body['ORDNUM'],
         ponum= req.body['PONUM'],sm=req.body['SM'];
     var date = req.body['date'];
+    var pdfdata = 'CUSTOM ORDER FROM ' + req.user.custid;
     for(var i = 1; i < req.body['rowlength'];i++) {
         var product =req.body['inside' + i + 'at1'],
             profile = req.body['inside' + i + 'at2'],
@@ -402,9 +429,11 @@ customers.post('/orderForm',function(req,res){
                 req.session.error = 'Something went wrong';
                 res.redirect('/CustomOrder');
             });
-        console.log(sm+custid+custname+sonum+ponum+numbers.convert(product)+numbers.convert(profile)+numbers.convert(color)+qty+width+height
-            +mt+val+valadd+valrt+ct+itemnum+(product + ' ' + profile + ' ' + color)+color+serial+i+(new Date()).toLocaleDateString());
+        pdfdata = pdfdata +'\n' + sm+custid+custname+sonum+ponum+numbers.convert(product)+numbers.convert(profile)+numbers.convert(color)+qty+width+height+mt+val+valadd+valrt+ct+itemnum+(product + ' ' + profile + ' ' + color)+color+serial+i+(new Date()).toLocaleDateString();
+
     }
+    pdfmaker.make_pdf(pdfdata, './order.pdf');
+    mailer.mail('./order.pdf', req.user.custid);
     req.session.success = 'Order was placed';
     res.redirect('/home');
 });
@@ -418,26 +447,77 @@ customers.get('/ViewOrder', function(req,res){
     }).then(function(result){
         if(result[0] == null) data = "An error occured when pulling up this order";
         else {
-
+            for(var i = 0; i < result.length; i++) {
+                data = data + "<tr><td>" + result[i].line_seq_no + "</td><td>" + result[i].qty_ordered + "</td><td>" + result[i].uom + "</td><td>" + result[i].item_no + "</td><td>" + result[i].item_desc_1 + "</td></tr>";
+            }
 
         }
-        res.render('ViewOrder',{data: data});
+        res.render('ViewOrder',{user:req.user, data: data});
     });
 
 });
+customers.get('/cancel', function(req,res){
 
+});
 customers.get('/shoppingCart',function(req,res){
     var custid = (req.user != null)? req.user.custid : 'A';
+    var ponum,smnum,delivery,instructions;
+    sql.execute({
+        query: sql.fromFile("./sql/getRegularOrderHeader.sql"),
+        params: {custid: custid}
+    }).then(function(result){
+        if(result[0] != null) {
+            ponum = result[0].ponum;
+            smnum = result[0].smnum;
+            delivery = result[0].delivery;
+            instructions = result[0].instructions;
+        }
+    });
     sql.execute({
         query: sql.fromFile("./sql/getShoppingCart.sql"),
         params: {custid: custid}
     }).then(function(result){
         var data = '';
         for(var i = 1; i < result.length+1; i++){
-            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' value='"+result[i-1].itemno+"' style='border:none' readonly></td><td>"+result[i-1].qty+"</td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
+            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[i-1].itemno+"' style='border:none' readonly></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' value='"+result[i-1].qty+"' style='border:none' readonly></td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
         }
-        res.render('PrintableOrder',{user:req.user, data:data});
+        res.render('PrintableOrder',{user:req.user, ponum:ponum, smnum:smnum, delivery:delivery, instructions:instructions, data:data});
     });
+});
+customers.post('/confirmOrder', function(req,res){
+    var ponum = req.body.PONUM;
+    var smnum = req.body.SMNUM;
+    var instructions = req.body.instructions;
+    var delivery = req.body.delivery;
+    if(req.body['rowlength'] <= 1){
+        req.session.error = "The shopping cart is empty";
+        req.redirect('/customers/shoppingCart');
+    }else {
+        var data = 'REGULAR ORDER FROM ' + req.user.custid + '\n' + (new Date()) + '\n' + 'PONUM: ' + ponum + '\n' + 'SMNUM: ' + smnum + '\n' + 'INSTRUCTIONS: ' + instructions + '\n' + 'DELIVERY: ' + delivery + ' \n \n';
+        try {
+            for (var i = 1; i < req.body['rowlength']; i++) {
+                var itemno = "item" + i;
+                var qty = "qty" + i;
+
+                data = data + i + ': ' + req.body[itemno] + '     ' + req.body[qty] + '\n';
+            }
+        }
+        catch (err) {
+            req.session.error = "Invalid page modification";
+            req.redirect('/customers/shoppingCart');
+        }
+
+        pdfmaker.make_pdf(data, './order.pdf');
+        mailer.mail('./order.pdf', req.user.custid);
+
+        sql.execute({
+            query: sql.fromFile("./sql/clearCart.sql"),
+            params: {custid: req.user.custid}
+        });
+
+        req.session.success = "Order confirmed and sent";
+        res.redirect('/customers/thank');
+    }
 });
 customers.post('/removeFromCart',function(req,res){
     var itemno = req.body.itemno;
