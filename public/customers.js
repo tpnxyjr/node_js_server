@@ -70,14 +70,15 @@ customers.post('/RegularOrder',function(req,res){
         res.redirect('/customers/RegularOrder');
     }
     else {
-        var ponum = req.body.PONUM;
-        var smnum = req.body.SMNUM;
-        var instructions = req.body.instructions;
-        var delivery = req.body.delivery;
+        var ponum = req.body.PONUM.length > 50? req.body.PONUM.substring(0,50): req.body.PONUM.replace(/\s+$/, '');
+        var smnum = req.body.SMNUM.length > 50? req.body.SMNUM.substring(0,50): req.body.SMNUM.replace(/\s+$/, '');
+        var instructions = req.body.instructions.replace(/\s+$/, '');
+        var delivery = req.body.delivery.length > 50? req.body.delivery.substring(0,50): req.body.delivery.replace(/\s+$/, '');
 
         sql.execute({
             query: sql.fromFile("./sql/saveRegularOrderHeader.sql"),
             params:{
+                custid: req.user.custid,
                 ponum: ponum,
                 smnum: smnum,
                 instructions: instructions,
@@ -491,7 +492,7 @@ customers.post('/confirmOrder', function(req,res){
     var delivery = req.body.delivery;
     if(req.body['rowlength'] <= 1){
         req.session.error = "The shopping cart is empty";
-        req.redirect('/customers/shoppingCart');
+        res.redirect('/customers/shoppingCart');
     }else {
         var data = 'REGULAR ORDER FROM ' + req.user.custid + '\n' + (new Date()) + '\n' + 'PONUM: ' + ponum + '\n' + 'SMNUM: ' + smnum + '\n' + 'INSTRUCTIONS: ' + instructions + '\n' + 'DELIVERY: ' + delivery + ' \n \n';
         try {
@@ -510,6 +511,7 @@ customers.post('/confirmOrder', function(req,res){
         pdfmaker.make_pdf(data, './order.pdf');
         mailer.mail('./order.pdf', req.user.custid);
 
+        //create web order id, move everything from cart into order, clear cart
         sql.execute({
             query: sql.fromFile("./sql/clearCart.sql"),
             params: {custid: req.user.custid}
@@ -526,6 +528,10 @@ customers.post('/removeFromCart',function(req,res){
         params: {custid: req.user.custid, itemno: itemno}
     });
     res.json({success : "Updated Successfully", status : 200});
+});
+
+customers.get('/thank',function(req,res){
+   res.redirect('/customers/home');
 });
 exports.customers = customers;
 module.exports= customers;

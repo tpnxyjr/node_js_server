@@ -131,3 +131,20 @@ function subtotal(tableID){
 $(document).ready(function() {
     $('#loadmsg').hide();
 });
+
+function checkOrder(){
+    var rowCount = document.getElementById('body').rows.length;
+    for(var i = 1; i < rowCount; i++)
+    {
+        if(document.getElementById("inside"+i+"at1").value == null){
+            alert("ITEM NUMBER EMPTY. Please fill in or remove empty rows");
+            return false;
+        }
+        if(document.getElementById("inside"+i+"at2").value == null){
+            alert("QUANTITY EMPTY. Please fill in or remove empty rows");
+            return false;
+        }
+    }
+    document.getElementById('rowlength').value = rowCount;
+    return true;
+}
