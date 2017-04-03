@@ -7,6 +7,10 @@ npm install formidable
 npm install passport
 npm install bcrypt
 npm install knockout
+npm install nodemailer
+npm install pdfkit
+
+requires pdf reader
 
 @echo off
 cd (nodejs server directory)

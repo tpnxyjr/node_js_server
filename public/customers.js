@@ -5,6 +5,7 @@ var express = require('express'),
     bodyParser = require("body-parser"),
     mailer = require('./mailer'),
     pdfmaker = require('./pdfmaker');
+var numbers = require('../public/js/numbers.js');
 var customers = express.Router();
 var myConfig = require('../config.js');
 var config = myConfig.config;
@@ -338,6 +339,7 @@ customers.post('/orderForm',function(req,res){
         ponum= req.body['PONUM'],sm=req.body['SM'];
     var date = req.body['date'];
     var pdfdata = 'CUSTOM ORDER FROM ' + req.user.custid;
+    pdfdata = pdfdata +'\n' + "sm: "+sm+'\n'+"cust id: "+custid+'\n' + "cust name: "+ custname+ '\n' + "so num: "+ sonum+'\n' + "po num: "+ponum+ '\n';
     for(var i = 1; i < req.body['rowlength'];i++) {
         var product =req.body['inside' + i + 'at1'],
             profile = req.body['inside' + i + 'at2'],
@@ -356,6 +358,7 @@ customers.post('/orderForm',function(req,res){
             comment = req.body['inside' + i + 'at152'],
             unit = req.body['inside' + i + 'at153'],
             sub = req.body['inside' + i + 'at154'];
+        if(parseFloat(width) < 10) continue;
 
         if(profile=='EMBOSS' && product=='2\" FAUXWOOD'){
             product = '2\" FAUXWOODEMBOSS';
@@ -422,7 +425,7 @@ customers.post('/orderForm',function(req,res){
                 whenAdded: (new Date()).toLocaleDateString()
             }
         }).then(function (result) {
-                console.log("success")
+                //console.log("success");
             })
             .catch(function (err) {
                 console.log("Error");
@@ -430,13 +433,14 @@ customers.post('/orderForm',function(req,res){
                 req.session.error = 'Something went wrong';
                 res.redirect('/CustomOrder');
             });
-        pdfdata = pdfdata +'\n' + sm+custid+custname+sonum+ponum+numbers.convert(product)+numbers.convert(profile)+numbers.convert(color)+qty+width+height+mt+val+valadd+valrt+ct+itemnum+(product + ' ' + profile + ' ' + color)+color+serial+i+(new Date()).toLocaleDateString();
+         pdfdata = pdfdata + i + ": "+ numbers.convert(product)+'-'+ numbers.convert(profile)+'-' + numbers.convert(color)+'          ' + qty+ '           '+width+' X '+height+'  '+mt+'  '+val+'  '+valadd+'  '+valrt+'   '+ct+'  '+itemnum+
+                 '  '+tc+'  '+hd+'\n'+comment+'\n';
 
     }
     pdfmaker.make_pdf(pdfdata, './order.pdf');
     mailer.mail('./order.pdf', req.user.custid);
     req.session.success = 'Order was placed';
-    res.redirect('/home');
+    res.redirect('/customers/home');
 });
 
 customers.get('/ViewOrder', function(req,res){
@@ -531,6 +535,7 @@ customers.post('/removeFromCart',function(req,res){
 });
 
 customers.get('/thank',function(req,res){
+    req.session.success = "Order confirmed and sent";
    res.redirect('/customers/home');
 });
 exports.customers = customers;

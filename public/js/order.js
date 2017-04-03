@@ -1,11 +1,14 @@
 /**
  * Created by Kevin on 8/25/2016.
  */
-window.addEventListener("beforeunload", function (e) {
-    var confirmationMessage = "\o/";
+$(document).ready(function () {
+    $(window).on('beforeunload', function(){
+        return "Any changes will be lost";
+    });
 
-    e.returnValue = confirmationMessage;     // Gecko, Trident, Chrome 34+
-    return confirmationMessage;              // Gecko, WebKit, Chrome <34
+    $(document).on("submit", "form", function (event) {
+        $(window).off('beforeunload');
+    });
 });
 
 function addRow(tableID) {
@@ -24,6 +27,9 @@ function addRow(tableID) {
             var val = "";
             if(rowCount > 1) val = document.getElementById("inside" + (rowCount-1) + "at" + i).value;
             newcell.innerHTML = "<input id=\""+idstring+"\" name=\""+idstring+"\" size=\"5\" type=\"text\" value=\""+escapeHtml(val)+"\">";
+            if(i == 13 || i == 14){
+                newcell.innerHTML = newcell.innerHTML + "<div id=\"dropdown\"><select onchange='document.getElementById(\""+idstring+"\").value = this.value'><option></option><option>YES</optionoption><option>NO</option></select></div>";
+            }
         }
         else if(i == 1){
             var script = document.createElement('script');
@@ -316,7 +322,12 @@ function checkInputs(tableID){
             document.getElementById("inside"+i+"at3").value=numberconvert[document.getElementById("inside"+i+"at3").value];
         if(numberconvert[document.getElementById("inside"+i+"at3").value] == '1\" ALUMINUM')
             document.getElementById("inside"+i+"at3").value='OYSTER';
+        if(document.getElementById("inside"+i+"at5").value < 10) {
+            alert("Width cannot be less than 10 inches");
+            return false;
+        }
     }
+    return true;
 }
 
 function escapeHtml(text) {

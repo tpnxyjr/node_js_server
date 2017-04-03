@@ -9,6 +9,7 @@
     <script src="./js/jquery-ui.js"></script>
 </head>
 <body>
+<noscript><div>This page requires javascript to work</div></noscript>
 <form action="/customers/orderForm" method="post">
     <table id="header" width="100%" align="center">
         <tr>
@@ -67,8 +68,8 @@
             <td width="4%"><B>VALADD</B></td>
             <td width="4%"><B>VAL RT</B></td>
             <td width="2.5%"><B>CT</B></td>
-            <td width="2%"><B>TC</B></td>
-            <td width="2%"><B>HD</B></td>
+            <td width="2.5%"><B>TC</B></td>
+            <td width="2.5%"><B>HD</B></td>
             <td width ="26%"><B>Description/Comments</B></td>
         </tr>
     </table>
@@ -78,7 +79,7 @@
 
     <table id="footer" align="right">
         <tr><td>TOTAL</td><td><input id="total" type="number" readonly></td></tr>
-        <tr><td><INPUT type="button" value="Calculate Total" onclick="subtotal('body');timeEst('body');" /></td><td><input type="submit" value="Submit Order" /></td></tr>
+        <tr><td><INPUT type="button" value="Calculate Total" onclick="subtotal('body');timeEst('body');" /></td><td><input type="submit" value="Submit Order" onclick="return checkInputs('body');"/></td></tr>
     </table>
 </form>
 <script src="./js/order.js"></script>

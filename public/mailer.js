@@ -21,7 +21,7 @@ function mail(file, custid){
 
     var mailOptions = {
         from: "CBC - Auto Email", // sender address
-        to: "CBC.PAULH@gmail.com", // list of receivers
+        to: "CBC.CSR01@gmail.com", // list of receivers
         subject: "ORDER FROM "+ custid, // Subject line
         text: 'New Order From '+custid, // plain text body
         //html: buffer, // html body
