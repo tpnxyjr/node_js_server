@@ -34,8 +34,8 @@ th, td {
     table-layout: fixed;
     padding: 0px;
     text-align:center;
-    width:100%;
-    max-width:100%;
+  /*  width:100%;   Intentionally want to overflow out the side of the page if screen too small
+    max-width:100%; Functionality over aesthetics I guess */
     box-sizing: border-box;
 }
 #body tr:not(:first-child){
@@ -116,4 +116,7 @@ span>input[type="text"]{
 }
 button{
     border-radius: 12px;
+}
+.body{
+    overflow-x: auto;
 }

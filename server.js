@@ -147,7 +147,7 @@ app.post('/local-reg', function(req,res,next){
             query: sql.fromFile(sqlFile),
             params: {custid: req.body.referral}
         }).then(function(result){
-            if(result[0].debcode != req.body.referral){
+            if(result[0].debcode == null || result[0].debcode != req.body.referral){
                 req.session.error = "Invalid Referral Code";
                 res.redirect('/signin');
             }

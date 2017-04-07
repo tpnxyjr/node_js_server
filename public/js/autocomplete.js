@@ -1,55 +1,99 @@
 
 var prodTags = [
-        "2\" FAUXWOOD",
-        "4P VERTICAL",
-        "1\" ALUMINUM",
+        "622 - 2\" FAUXWOOD SMOOTH",
+        "660 - 4P VERTICAL WAND",
+        //"610 - 1\" ALUMINUM",
         "8P VERTICAL",
-        "4p VERTICAL CC",
+        "662 - 4P VERTICAL CORD & CHAIN",
+        "632 - 2\" FAUXWOOD EMBOSSED",
         "2.5\" FAUXWOOD",
-        "ROLLER SHADE",
-        "2\" WOOD BLIND"
+        //"690 - ROLLER SHADE",
+        //"640 - 2\" WOOD BLIND"
     ];
-var profTags=[
-        "SMOOTH",
-        "EMBOSS",
-        "SANDBLAST",
-        "RIB",
-        "FLAT",
-        "PERFORATE",
-        'CONTRACT 22G',
-        'PREMIUM 27G'
-    ];
-var colorTags=[
-        "WHITE",
-        "SNOW",
-        "PEARL",
-        "OYSTER",
-        "OFF-WHITE",
-        "BIRCH",
-        "NATURAL",
-        "RIGHT WHITE",
-        "ALABASTER",
-        "CHESTNUT",
-        "CHERRY",
-        "GOLDEN OAK",
-        "PECAN",
-        "COTTAGE",
-        "CHERRYWOOD",
-        "MAHOGANY",
-        "DESIGNER - THIN BARK",
-        "DESIGNER - AQUA STREAK",
-        "DESIGNER - AQUA FLOW",
-        "DESIGNER - WIND FLOW",
-        "DESIGNER - TWIST BARK",
-        "DESIGNER - FLOWER CREST"
-    ];
+var profTags = [
+    "900 - SMOOTH",
+    "902 - EMBOSSED",
+    "121 - CONTRACT 22G",
+    "122 - PREMIUM 27G",
+    "126 - EMBOSSED"
+];
+var colorTags = [
+    "205 - WHITE",
+    "112 - OFF-WHITE",
+    "040 - IVORY",
+    "301 - SNOW WHITE",
+    "926 - ALABASTER",
+    "613 - OFF-WHITE",
+    "926 - ALABASTER",
+    "605 - PEARL WHITE",
+    "101 - WHITE",
+    "621 - BRIGHT WHITE",
+    "615 - BIRCH",
+    "620 - NATURAL OAK",
+    "618 - CHERRY",
+    "DESIGNER - THIN BARK",
+    "DESIGNER - AQUA STREAK",
+    "DESIGNER - AQUA FLOW",
+    "DESIGNER - WIND FLOW",
+    "DESIGNER - TWIST BARK",
+    "DESIGNER - FLOWER CREST"
+];
+var profSelect={
+        FAUXWOOD:[
+            {name:"900 - SMOOTH" },
+            {name:"902 - EMBOSSED"},
+            {name:"904 - SANDBLAST"}
+        ],
+        VERTICAL:[
+            {name:"121 - CONTRACT 22G"},
+            {name:"122 - PREMIUM 27G"},
+            {name:"126 - EMBOSSED"},
+            {name:"123 - RIB"},
+            {name:"124 - FLAT"}
+        ]
+        /*OTHERS:[
+            {name:"125 - PERFORATE"}
+        ]*/
+};
+var colorSelect= {
+        VERTICALS:[
+            {name:"205 - WHITE"},
+            {name:"112 - OFF-WHITE"},
+            {name:"040 - IVORY"}
+        ],
+        EMBOSSED:[
+            {name:"301 - SNOW WHITE"},
+            {name:"926 - ALABASTER"},
+            {name:"613 - OFF-WHITE"}
+        ],
+        HORIZONTAL:[
+            {name:"301 - SNOW WHITE"},
+            {name:"926 - ALABASTER"},
+            {name:"613 - OFF-WHITE"},
+            {name:"605 - PEARL WHITE"},
+            {name:"101 - WHITE"},
+            {name:"621 - BRIGHT WHITE"},
+            {name:"615 - BIRCH"},
+            {name:"620 - NATURAL OAK"},
+            {name:"618 - CHERRY"}
+        ],
+        DESIGNER:[
+            {name:"DESIGNER - THIN BARK"},
+            {name:"DESIGNER - AQUA STREAK"},
+            {name:"DESIGNER - AQUA FLOW"},
+            {name:"DESIGNER - WIND FLOW"},
+            {name:"DESIGNER - TWIST BARK"},
+            {name:"DESIGNER - FLOWER CREST"}
+        ]
+};
 
 var numberconvert={};
-numberconvert['622'] = '2\" FAUXWOOD';
-numberconvert['660'] = '4P VERTICAL';
+numberconvert['622'] = '2\" FAUXWOOD SMOOTH';
+numberconvert['622'] = '2\" FAUXWOOD EMBOSSED';
+numberconvert['660'] = '4P VERTICAL WAND';
 numberconvert['610'] = '1\" ALUMINUM';
 numberconvert['663'] = '8P VERTICAL';
-numberconvert['662'] = '4P VERTICAL CC';
+numberconvert['662'] = '4P VERTICAL CORD & CHAIN';
 numberconvert['632'] = '2\" FAUXWOOD';
 numberconvert['628'] = '2.5\" FAUXWOOD';
 numberconvert['690'] = 'ROLLERSHADE';
@@ -83,6 +127,7 @@ numberconvert['621'] = 'RIGHT WHITE';
 numberconvert['926'] = 'ALABASTER';
 numberconvert['205'] = 'WHITE';
 numberconvert['112'] = 'OFF-WHITE';
+numberconvert['040'] = 'IVORY';
 numberconvert['E101']= 'E101-WHITE';
 numberconvert['E301']= 'E301-SNOW';
 numberconvert['E605']= 'E605-PEARL';
@@ -96,10 +141,10 @@ numberconvert['618']= 'CHERRY';
 
 var prodhash = {};
 prodhash['2\" FAUXWOOD']=1.85;
-prodhash['4P VERTICAL']=0.19;
+prodhash['4P VERTICAL WAND']=0.19;
 prodhash['1\" ALUMINUM']=1.1;
 prodhash['8P VERTICAL']=0.155;
-prodhash['4P VERTICAL CC']=0.19;
+prodhash['4P VERTICAL CORD & CHAIN']=0.19;
 prodhash['2\" FAUXWOOD']=1.85;
 prodhash['2.5\" FAUXWOOD']=1.85;
 prodhash['ROLLERSHADE']=4.25;
@@ -122,11 +167,13 @@ profhash['VPRINT']=0.1935;
 var colorhash={};
 colorhash['WHITE']=1.1;
 colorhash['SNOW']=1;
+colorhash['SNOW WHITE']=1;
 colorhash['PEARL']=1.1;
 colorhash['OYSTER']=1.1;
 colorhash['OFF-WHITE']=1;
 colorhash['BIRCH']=1.1;
 colorhash['NATURAL']=1.1;
+colorhash['NATURAL OAK']=1.1;
 colorhash['RIGHT WHITE']=1.1;
 colorhash['ALABASTER']=1.1;
 colorhash['CHESTNUT']=1.1;
@@ -136,6 +183,7 @@ colorhash['PECAN']=1.1;
 colorhash['COTTAGE']=1.1;
 colorhash['CHERRYWOOD']=1.1;
 colorhash['MAHOGANY']=1.1;
+colorhash['IVORY']=1;
 colorhash['DESIGNER']=0.18275;
 colorhash['LIGHT GRAY']=1.2;
 colorhash['E101-WHITE']=1.1;
@@ -425,57 +473,64 @@ datahash['SIZE99']=1.1;
 var production = {};
 production['perpctime']={};
 production['perpctime']['1\" ALUMINUM']=12;
-production['perpctime']['2\" FAUXWOOD']=25;
-production['perpctime']['4P VERTICAL']=8;
-production['perpctime']['4P VERTICAL CC']=11;
+production['perpctime']['2\" FAUXWOOD SMOOTH']=25;
+production['perpctime']['2\" FAUXWOOD EMBOSSED']=27;
+production['perpctime']['4P VERTICAL WAND']=8;
+production['perpctime']['4P VERTICAL CORD & CHAIN']=11;
 production['perpctime']['2.5\" FAUXWOOD']=18;
 production['perpctime']['ROLLER SHADE']=40;
 production['perpctime']['2\" WOOD BLIND']=22;
 production['matgather']={};
 production['matgather']['1\" ALUMINUM'] = 0.03;
-production['matgather']['2\" FAUXWOOD'] = 0.05;
-production['matgather']['4P VERTICAL'] = 0.05;
-production['matgather']['4P VERTICAL CC'] = 0.04;
+production['matgather']['2\" FAUXWOOD SMOOTH'] = 0.05;
+production['matgather']['2\" FAUXWOOD EMBOSSED'] = 0.05;
+production['matgather']['4P VERTICAL WAND'] = 0.05;
+production['matgather']['4P VERTICAL CORD & CHAIN'] = 0.04;
 production['matgather']['2.5\" FAUXWOOD'] = 0.03;
 production['matgather']['ROLLER SHADE'] = 0.05;
 production['matgather']['2\" WOOD BLIND'] = 0.07;
 production['slatcut']={};
 production['slatcut']['1\" ALUMINUM']=0.12;
-production['slatcut']['2\" FAUXWOOD']=0.05;
-production['slatcut']['4P VERTICAL']=0.25;
-production['slatcut']['4P VERTICAL CC']=0.16;
+production['slatcut']['2\" FAUXWOOD SMOOTH']=0.05;
+production['slatcut']['2\" FAUXWOOD EMBOSSED']=0.05;
+production['slatcut']['4P VERTICAL WAND']=0.25;
+production['slatcut']['4P VERTICAL CORD & CHAIN']=0.16;
 production['slatcut']['2.5\" FAUXWOOD']=0.05;
 production['slatcut']['ROLLER SHADE']=0.27;
 production['slatcut']['2\" WOOD BLIND']=0.15;
 production['threading']={};
 production['threading']['1\" ALUMINUM']=0.12;
-production['threading']['2\" FAUXWOOD']=0.10;
-production['threading']['4P VERTICAL']=0;
-production['threading']['4P VERTICAL CC']=0;
+production['threading']['2\" FAUXWOOD SMOOTH']=0.10;
+production['threading']['2\" FAUXWOOD EMBOSSED']=0.10;
+production['threading']['4P VERTICAL WAND']=0;
+production['threading']['4P VERTICAL CORD & CHAIN']=0;
 production['threading']['2.5\" FAUXWOOD']=0.27;
 production['threading']['ROLLER SHADE']=0;
 production['threading']['2\" WOOD BLIND']=0.20;
 production['assembly']={};
 production['assembly']['1\" ALUMINUM']=0.32;
-production['assembly']['2\" FAUXWOOD']=0.19;
-production['assembly']['4P VERTICAL']=0.23;
-production['assembly']['4P VERTICAL CC']=0.33;
+production['assembly']['2\" FAUXWOOD SMOOTH']=0.19;
+production['assembly']['2\" FAUXWOOD EMBOSSED']=0.19;
+production['assembly']['4P VERTICAL WAND']=0.23;
+production['assembly']['4P VERTICAL CORD & CHAIN']=0.33;
 production['assembly']['2.5\" FAUXWOOD']=0.12;
 production['assembly']['ROLLER SHADE']=0.40;
 production['assembly']['2\" WOOD BLIND']=0.30;
 production['cutdown']={};
 production['cutdown']['1\" ALUMINUM']=0.20;
-production['cutdown']['2\" FAUXWOOD']=0.16;
-production['cutdown']['4P VERTICAL']=0.18;
-production['cutdown']['4P VERTICAL CC']=0.09;
+production['cutdown']['2\" FAUXWOOD SMOOTH']=0.16;
+production['cutdown']['2\" FAUXWOOD EMBOSSED']=0.16;
+production['cutdown']['4P VERTICAL WAND']=0.18;
+production['cutdown']['4P VERTICAL CORD & CHAIN']=0.09;
 production['cutdown']['2.5\" FAUXWOOD']=0.19;
 production['cutdown']['ROLLER SHADE']=0;
 production['cutdown']['2\" WOOD BLIND']=0.20;
 production['packaging']={};
 production['packaging']['1\" ALUMINUM']=0.05;
-production['packaging']['2\" FAUXWOOD']=0.07;
-production['packaging']['4P VERTICAL']=0.07;
-production['packaging']['4P VERTICAL CC']=0.06;
+production['packaging']['2\" FAUXWOOD SMOOTH']=0.07;
+production['packaging']['2\" FAUXWOOD EMBOSSED']=0.07;
+production['packaging']['4P VERTICAL WAND']=0.07;
+production['packaging']['4P VERTICAL CORD & CHAIN']=0.06;
 production['packaging']['2.5\" FAUXWOOD']=0.07;
 production['packaging']['ROLLER SHADE']=0.08;
 production['packaging']['2\" WOOD BLIND']=0.08;

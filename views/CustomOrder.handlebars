@@ -37,9 +37,9 @@
             <td id="ZIP"><B>ZIP </B><input type="text"value="{{zip}}"readonly></td>
         </tr>
         <tr>
-            <td id="PONUM"><B>PO NUMBER </B><input type="text"name="PONUM"value="{{ponum}}" placeholder="PO Number"></td>
-            <td id="SM" colspan="2"><B>S/M </B><input type="text"name="SM"value="{{sm}}"placeholder="SM"></td>
-            <td id="SHIPVIA"><B>SHIP VIA </B><input type="text"value="{{shipvia}}"readonly></td>
+            <td id="PONUM"><B>PO NUMBER </B><input type="text"name="PONUM"value="{{ponum}}" placeholder="Purchase Order Number"></td>
+            <td id="SM" colspan="2"><B>S/M </B><input type="text"name="SM"value="{{sm}}"placeholder="Side Mark Number"></td>
+            <td id="SHIPVIA"><B>SHIP VIA </B><input type="text"name="delivery"value="{{shipvia}}" placeholder="Delivery Method"></td>
         </tr>
         <tr style="display:none;">
             <td><input type="text" id="RATING" value="{{rating}}" readonly hidden></td>
@@ -53,7 +53,7 @@
             <td><input type="text" id="date" name="date" readonly hidden></td>
         </tr>
     </table>
-    <table id="body" width="100%" align="center">
+    <table id="body" align="center">
         <tr>
             <th width="1.5%"><B>LN</B></th>
             <td width="8.1%"><B>PROD</B></td>

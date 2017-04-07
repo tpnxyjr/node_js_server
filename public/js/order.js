@@ -36,14 +36,24 @@ function addRow(tableID) {
             script.type = "text/javascript";
             var scriptString = "jQuery(document).ready(function(){"+
             "$(document).on('click', '#"+idstring+"', function() {"+
-            "    $(this).autocomplete({  source: prodTags  }); }); });";
+            "    $(this).autocomplete({  source: prodTags  }); $(this).trigger('change'); });" +
+                "$(document).on('change', '#"+idstring+"', function(){"+
+                "if($(this).val().toUpperCase().indexOf('FAUXWOOD') != -1){"+
+                "$(\"#inside"+rowCount+"at9 option[value=\'L\']\").prop('disabled',true);"+
+                "$(\"#inside"+rowCount+"at9 option[value=\'CP\']\").prop('disabled',true);}else {"+
+                "$(\"#inside"+rowCount+"at9 option[value=\'L\']\").prop('disabled',false);"+
+                "$(\"#inside"+rowCount+"at9 option[value=\'CP\']\").prop('disabled',false);"+
+                "}if($(this).val().toUpperCase().indexOf('VERTICAL') != -1){" +
+                "$(\"#inside"+rowCount+"at9 option[value=\'2V\']\").prop('disabled',true);}else{" +
+                "$(\"#inside"+rowCount+"at9 option[value=\'2V\']\").prop('disabled',false);} }); });";
+
             script[(script.innerText===undefined?"textContent":"innerText")] = scriptString;
 
             var val = "";
             if(rowCount > 1) val = document.getElementById("inside" + (rowCount-1) + "at" + i).value;
 
-            newcell.innerHTML = "<input id=\""+idstring+"\" type=\"text\" class=\"autofill\" value=\""+escapeHtml(val)+"\">" +
-            "<div id=\"dropdown\"><select name=\""+idstring+"\" id=\"prodlist"+rowCount+"\" onchange='document.getElementById(\""+idstring+"\").value = this.value'><option value=''></option></option></select></div>";
+            newcell.innerHTML = "<input id=\""+idstring+"\" type=\"text\" class=\"autofill\" value=\""+escapeHtml(val)+"\" onchange='change_optgroup(this.value, "+rowCount+")'>" +
+            "<div id=\"dropdown\"><select name=\""+idstring+"\" id=\"prodlist"+rowCount+"\" onchange='document.getElementById(\""+idstring+"\").value = this.value; $(\"#"+idstring+"\").trigger(\"change\")';><option value=''></option></option></select></div>";
             newcell.appendChild(script);
 
             var selectBox = document.getElementById("prodlist"+rowCount);
@@ -69,11 +79,9 @@ function addRow(tableID) {
             newcell.appendChild(script);
 
             var selectBox = document.getElementById("proflist"+rowCount);
-            for(var j = 0, l = profTags.length; j < l; j++){
-                var option = document.createElement("option");
-                option.text = profTags[j];
-                selectBox.add( option );
-            }
+            for(var prop in profSelect)
+                if(profSelect.hasOwnProperty(prop))
+                    add_optgroup(selectBox, prop+rowCount, profSelect[prop]);
         }
         else if(i == 3){
             var script = document.createElement('script');
@@ -86,16 +94,14 @@ function addRow(tableID) {
             var val = "";
             if(rowCount > 1) val = document.getElementById("inside" + (rowCount-1) + "at" + i).value;
 
-            newcell.innerHTML = "<input id=\""+idstring+"\" type=\"text\" class=\"autofill\" value=\""+escapeHtml(val)+"\">"+
+            newcell.innerHTML = "<input id=\""+idstring+"\" type=\"text\" class=\"autofill combobox\" value=\""+escapeHtml(val)+"\">"+
                 "<div id=\"dropdown\"><select name=\""+idstring+"\" id=\"colorlist"+rowCount+"\" onchange='document.getElementById(\""+idstring+"\").value = this.value'><option value=''></option></option></select></div>";
             newcell.appendChild(script);
 
             var selectBox = document.getElementById("colorlist"+rowCount);
-            for(var j = 0, l = colorTags.length; j < l; j++){
-                var option = document.createElement("option");
-                option.text = colorTags[j];
-                selectBox.add( option );
-            }
+            for(var prop in colorSelect)
+                if(colorSelect.hasOwnProperty(prop))
+                    add_optgroup(selectBox, prop+rowCount, colorSelect[prop]);
         }
         else if(i == 6){
             newcell.innerHTML = "<p align='center'><b>X</b></p>"
@@ -133,6 +139,51 @@ function addRow(tableID) {
     }
 }
 
+function add_optgroup(select, label, opts){
+    var gr = document.createElement('OPTGROUP');
+    gr.label = label.substring(0,label.length-1);
+    gr.name = label;
+    gr.id = label;
+    var opt, length = opts.length;
+    for(var i = 0; i < length; ++i){
+        opt = document.createElement('OPTION');
+        opt.textContent = opts[i].name;
+        opt.value = opts[i].name;
+        gr.appendChild(opt);
+    }
+    select.add(gr);
+    return gr;
+}
+function change_optgroup(value,rowCount){
+    if(value.toUpperCase().indexOf('FAUXWOOD') != -1){
+        document.getElementById('VERTICAL'+rowCount).style.display = 'none';
+        document.getElementById('VERTICALS'+rowCount).style.display = 'none';
+        if(value.toUpperCase().indexOf('EMBOSSED') != -1) {
+            document.getElementById('HORIZONTAL' + rowCount).style.display = 'none';
+            document.getElementById('EMBOSSED' + rowCount).style.display = '';
+        }
+        else{
+            document.getElementById('HORIZONTAL' + rowCount).style.display = '';
+            document.getElementById('EMBOSSED' + rowCount).style.display = 'none';
+        }
+        document.getElementById('FAUXWOOD'+rowCount).style.display = '';
+    }
+    else if(value.toUpperCase().indexOf('VERTICAL') != -1){
+        document.getElementById('VERTICAL'+rowCount).style.display = '';
+        document.getElementById('VERTICALS'+rowCount).style.display = '';
+        document.getElementById('HORIZONTAL'+rowCount).style.display = 'none';
+        document.getElementById('EMBOSSED' + rowCount).style.display = 'none';
+        document.getElementById('FAUXWOOD'+rowCount).style.display = 'none';
+    }
+    else{
+        document.getElementById('VERTICAL'+rowCount).style.display = '';
+        document.getElementById('VERTICALS'+rowCount).style.display = '';
+        document.getElementById('HORIZONTAL'+rowCount).style.display = '';
+        document.getElementById('EMBOSSED' + rowCount).style.display = '';
+        document.getElementById('FAUXWOOD'+rowCount).style.display = '';
+    }
+}
+
 function deleteRow(tableID) {
     try {
         var table = document.getElementById(tableID);
@@ -156,6 +207,9 @@ function subtotal(tableID){
     var total = 0, debug = 0;
     var vertical = false;
     for(var i = 1; i < rowCount; i++) {
+        document.getElementById("inside" + i + "at1").value = isNumeric(document.getElementById("inside" + i + "at1").value.substring(0,4))? document.getElementById("inside" + i + "at1").value.substring(6): document.getElementById("inside" + i + "at1").value;
+        document.getElementById("inside" + i + "at2").value = isNumeric(document.getElementById("inside" + i + "at2").value.substring(0,4))? document.getElementById("inside" + i + "at2").value.substring(6): document.getElementById("inside" + i + "at2").value;
+        document.getElementById("inside" + i + "at3").value = isNumeric(document.getElementById("inside" + i + "at3").value.substring(0,4))? document.getElementById("inside" + i + "at3").value.substring(6): document.getElementById("inside" + i + "at3").value;
         if (document.getElementById("inside" + i + "at1").value.indexOf("VERTICAL") != -1) {
             vertical = true;
             var prof = profhash["V" + document.getElementById("inside"+i+"at2").value];
@@ -270,7 +324,7 @@ function subtotal(tableID){
         }
         document.getElementById("inside"+i+"at"+colCount+"3").value = Math.ceil(sub*100)/100;
         sub *= document.getElementById("inside"+i+"at4").value;
-        document.getElementById("inside"+i+"at"+colCount+"4").value = sub;
+        document.getElementById("inside"+i+"at"+colCount+"4").value = Math.ceil(sub*100)/100;
         if(debug)console.log('PLUSONWIDTH'+document.getElementById("PLUSONWIDTH").value+',TWOVNVVAL'+twovnvvald+',NOSHORDISCADD'+document.getElementById("NOSHORDISCADD").value+'TRUESQFT'+document.getElementById("TRUESQFT").value+'CONTFAUX'+document.getElementById("CONTFAUX").value);
         if(debug)console.log('PRICEsubtotal:'+sub+',multiplier:'+multiplier+',customerdiscount:'+custdiscountfactor+',prod*prof*color:'+multiplier+',sizefac:'+sizefat+',lengthfac:'+lengthfat+',valfac:'+valfact+',sqft:'+sqft+',ctrlfac:'+ctrlfat);
         if(isNaN(parseFloat(sub))){
@@ -279,7 +333,7 @@ function subtotal(tableID){
         }
         else total += parseFloat(sub);
     }
-    document.getElementById("total").value = total;
+    document.getElementById("total").value = Math.ceil(total*100)/100;
     var date = $.datepicker.formatDate("mmddyy", new Date());
     document.getElementById('date').value = date.substring(0,4)+date.substring(6);
 }
@@ -340,4 +394,7 @@ function escapeHtml(text) {
     };
 
     return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+function isNumeric(num) {
+    return !isNaN(parseFloat(num)) && isFinite(num);
 }
