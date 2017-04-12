@@ -2,13 +2,14 @@ var pdf = require('pdfkit');
 var fs = require('fs');
 
 
-function make_pdf(input, file) {
+function make_pdf(input, file, format) {
     var myDoc = new pdf({
-        size: 'LEGAL'
+        size: 'LEGAL',
+        layout: format
     });
     myDoc.pipe(fs.createWriteStream(file));
 
-    myDoc.font('Times-Roman', 16)
+    myDoc.font('Courier', 16)
          .text(input, {
              width: 412,
              align: 'justify',

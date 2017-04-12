@@ -1,12 +1,12 @@
 
 var prodTags = [
         "622 - 2\" FAUXWOOD SMOOTH",
+        "632 - 2\" FAUXWOOD EMBOSSED",
         "660 - 4P VERTICAL WAND",
         //"610 - 1\" ALUMINUM",
-        "8P VERTICAL",
-        "662 - 4P VERTICAL CORD & CHAIN",
-        "632 - 2\" FAUXWOOD EMBOSSED",
-        "2.5\" FAUXWOOD",
+        "662 - 4P VERTICAL CORD & CHAIN"
+        //"663 - 8P VERTICAL"
+        //"2.5\" FAUXWOOD",
         //"690 - ROLLER SHADE",
         //"640 - 2\" WOOD BLIND"
     ];
@@ -68,8 +68,8 @@ var colorSelect= {
         ],
         HORIZONTAL:[
             {name:"301 - SNOW WHITE"},
-            {name:"926 - ALABASTER"},
             {name:"613 - OFF-WHITE"},
+            {name:"926 - ALABASTER"},
             {name:"605 - PEARL WHITE"},
             {name:"101 - WHITE"},
             {name:"621 - BRIGHT WHITE"},
@@ -78,12 +78,12 @@ var colorSelect= {
             {name:"618 - CHERRY"}
         ],
         DESIGNER:[
-            {name:"DESIGNER - THIN BARK"},
-            {name:"DESIGNER - AQUA STREAK"},
-            {name:"DESIGNER - AQUA FLOW"},
-            {name:"DESIGNER - WIND FLOW"},
-            {name:"DESIGNER - TWIST BARK"},
-            {name:"DESIGNER - FLOWER CREST"}
+            {name:"140 - THIN BARK"},
+            {name:"141 - AQUA STREAK"},
+            {name:"142 - AQUA FLOW"},
+            {name:"143 - WIND FLOW"},
+            {name:"144 - TWIST BARK"},
+            {name:"145 - FLOWER CREST"}
         ]
 };
 

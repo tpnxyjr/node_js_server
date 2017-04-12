@@ -52,7 +52,7 @@ customers.get('/home', loggedIn, function(req,res){
 
                     data = data + "<tr";
                     if (result[i].older == 1) data = data + " class='older' style='display:none;'";
-                    data = data + "><td>xxxxxx</td><td>" + result[i].ord_no + "</td><td>" + result[i].ord_dt.toString().substring(0, 16) + "</td><td>" + result[i].ord_type + "</td><td>" + result[i].oe_po_no + "</td><td>" + result[i].status + "</td><td><a href='/customers/ViewOrder?sonum=" + result[i].ord_no + "'><input type='button' value='View'></a></td></tr>"
+                    data = data + "><td>xxxxxx</td><td>" + result[i].ord_no + "</td><td>" + result[i].ord_dt + "</td><td>" + result[i].ord_type + "</td><td>" + result[i].oe_po_no + "</td><td>" + result[i].status + "</td><td><a href='/customers/ViewOrder?sonum=" + result[i].ord_no + "'><input type='button' value='View'></a></td></tr>"
 
                 }
                 sql.execute({
@@ -61,7 +61,7 @@ customers.get('/home', loggedIn, function(req,res){
                 }).then(function (result2) {
 
                     for (var j = 0; j < result2.length; j++) {
-                        data = data + "<tr><td>" + result2[j].ord_id + "</td><td>xxxxxx</td><td>" + result2[j].date.toString().substring(0, 16) + "</td><td>Web</td><td></td><td>W</td><td><a href='/customers/ViewOrder?webnum=" + result2[j].ord_id + "'><input type='button' value='View'></a></td></tr>";
+                        data = data + "<tr><td>" + result2[j].ord_id + "</td><td>xxxxxx</td><td>" + result2[j].ord_dt + "</td><td>Web</td><td></td><td>W</td><td><a href='/customers/ViewOrder?webnum=" + result2[j].ord_id + "'><input type='button' value='View'></a></td></tr>";
                     }
                     data = data + "</tbody>"
                     res.render('customerhome', {user: req.user, data: data});
@@ -76,7 +76,7 @@ customers.get('/changePassword', loggedIn, function(req, res){
 customers.get('/RegularOrder', loggedIn, function(req,res){
    res.render('RegularOrder',{user: req.user})
 });
-customers.post('/RegularOrder',function(req,res){
+customers.post('/RegularOrder',loggedIn, function(req,res){
     if(req.body['rowlength'] <= 1){
         req.session.error = "Empty Order";
         res.redirect('/customers/RegularOrder');
@@ -345,84 +345,88 @@ customers.get('/orderForm', loggedIn, function(req,res){
      */
 });
 
-customers.post('/orderForm',function(req,res){
-    var custid= req.body['CUSTID'],custname= req.body['CUSTNAME'],sonum= req.body['ORDNUM'],
-        ponum= req.body['PONUM'],sm=req.body['SM'], delivery=req.body['delivery'];
+customers.post('/orderForm', loggedIn, function(req,res) {
+    var custid = req.body['CUSTID'], custname = req.body['CUSTNAME'],
+        ponum = req.body['PONUM'], sm = req.body['SM'], delivery = req.body['delivery'];
     var date = req.body['date'];
-    var pdfdata = 'CUSTOM ORDER FROM ' + req.user.custid;
-    pdfdata = pdfdata +'\n' + "sm: "+sm+'\n'+"cust id: "+custid+'\n' + "cust name: "+ custname+ '\n' + "so num: "+ sonum+'\n' + "po num: "+ponum+ '\n'+"ship via: "+delivery+'\n';
-    for(var i = 1; i < req.body['rowlength'];i++) {
-        var product =req.body['inside' + i + 'at1'],
-            profile = req.body['inside' + i + 'at2'],
-            color = req.body['inside' + i + 'at3'],
+    var pdfdata = 'CUSTOM ORDER FROM ' + req.user.custid
+                    + '\n' + "sm: " + sm + '\n' + "cust id: " + custid + '\n' + "cust name: " + custname + '\n' + "po num: " + ponum + '\n' + "ship via: " + delivery + '\n';
+    for (var i = 1; i < req.body['rowlength']; i++) {
+        var product = isNumeric(req.body['inside' + i + 'at1'].substring(0,4))?req.body['inside' + i + 'at1'].substring(6):req.body['inside' + i + 'at1'],
+            profile = isNumeric(req.body['inside' + i + 'at2'].substring(0,4))?req.body['inside' + i + 'at2'].substring(6):req.body['inside' + i + 'at2'],
+            color = isNumeric(req.body['inside' + i + 'at3'].substring(0,4))?req.body['inside' + i + 'at3'].substring(6):req.body['inside' + i + 'at3'],
             qty = req.body['inside' + i + 'at4'],
             width = req.body['inside' + i + 'at5'],
             height = req.body['inside' + i + 'at7'],
-            mt = (req.body['inside' + i + 'at8']==null)?'':req.body['inside' + i + 'at8'],
-            val = (req.body['inside' + i + 'at9']==null)?'':req.body['inside' + i + 'at9'],
-            valadd = (req.body['inside' + i + 'at10']==null)?'':req.body['inside' + i + 'at10'],
-            valrt = (req.body['inside' + i + 'at11']==null)?'':req.body['inside' + i + 'at11'],
-            ct = (req.body['inside' + i + 'at12']==null)?'':req.body['inside' + i + 'at12'],
-            tc = (req.body['inside' + i + 'at13']==null)?'':req.body['inside' + i + 'at13'],
-            hd = (req.body['inside' + i + 'at14']==null)?'':req.body['inside' + i + 'at14'],
+            mt = (req.body['inside' + i + 'at8'] == null) ? '' : req.body['inside' + i + 'at8'],
+            val = (req.body['inside' + i + 'at9'] == null) ? '' : req.body['inside' + i + 'at9'],
+            valadd = (req.body['inside' + i + 'at10'] == null) ? '' : req.body['inside' + i + 'at10'],
+            valrt = (req.body['inside' + i + 'at11'] == null) ? '' : req.body['inside' + i + 'at11'],
+            ct = (req.body['inside' + i + 'at12'] == null) ? '' : req.body['inside' + i + 'at12'],
+            tc = (req.body['inside' + i + 'at13'] == null) ? '' : req.body['inside' + i + 'at13'],
+            hd = (req.body['inside' + i + 'at14'] == null) ? '' : req.body['inside' + i + 'at14'],
             description = req.body['inside' + i + 'at151'],
-            comment = (req.body['inside' + i + 'at152']==null)?'':req.body['inside' + i + 'at152'],
+            comment = (req.body['inside' + i + 'at152'] == null) ? '' : req.body['inside' + i + 'at152'],
             unit = req.body['inside' + i + 'at153'],
             sub = req.body['inside' + i + 'at154'];
-        if(parseFloat(width) < 10) continue;
+        if (parseFloat(width) < 10) continue;
 
 
-        if(profile=='EMBOSS' && product=='2\" FAUXWOOD EMBOSS'){
+        if (profile == 'EMBOSS' && product == '2\" FAUXWOOD EMBOSS') {
             //product = '2\" FAUXWOODEMBOSS';
-            if(color==('WHITE'))
+            if (color == ('WHITE'))
                 color = 'E101-WHITE';
-            else if(color==('SNOW'))
+            else if (color == ('SNOW'))
                 color = 'E301-SNOW';
-            else if(color==('PEARL'))
+            else if (color == ('PEARL'))
                 color = 'E605-PEARL';
-            else if(color==('OYSTER'))
+            else if (color == ('OYSTER'))
                 color = 'E610-OYSTER';
-            else if(color==('OFF-WHITE'))
+            else if (color == ('OFF-WHITE'))
                 color = 'E613-OFF-WHITE';
-            else if(color==('BIRCH'))
+            else if (color == ('BIRCH'))
                 color = 'E615-BIRCH';
-            else if(color==('NATURAL'))
+            else if (color == ('NATURAL'))
                 color = 'E620-NATURAL';
-            else if(color==('RIGHT-WHITE'))
+            else if (color == ('RIGHT-WHITE'))
                 color = 'E621-RIGHT-WHITE';
-            else if(color==('ALABASTER'))
+            else if (color == ('ALABASTER'))
                 color = 'E926-ALABASTER';
         }
-        else if(profile==('SMOOTH') && product==('2\" FAUXWOOD SMOOTH')){
-            if(color==('WHITE'))
+        else if (profile == ('SMOOTH') && product == ('2\" FAUXWOOD SMOOTH')) {
+            if (color == ('WHITE'))
                 color = 'HWHITE';
-            else if(color==('OFF-WHITE'))
+            else if (color == ('OFF-WHITE'))
                 color = 'HOFF-WHITE';
         }
-        else if(product.indexOf('VERTICAL')!= -1){
-            if(color==('WHITE'))
+        else if (product.indexOf('VERTICAL') != -1) {
+            if (color == ('WHITE'))
                 color = 'VWHITE';
-            else if(color==('OFF-WHITE'))
+            else if (color == ('OFF-WHITE'))
                 color = 'VOFF-WHITE';
         }
 
-        var w = (parseFloat(width)*1000).toString();
-        var h = (parseFloat(height)*1000).toString();
-        while (w.length < 6) w = "0"+w;
-        while(h.length<6) h = "0"+h;
-        var itemnum = numbers.convert(product) + '-' + numbers.convert(profile) + '-'
-        + (numbers.convert(color) == "string")? numbers.convert(color) : ('0'+numbers.convert(color))
-        +'-'+ w +'-'+ h +'-'+ct;
-        var serial = date+'S'+sonum+'P'+numbers.convert(product)+numbers.convert(profile)+'C'+numbers.convert(color)+'W'+w+'H'+h+ct+'001';
+        var w = (parseFloat(width) * 1000).toString();
+        var h = (parseFloat(height) * 1000).toString();
+        while (w.length < 6) w = "0" + w;
+        while (h.length < 6) h = "0" + h;
+        var itemnum = numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString()
+            + '-' + w + '-' + h + '-' + ct;
+        var serial = date + 'S' + sonum + 'P' + numbers.convert(product) + numbers.convert(profile) + 'C' + numbers.convert(color) + 'W' + w + 'H' + h + ct + '001';
 
-        var sqlFile = './sql/insert.sql';
+
+        pdfdata = pdfdata + i + ": " +  + '\n' + numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString() + '\n' +
+            'QTY:' + qty + '\n' + width + ' X ' + height + '\n' + 'MT:' + mt + '\n' + 'VAL:' + val + '\n' + 'VAL ADD:' + valadd + '\n' + 'VAL RT:' + valrt + '\n' + 'CT:' + ct + '\n' +
+            'TC:' + tc + '\n' + 'HD:' + hd + '\n' + 'COMMENT: ' + comment + '\n \n \n';
+
+        /*
         sql.execute({
-            query: sql.fromFile(sqlFile),
+            query: sql.fromFile('./sql/insert.sql'),
             params: {
-                sm:sm,
+                sm: sm,
                 custid: custid,
                 custname: custname,
-                sonum: sonum,
+                sonum: sonum, //doesn't exist
                 ponum: ponum,
                 product: numbers.convert(product),
                 profile: numbers.convert(profile),
@@ -438,40 +442,50 @@ customers.post('/orderForm',function(req,res){
                 num: itemnum,
                 proddesc: (product + ' ' + profile + ' ' + color),
                 colordesc: color,
-                serial:serial,
+                serial: serial,
                 lineno: i,
                 whenAdded: (new Date()).toLocaleDateString()
             }
         }).then(function (result) {
-                //console.log("success");
-            })
-            .catch(function (err) {
+            //console.log("success");
+        },function (err) {
                 console.log("Error");
                 console.log(err);
                 req.session.error = 'Something went wrong';
                 res.redirect('/CustomOrder');
-            });
-         pdfdata = pdfdata + i + ": "+ itemnum +'\n'+'QTY:' + qty+ '\n'+width+' X '+height+'\n'+'MT:'+mt+'\n'+'VAL:'+val+'\n'+'VAL ADD:'+valadd+'\n'+'VAL RT:'+valrt+'\n'+'CT:'+ct+'\n'+
-                'TC:'+tc+'\n'+'HD:'+hd+'\n'+'COMMENT: '+comment+'\n \n \n';
+        });*/
     }
+
     sql.execute({
         query: sql.fromFile("./sql/saveCustomOrder.sql"),
-        params: {
-            itemno: 'custom order',
+       params: {
+           itemno: 'custom order',
             qty: i,
-            custid: custid
+           custid: custid
         }
+    }).then(function(result){
+        pdfdata = 'SO Num: ' + result[0].newnum + '\n' + pdfdata;
     });
-    pdfmaker.make_pdf(pdfdata, './order.pdf');
+    pdfmaker.make_pdf(pdfdata, './order.pdf', 'landscape');
     mailer.mail('./order.pdf', req.user.custid);
-    req.session.success = 'Order was placed';
-    res.redirect('/customers/home');
-});
 
+    req.session.success = 'Order was placed';
+    res.redirect('/customers/thank');
+
+});
+function isNumeric(num) {
+    return !isNaN(parseFloat(num)) && isFinite(num);
+}
 customers.get('/ViewOrder', loggedIn, function(req,res){
     var sonum = req.query.sonum;
     var webnum = req.query.webnum;
-    var data = '';
+    var data = '',ponum,smnum,delivery;
+    sql.execute({
+        query: sql.fromFile("./sql/getOrderHeader.sql"),
+        params: { sonum: sonum, custid: req.user.custid, webnum:webnum }
+    }).then(function(result){
+
+    });
     sql.execute({
         query: sql.fromFile("./sql/getOrder.sql"),
         params: { sonum: sonum, custid: req.user.custid, webnum:webnum }
@@ -491,7 +505,7 @@ customers.get('/ViewOrder', loggedIn, function(req,res){
             }
 
         }
-        res.render('ViewOrder',{user:req.user, data: data});
+        res.render('ViewOrder',{user:req.user, headerdata: headerdata, data: data});
     });
 
 });
@@ -523,7 +537,7 @@ customers.get('/shoppingCart', loggedIn, function(req,res){
         res.render('PrintableOrder',{user:req.user, ponum:ponum, smnum:smnum, delivery:delivery, instructions:instructions, data:data});
     });
 });
-customers.post('/confirmOrder', function(req,res){
+customers.post('/confirmOrder', loggedIn, function(req,res){
     var ponum = req.body.PONUM;
     var smnum = req.body.SMNUM;
     var instructions = req.body.instructions;
@@ -546,7 +560,7 @@ customers.post('/confirmOrder', function(req,res){
             req.redirect('/customers/shoppingCart');
         }
 
-        pdfmaker.make_pdf(data, './order.pdf');
+        pdfmaker.make_pdf(data, './order.pdf', 'portrait');
         mailer.mail('./order.pdf', req.user.custid);
 
         //create web order id, move everything from cart into order, clear cart
@@ -559,7 +573,7 @@ customers.post('/confirmOrder', function(req,res){
         res.redirect('/customers/thank');
     }
 });
-customers.post('/removeFromCart',function(req,res){
+customers.post('/removeFromCart', loggedIn, function(req,res){
     var itemno = req.body.itemno;
     sql.execute({
         query: sql.fromFile('./sql/removeOrder.sql'),
@@ -568,9 +582,8 @@ customers.post('/removeFromCart',function(req,res){
     res.json({success : "Updated Successfully", status : 200});
 });
 
-customers.get('/thank',function(req,res){
-    req.session.success = "Order confirmed and sent";
-   res.redirect('/customers/home');
+customers.get('/thank', loggedIn, function(req,res){
+   res.render('Thanks');
 });
 
 function loggedIn(req, res, next) {

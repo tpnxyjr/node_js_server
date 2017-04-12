@@ -49,7 +49,7 @@
                 <h3>OPEN ORDERS</h3>
                 <div class="left" id="table-scroll">
                 <table class = "main" id="sort">
-                    <thead><tr><th>Web Order Number</th><th>Order Number</th><th>Order Date</th><th>Order Type</th><th>PO Number</th><th>Order Status</th></tr></thead></tbody>
+                    <thead><tr><th>Web Order Number</th><th>Order Number</th><th data-toggle="tooltip" data-placement="top" title="MM/DD/YYYY">Order Date</th><th>Order Type</th><th>PO Number</th><th>Order Status</th></tr></thead></tbody>
                     {{{data}}}
                 </table>
                     <button id='showolder' onclick="showolder();this.style.display='none';">Show Older Open Orders</button>
@@ -58,7 +58,7 @@
             </div>
             <div class="right" >
                 <h3>KEY</h3>
-                <table class="main"><thead><tr><th>Status</th><th>Definition</th></tr></thead><tbody><tr><td>0</td><td>Order Received</td></tr><tr><td>1</td><td>Order Entered</td></tr><tr><td>4</td><td>Order Confirmed</td></tr><tr><td>7</td><td>Order Ready</td></tr></tbody></table>
+                <table class="main"><thead><tr><th>Status</th><th>Definition</th></tr></thead><tbody><tr><td>0</td><td>Order Received</td></tr><tr><td>1</td><td>Order Entered</td></tr><tr><td>4</td><td>Order Confirmed</td></tr><tr><td>7</td><td>Order Ready</td></tr><tr><td>W</td><td>Web Order</td></tr></tbody></table>
             </div>
         </div>
 

@@ -42,7 +42,7 @@ h3{
     text-align: center;
 }
 .main>tbody>tr:nth-child(even) {
-    background-color: cadetblue;
+    background-color: #d9edf7;
 }
 #table-scroll {
     height:60%;
