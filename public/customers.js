@@ -361,10 +361,16 @@ customers.get('/orderForm', loggedIn, function(req,res){
 
 customers.post('/orderForm', loggedIn, function(req,res) {
     var custid = req.body['CUSTID'], custname = req.body['CUSTNAME'],
-        ponum = req.body['PONUM'], sm = req.body['SM'], delivery = req.body['delivery'];
+        ponum = req.body['PONUM'], sm = req.body['SM'], delivery = req.body['delivery'], sonum = ' xxxxxx';
     var date = req.body['date'];
     var pdfdata = 'CUSTOM ORDER FROM ' + req.user.custid
-                    + '\n' + "sm: " + sm + '\n' + "cust id: " + custid + '\n' + "cust name: " + custname + '\n' + "po num: " + ponum + '\n' + "ship via: " + delivery + '\n';
+                    + '\n' + "sm: " + sm + '\n' + "cust id: " + custid + '\n' + "cust name: " + custname + '\n' + "po num: " + ponum + '\n' + "ship via: " + delivery + '\n'+
+                    '______________________________________________________________________________________________________________________________\n';
+    sql.execute({
+        query: sql.fromFile("./sql/createNewOrderId.sql")
+    }).then(function(result){
+        var sonum = result[0].newnum;
+
     for (var i = 1; i < req.body['rowlength']; i++) {
         var product = isNumeric(req.body['inside' + i + 'at1'].substring(0,4))?req.body['inside' + i + 'at1'].substring(6):req.body['inside' + i + 'at1'],
             profile = isNumeric(req.body['inside' + i + 'at2'].substring(0,4))?req.body['inside' + i + 'at2'].substring(6):req.body['inside' + i + 'at2'],
@@ -424,62 +430,66 @@ customers.post('/orderForm', loggedIn, function(req,res) {
         var h = (parseFloat(height) * 1000).toString();
         while (w.length < 6) w = "0" + w;
         while (h.length < 6) h = "0" + h;
-        var itemnum = numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString()
-            + '-' + w + '-' + h + '-' + ct;
-        var serial = date + 'S' + sonum + 'P' + numbers.convert(product) + numbers.convert(profile) + 'C' + numbers.convert(color) + 'W' + w + 'H' + h + ct + '001';
+        
+            sql.execute({
+                query: sql.fromFile("./sql/saveCustomOrder.sql"),
+                params: {
+                    sonum: sonum,
+                    itemno: numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString(),
+                    qty: qty,
+                    custid: custid
+                }
+            }).then(function(result)
+            {
+                /*var itemnum = numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString()
+                 + '-' + w + '-' + h + '-' + ct;
+                 var serial = date + 'S' + sonum + 'P' + numbers.convert(product) + numbers.convert(profile) + 'C' + numbers.convert(color) + 'W' + w + 'H' + h + ct + '001';
+
+                 sql.execute({
+                 query: sql.fromFile('./sql/insert.sql'),
+                 params: {
+                 sm: sm,
+                 custid: custid,
+                 custname: custname,
+                 sonum: sonum, //doesn't exist
+                 ponum: ponum,
+                 product: numbers.convert(product),
+                 profile: numbers.convert(profile),
+                 color: numbers.convert(color),
+                 qty: qty,
+                 width: width,
+                 height: height,
+                 mount: mt,
+                 val: val,
+                 val_add: valadd,
+                 val_ret: valrt,
+                 ct: ct,
+                 num: itemnum,
+                 proddesc: (product + ' ' + profile + ' ' + color),
+                 colordesc: color,
+                 serial: serial,
+                 lineno: i,
+                 whenAdded: (new Date()).toLocaleDateString()
+                 }
+                 }).then(function (result) {
+                 //console.log("success");
+                 },function (err) {
+                 console.log("Error");
+                 console.log(err);
+                 req.session.error = 'Something went wrong';
+                 res.redirect('/CustomOrder');
+                 });*/
+            });
 
 
-        pdfdata = pdfdata + i + ": " +  + '\n' + numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString() + '\n' +
-            'QTY:' + qty + '\n' + width + ' X ' + height + '\n' + 'MT:' + mt + '\n' + 'VAL:' + val + '\n' + 'VAL ADD:' + valadd + '\n' + 'VAL RT:' + valrt + '\n' + 'CT:' + ct + '\n' +
-            'TC:' + tc + '\n' + 'HD:' + hd + '\n' + 'COMMENT: ' + comment + '\n \n \n';
+        pdfdata = pdfdata + "LN: " + i + '\n' + "PRODUCT: " + numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString() + '\n' +
+            'QTY:' + qty + '\n' + 'WIDTHxHEIGHT: ' + width + ' X ' + height + '\n' + 'MT:' + mt + '\n' + 'VAL:' + val + '\n' + 'VAL ADD:' + valadd + '\n' + 'VAL RT:' + valrt + '\n' + 'CT:' + ct + '\n' +
+            'TC:' + tc + '\n' + 'HD:' + hd + '\n' + 'COMMENT: ' + comment + '\n' + '__________________________________________' + '\n';
 
-        /*
-        sql.execute({
-            query: sql.fromFile('./sql/insert.sql'),
-            params: {
-                sm: sm,
-                custid: custid,
-                custname: custname,
-                sonum: sonum, //doesn't exist
-                ponum: ponum,
-                product: numbers.convert(product),
-                profile: numbers.convert(profile),
-                color: numbers.convert(color),
-                qty: qty,
-                width: width,
-                height: height,
-                mount: mt,
-                val: val,
-                val_add: valadd,
-                val_ret: valrt,
-                ct: ct,
-                num: itemnum,
-                proddesc: (product + ' ' + profile + ' ' + color),
-                colordesc: color,
-                serial: serial,
-                lineno: i,
-                whenAdded: (new Date()).toLocaleDateString()
-            }
-        }).then(function (result) {
-            //console.log("success");
-        },function (err) {
-                console.log("Error");
-                console.log(err);
-                req.session.error = 'Something went wrong';
-                res.redirect('/CustomOrder');
-        });*/
+
     }
-
-    sql.execute({
-        query: sql.fromFile("./sql/saveCustomOrder.sql"),
-       params: {
-           itemno: 'CUSTOM PO FOR SALE',
-            qty: i,
-           custid: custid
-        }
-    }).then(function(result){
-        pdfdata = 'SO Num: ' + result[0].newnum + '\n' + pdfdata;
     });
+    pdfdata = 'SONUM: '+sonum + '\n' + pdfdata;
     pdfmaker.make_pdf(pdfdata, './order.pdf', 'landscape');
     mailer.mail('./order.pdf', req.user.custid);
 

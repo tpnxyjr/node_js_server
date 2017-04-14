@@ -52,8 +52,8 @@ function addRow(tableID) {
             var val = "";
             if(rowCount > 1) val = document.getElementById("inside" + (rowCount-1) + "at" + i).value;
 
-            newcell.innerHTML = "<input id=\""+idstring+"\" type=\"text\" class=\"autofill\" value=\""+escapeHtml(val)+"\" onchange='change_optgroup(this.value, "+rowCount+")'>" +
-            "<div id=\"dropdown\"><select name=\""+idstring+"\" id=\"prodlist"+rowCount+"\" onchange='document.getElementById(\""+idstring+"\").value = this.value; $(\"#"+idstring+"\").trigger(\"change\")';><option value=''></option></option></select></div>";
+            newcell.innerHTML = "<input id=\""+idstring+"\" name=\""+idstring+"\" type=\"text\" class=\"autofill\" value=\""+escapeHtml(val)+"\" onchange='change_optgroup(this.value, "+rowCount+")'>" +
+            "<div id=\"dropdown\"><select id=\"prodlist"+rowCount+"\" onchange='document.getElementById(\""+idstring+"\").value = this.value; $(\"#"+idstring+"\").trigger(\"change\")';><option value=''></option></option></select></div>";
             newcell.appendChild(script);
 
             var selectBox = document.getElementById("prodlist"+rowCount);
@@ -74,8 +74,8 @@ function addRow(tableID) {
             var val = "";
             if(rowCount > 1) val = document.getElementById("inside" + (rowCount-1) + "at" + i).value;
 
-            newcell.innerHTML = "<input id=\""+idstring+"\" type=\"text\" class=\"autofill\" value=\""+escapeHtml(val)+"\">"+
-                "<div id=\"dropdown\"><select name=\""+idstring+"\" id=\"proflist"+rowCount+"\" onchange='document.getElementById(\""+idstring+"\").value = this.value'><option value=''></option></option></select></div>";
+            newcell.innerHTML = "<input id=\""+idstring+"\" name=\""+idstring+"\" type=\"text\" class=\"autofill\" value=\""+escapeHtml(val)+"\">"+
+                "<div id=\"dropdown\"><select id=\"proflist"+rowCount+"\" onchange='document.getElementById(\""+idstring+"\").value = this.value'><option value=''></option></option></select></div>";
             newcell.appendChild(script);
 
             var selectBox = document.getElementById("proflist"+rowCount);
@@ -94,8 +94,8 @@ function addRow(tableID) {
             var val = "";
             if(rowCount > 1) val = document.getElementById("inside" + (rowCount-1) + "at" + i).value;
 
-            newcell.innerHTML = "<input id=\""+idstring+"\" type=\"text\" class=\"autofill combobox\" value=\""+escapeHtml(val)+"\">"+
-                "<div id=\"dropdown\"><select name=\""+idstring+"\" id=\"colorlist"+rowCount+"\" onchange='document.getElementById(\""+idstring+"\").value = this.value'><option value=''></option></option></select></div>";
+            newcell.innerHTML = "<input id=\""+idstring+"\" name=\""+idstring+"\" type=\"text\" class=\"autofill combobox\" value=\""+escapeHtml(val)+"\">"+
+                "<div id=\"dropdown\"><select id=\"colorlist"+rowCount+"\" onchange='document.getElementById(\""+idstring+"\").value = this.value'><option value=''></option></option></select></div>";
             newcell.appendChild(script);
 
             var selectBox = document.getElementById("colorlist"+rowCount);
