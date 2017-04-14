@@ -3,18 +3,23 @@
         <title>View Order</title>
         <link rel="stylesheet" type="text/css" href="./css/basic.css">
     </head>
-    <body>
-        <table border="1">
+    <body onload="autofill()">
+        <table>
+            <div style="display: inline;float:left;width:50%;">PO Number:<input type="text" name="PONUM" style='width:40%;margin:5px;' value='{{{ponum}}}' readonly><br>SM Number:<input type="text" name="SMNUM" style='width:40%;margin:5px;' value='{{{smnum}}}' readonly><br>Delivery Method:<input type="text" name="delivery" style='width:40%;margin:5px;' value='{{{delivery}}}' readonly></div><div style="display: inline;vertical-align: top;">Special Instructions:<textarea name="instructions" cols="60" rows="2" readonly>{{{instructions}}}</textarea></div>
+
+        </table>
+        <table id="cart" border="1">
             <thead>
-            <tr class='gray'><th width='10%'>LN</th><th width='10%'>ORDERED</th><th>UOM</th><th colspan="2">ITEM NO</th></tr>
+            <tr class='gray'><th width='10%'>LN</th><th width='10%'>ORDERED</th><th>UOM</th><th colspan="2">ITEM NO</th><th>SUBTOTAL</th></tr>
             </thead>
             <tbody>
             {{{data}}}
             </tbody>
         </table>
-
+        <script src="./js/viewer.js"></script>
+    <style>input{border:none}</style>
     </body>
-    <footer><a href="/customers/cancel"><input type="button" value="Cancel Order" onclick="alert('This button doesn\'t do anything yet. Sorry!')"></a></footer>
+    <footer><a href="/customers/cancel"><input type="button" value="Cancel Order" style="background-color:mediumaquamarine" onclick="alert('This button doesn\'t do anything yet. Sorry!')"></a></footer>
 {{else}}
     <div class="jumbotron">
         <h1>You are not logged in</h1>

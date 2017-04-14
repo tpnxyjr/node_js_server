@@ -125,7 +125,7 @@ customers.post('/RegularOrder',loggedIn, function(req,res){
     }
 });
 customers.get('/getItem',function(req,res){
-    var itemno = req.query.itemno;
+    var itemno = req.query.itemno.trim();
 
     sql.execute({
         query: sql.fromFile("./sql/getItemInfo.sql"),
@@ -135,7 +135,8 @@ customers.get('/getItem',function(req,res){
             var data = [];
             data.push({
                 "item_desc": "Not A Valid Item",
-                "uom": ""
+                "uom": "",
+                "current_cell" : req.query.current_cell
             });
             res.end(JSON.stringify(data));
         }
@@ -144,7 +145,8 @@ customers.get('/getItem',function(req,res){
             data.push({
                 "item_desc": result[0].item_desc_1,
                 "item_desc_2": result[0].item_desc_2,
-                "uom": result[0].uom
+                "uom": result[0].uom,
+                "current_cell" : req.query.current_cell
             });
             res.end(JSON.stringify(data));
         }
@@ -158,17 +160,26 @@ customers.get('/getPrice',function(req,res){
         query: sql.fromFile("./sql/getItemPrice.sql"),
         params:{ itemno : req.query.itemno}
     }).then(function (result){
-        if(result == null){
+        if(result[0] == null){
             data.push({
                 "baseprice" : "Price Not Found",
-                "totalprice" : 0
+                "totalprice" : 0,
+                "current_cell" : req.query.current_cell
             });
             res.end(JSON.stringify(data));
         }
         else{
             var baseprice = result[0].price;
             var prodcat = result[0].prod_cat;
-            if(req.query.qty < 0 || isNaN(req.query.qty)) req.query.qty = 0;
+            if(prodcat == 'ZZZ'){
+                data.push({
+                    "baseprice" : 'Special',
+                    "totalprice" : 'Special',
+                    "current_cell" : req.query.current_cell
+                });
+                res.end(JSON.stringify(data));
+            }
+            else if(req.query.qty < 0 || isNaN(req.query.qty)) req.query.qty = 0;
             sql.execute({
                 query: sql.fromFile("./sql/Code68.sql"),
                 params:{ itemno : req.query.itemno, code : '6', cat : prodcat}
@@ -202,7 +213,8 @@ customers.get('/getPrice',function(req,res){
                                 price = roundToTwo(price);
                                 data.push({
                                     "baseprice" : price,
-                                    "totalprice" : price * req.query.qty
+                                    "totalprice" : price * req.query.qty,
+                                    "current_cell" : req.query.current_cell
                                 });
                                 res.end(JSON.stringify(data));
                             });
@@ -220,7 +232,8 @@ customers.get('/getPrice',function(req,res){
                             price = roundToTwo(price);
                             data.push({
                                 "baseprice" : baseprice*(100-discount)*0.01,
-                                "totalprice" : baseprice*(100-discount)*0.01*req.query.qty
+                                "totalprice" : baseprice*(100-discount)*0.01*req.query.qty,
+                                "current_cell" : req.query.current_cell
                             });
                             res.end(JSON.stringify(data));
                         }
@@ -237,7 +250,8 @@ customers.get('/getPrice',function(req,res){
                    price = roundToTwo(price);
                    data.push({
                        "baseprice" : baseprice*(100-discount)*0.01,
-                       "totalprice" : baseprice*(100-discount)*0.01*req.query.qty
+                       "totalprice" : baseprice*(100-discount)*0.01*req.query.qty,
+                       "current_cell" : req.query.current_cell
                    });
                    res.end(JSON.stringify(data));
                }
@@ -459,7 +473,7 @@ customers.post('/orderForm', loggedIn, function(req,res) {
     sql.execute({
         query: sql.fromFile("./sql/saveCustomOrder.sql"),
        params: {
-           itemno: 'custom order',
+           itemno: 'CUSTOM PO FOR SALE',
             qty: i,
            custid: custid
         }
@@ -477,35 +491,48 @@ function isNumeric(num) {
     return !isNaN(parseFloat(num)) && isFinite(num);
 }
 customers.get('/ViewOrder', loggedIn, function(req,res){
-    var sonum = req.query.sonum;
-    var webnum = req.query.webnum;
-    var data = '',ponum,smnum,delivery;
+    var sonum = (req.query.sonum != null)? req.query.sonum : req.query.webnum;
+    var data = '',ponum,smnum,delivery,instructions;
     sql.execute({
         query: sql.fromFile("./sql/getOrderHeader.sql"),
-        params: { sonum: sonum, custid: req.user.custid, webnum:webnum }
+        params: { sonum: sonum, custid: req.user.custid }
     }).then(function(result){
-
+        if(result[0] == null){
+            ponum = '';
+            smnum = '';
+            delivery = '';
+            instructions = '';
+        }
+        else {
+            ponum = result[0].ponum;
+            smnum = result[0].smnum;
+            delivery = result[0].delivery;
+            instructions = result[0].instructions;
+        }
     });
     sql.execute({
         query: sql.fromFile("./sql/getOrder.sql"),
-        params: { sonum: sonum, custid: req.user.custid, webnum:webnum }
+        params: { sonum: sonum, custid: req.user.custid }
     }).then(function(result){
         if(result[0] == null) data = "An error occured when pulling up this order";
         else {
             if(result[0].line_seq_no != null) {
                 for (var i = 0; i < result.length; i++) {
-                    data = data + "<tr><td>" + result[i].line_seq_no + "</td><td>" + result[i].qty_ordered + "</td><td>" + result[i].uom + "</td><td>" + result[i].item_no + "</td><td>" + result[i].item_desc_1 + "</td></tr>";
+                    //priceLookup(result[i].item_no, result[i].qty_ordered, req.user.custid, function(obj){  console.log( JSON.parse(obj)[0].totalprice.toString()) ;     });
+                    var j = i+1;
+                    data = data + "<tr><td>" + result[i].line_seq_no + "</td><td><input id='qty"+j+"' value='" + result[i].qty_ordered + "' size='5' readonly></td><td>" + result[i].uom + "</td><td><input id='item"+j+"' value='" + result[i].item_no + "' readonly></td><td>" + result[i].item_desc_1 + "</td><td><input id = 'subtotal"+j+"' readonly></td></tr>";
                 }
             }
             else if(result[0].ord_id != null){
                 for(var i = 0; i < result.length; i++){
-                    data = data + "<tr><td>"+(i+1)+"</td><td>"+ result[i].qty+"</td><td></td><td>"+result[i].itemno +"</td><td></td></tr>";
+                    var j = i+1;
+                    data = data + "<tr><td>"+j+"</td><td><input id='qty"+j+"' value='" + result[i].qty + "' size='5' readonly></td><td><input id='uom"+j+"' readonly></td><td><input id='item"+j+"' value='" + result[i].itemno + "' readonly></td><td><input id='item_desc"+i+"' readonly></td><td><input id='subtotal"+j+"' readonly></td></tr>";
                 }
 
             }
 
         }
-        res.render('ViewOrder',{user:req.user, headerdata: headerdata, data: data});
+        res.render('ViewOrder',{user:req.user, ponum:ponum, smnum:smnum, delivery:delivery, instructions:instructions, data: data});
     });
 
 });
@@ -532,7 +559,7 @@ customers.get('/shoppingCart', loggedIn, function(req,res){
     }).then(function(result){
         var data = '';
         for(var i = 1; i < result.length+1; i++){
-            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[i-1].itemno+"' style='border:none' readonly></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' value='"+result[i-1].qty+"' style='border:none' readonly></td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
+            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[i-1].itemno+"' style='border:none' readonly></td><td></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' value='"+result[i-1].qty+"' style='border:none' readonly></td><td></td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
         }
         res.render('PrintableOrder',{user:req.user, ponum:ponum, smnum:smnum, delivery:delivery, instructions:instructions, data:data});
     });
@@ -593,5 +620,6 @@ function loggedIn(req, res, next) {
         res.redirect('/signin');
     }
 }
+
 exports.customers = customers;
 module.exports= customers;
