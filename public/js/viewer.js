@@ -7,8 +7,9 @@ function autofill(){
             url: '/customers/getItem',
             success: function (data) {
                 $.each(data, function (index, element) {
-                    if(element.uom == null) element.uom = 'EA';
+                    if(element.uom == null || element.uom == 'EA') element.uom = 'EA';
                     document.getElementById('uom'+element.current_cell).value = element.uom;
+                    document.getElementById('item_desc'+element.current_cell).value = element.item_desc + element.item_desc_2;
                 });
             }
             , error: function (xhr) {
@@ -22,7 +23,8 @@ function autofill(){
                 url: '/customers/getPrice',
                 success: function (data) {
                     $.each(data, function (index, element) {
-                        document.getElementById('subtotal'+element.current_cell).value = element.totalprice;
+                        if(element.totalprice != 0)
+                            document.getElementById('subtotal'+element.current_cell).value = element.totalprice;
                     });
                 }
                 , error: function (xhr) {

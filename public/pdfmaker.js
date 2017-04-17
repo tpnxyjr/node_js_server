@@ -13,7 +13,6 @@ function make_pdf(input, file, format) {
          .text(input, {
              width: 412,
              align: 'justify',
-             columns: 1
          });
 
     myDoc.end();
