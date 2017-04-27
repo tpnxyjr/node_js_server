@@ -279,7 +279,7 @@ customers.get('/getUOM', function(req,res){
         query: sql.fromFile("./sql/getUom.sql"),
         params: { itemno: req.query.itemno }
     }).then(function(result) {
-        if(result !== null && result !== undefined) {
+        if(result[0] !== null && result[0] !== undefined) {
             var data = [];
             data.push({
                 "uom_1" : result[0].uom_1,
