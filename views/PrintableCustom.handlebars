@@ -1,0 +1,39 @@
+{{#if user}}
+    <head>
+        <title>Shopping Cart</title>
+        <link rel="stylesheet" type="text/css" href="./css/basic.css">
+        <style>input {border:none;}</style>
+        <link rel="stylesheet" type="text/css" href="./css/shoppingcart.css">
+    </head>
+    <body onload="autofill()">
+    <form action="/customers/confirmCustom" method="post">
+        <div style="display: inline;vertical-align: top;float:left;width:50%;">PO Number:<input type="text" name="PONUM" style='width:40%' value="{{ponum}}" placeholder="Purchase Order Number"><br>SM Number:<input type="text" name="SMNUM" style='width:40%;' value="{{smnum}}" placeholder="Side Mark Number"><br>Delivery Method:<input type="text" name="delivery" style='width:40%;' value="{{delivery}}" placeholder="Delivery Method"></div><div style="display: inline;vertical-align: top;">Special Instructions:<textarea name="instructions" cols="60" rows="2" placeholder="Special Instructions">{{{instructions}}}</textarea></div>
+        <div><input type="number" id="rowlength" name="rowlength" readonly hidden></div>
+        <table id="body">
+            <thead><tr><th width="4%"><B>LN</B></th><th width="16%">Item</th><th width="8%">Quantity</th><th>Width</th><th>Height</th><th width="4%">Mt</th><th width="4%">Val</th><th width="6%">ValAdd</th><th width="6%">ValRt</th><th width="4%">CT</th><th>Subtotal</th><th>Action</th></tr></thead>
+            <tbody>
+            {{{data}}}
+            </tbody>
+        </table>
+        <input type="submit" value="Confirm and Send Order" style='border: ridge;' onclick="document.getElementById('rowlength').value = document.getElementById('body').rows.length;">
+    </form>
+    <script src="./js/jquery-1.12.4.js"></script>
+    <script src="./js/shopcart.js"></script>
+    </body>
+
+
+
+
+{{else}}
+    <div class="jumbotron">
+        <h1>You are not logged in</h1>
+        <p>Sign in and view your profile!</p>
+        <p>
+            <a href="/signin" class="btn btn-primary btn-lg" role="button">
+                <span class="glyphicon glyphicon-user"></span>
+                Sign in!
+            </a>
+        </p>
+    </div>
+
+{{/if}}

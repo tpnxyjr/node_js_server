@@ -12,3 +12,13 @@ th, td{
     align-content: center;
     padding: 10px;
 }
+input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing: border-box;
+    margin-left: 0;
+}
+.container{
+    width:90%;
+}

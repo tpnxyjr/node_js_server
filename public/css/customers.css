@@ -140,3 +140,9 @@ li:hover {
 textarea {
     resize: none;
 }
+a.list-group-item {
+    background-color:#d9edf7;
+}
+.container{
+    width:90%;
+}

@@ -25,7 +25,14 @@ function addRow(tableID) {
             newcell.appendChild(script);
         }
         else if(i==2){
+            //pickable uom
+            newcell.innerHTML = "<select name='uom"+rowCount+"' id='uom"+rowCount+"'></select>";
+        }
+        else if(i==3){
             newcell.innerHTML = "<input type = 'text' name='"+idstring+"' id='"+idstring+"' placeholder='Qty' onchange='autofill("+rowCount+","+colCount+")'>";
+        }
+        else if(i == 7 || i == 8){
+            newcell.innerHTML = "$<input type = 'text' id='"+idstring+"' style='border:none' readonly>";
         }
         else{
             newcell.innerHTML = "<input type = 'text' id='"+idstring+"' readonly>";
@@ -91,7 +98,7 @@ function autofill(rowCount,colCount){
                 url: '/customers/getItem',
                 success: function(data) {
                     $.each(data, function(index, element) {
-                        document.getElementById(idstring+3).value = element.uom;
+                       // document.getElementById(idstring+2).value = element.uom;
                         document.getElementById(idstring+5).value = element.item_desc;
                         document.getElementById(idstring+6).value = element.item_desc_2;
                     });
@@ -100,10 +107,10 @@ function autofill(rowCount,colCount){
                      }
             });
         });
-    if(document.getElementById(idstring+2).value < 0) document.getElementById(idstring+2).value = 0;
-        if(document.getElementById(idstring+2).value!='' && !isNaN(document.getElementById(idstring+2).value)){
+    if(document.getElementById(idstring+3).value < 0) document.getElementById(idstring+3).value = 0;
+        if(document.getElementById(idstring+3).value!='' && !isNaN(document.getElementById(idstring+3).value)){
             $.ajax({
-                data: { itemno: item, qty: document.getElementById(idstring+2).value },
+                data: { itemno: item, qty: document.getElementById(idstring+3).value },
                 dataType: 'json',
                 type: 'GET',
                 url: '/customers/getPrice',
@@ -117,6 +124,7 @@ function autofill(rowCount,colCount){
                      }
             });
         }
+        updateUom('uom'+rowCount,item);
 }
 function subtotal(tableID){
     var table = document.getElementById(tableID);
@@ -125,7 +133,7 @@ function subtotal(tableID){
     for(var i = 1; i < rowCount; i++){
         total+= parseFloat(document.getElementById("inside"+i+"at"+8).value);
     }
-    document.getElementById("total").value = total;
+    document.getElementById("total").value = total.toFixed(2);
     document.getElementById('rowlength').value = rowCount;
 }
 $(document).ready(function() {
@@ -146,5 +154,33 @@ function checkOrder(){
         }
     }
     document.getElementById('rowlength').value = rowCount;
+    alert(rowCount);
     return true;
+}
+
+function updateUom(cellID, itemno){
+    var operator = document.getElementById(cellID);
+    for(var i = operator.options.length -1; i >= 0; i--){
+        operator.remove(i);
+    }
+    $.ajax({
+        data: {itemno: itemno},
+        dataType: 'json',
+        type: 'GET',
+        url: '/customers/getUom',
+        success: function (data) {
+            $.each(data, function (index, element) {
+                var option = document.createElement('option');
+                option.text = element.uom_1;
+                operator.add(option);
+                var option2 = document.createElement('option');
+                option2.text = element.uom_2;
+                operator.add(option2);
+            });
+        }
+        , error: function (xhr) {
+            alert(xhr.status + ' : ' + xhr.statusText);
+        }
+    });
+
 }

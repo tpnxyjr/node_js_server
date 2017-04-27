@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="./css/basic.css">
     <link rel="stylesheet" type="text/css" href="./css/shoppingcart.css">
 </head>
-<body>
+<body onload="autofill()">
 <form action="/customers/confirmOrder" method="post">
 <div style="display: inline;vertical-align: top;float:left;width:50%;">PO Number:<input type="text" name="PONUM" style='width:40%' value="{{ponum}}" placeholder="Purchase Order Number"><br>SM Number:<input type="text" name="SMNUM" style='width:40%;' value="{{smnum}}" placeholder="Side Mark Number"><br>Delivery Method:<input type="text" name="delivery" style='width:40%;' value="{{delivery}}" placeholder="Delivery Method"></div><div style="display: inline;vertical-align: top;">Special Instructions:<textarea name="instructions" cols="60" rows="2" placeholder="Special Instructions">{{instructions}}</textarea></div>
     <input type="number" id="rowlength" name="rowlength" readonly hidden>

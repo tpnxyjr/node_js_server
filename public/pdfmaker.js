@@ -11,7 +11,7 @@ function make_pdf(input, file, format) {
 
     myDoc.font('Courier', 16)
          .text(input, {
-             width: 412,
+            // width: 412,
              align: 'justify',
          });
 

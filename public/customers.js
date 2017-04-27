@@ -59,9 +59,9 @@ customers.get('/home', loggedIn, function(req,res){
                     query: sql.fromFile("./sql/getCustomerWebOrders.sql"),
                     params: {custid: req.user.custid}
                 }).then(function (result2) {
-
                     for (var j = 0; j < result2.length; j++) {
-                        data = data + "<tr><td>" + result2[j].ord_id + "</td><td>xxxxxx</td><td>" + result2[j].ord_dt + "</td><td>Web</td><td></td><td>W</td><td><a href='/customers/ViewOrder?webnum=" + result2[j].ord_id + "'><input type='button' value='View'></a></td></tr>";
+                        if(result2[j].ord_type == null)result2[j].ord_type = '';
+                        data = data + "<tr><td>" + result2[j].ord_id+result2[j].ord_type + "</td><td>xxxxxx</td><td>" + result2[j].ord_dt + "</td><td>Web</td><td></td><td>W</td><td><a href='/customers/ViewOrder?webnum=" + result2[j].ord_id + "'><input type='button' value='View'></a></td></tr>";
                     }
                     data = data + "</tbody>"
                     res.render('customerhome', {user: req.user, data: data});
@@ -100,11 +100,13 @@ customers.post('/RegularOrder',loggedIn, function(req,res){
         try {
             for (var i = 1; i < req.body['rowlength']; i++) {
                 var itemno = "inside" + i + "at1";
-                var qty = "inside" + i + "at2";
+                var uom = "uom"+i;
+                var qty = "inside" + i + "at3";
                 sql.execute({
                     query: sql.fromFile("./sql/saveRegularOrder.sql"),
                     params: {
                         itemno: req.body[itemno],
+                        uom: req.body[uom],
                         qty: req.body[qty],
                         custid: req.user.custid
                     }
@@ -221,10 +223,9 @@ customers.get('/getPrice',function(req,res){
                                 else if(req.query.qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
                                 if(result[0].cd_tp == 1) price = discount;
                                 else price = baseprice*(100-discount)*0.01;
-                                price = roundToTwo(price);
                                 data.push({
-                                    "baseprice" : price,
-                                    "totalprice" : price * req.query.qty,
+                                    "baseprice" : roundToFour(price),
+                                    "totalprice" : roundToTwo(price * req.query.qty),
                                     "current_cell" : req.query.current_cell
                                 });
                                 res.end(JSON.stringify(data));
@@ -234,16 +235,17 @@ customers.get('/getPrice',function(req,res){
                         }
                        else{
                             //code 8
+                            var price = 0;
                             var discount = 0;
                             if(result[0].minimum_qty_5 != 0 && req.query.qty > result[0].minimum_qty_5) discount = result[0].prc_or_disc_5;
                             else if(result[0].minimum_qty_4 != 0 && req.query.qty > result[0].minimum_qty_4) discount = result[0].prc_or_disc_4;
                             else if(result[0].minimum_qty_3 != 0 && req.query.qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
                             else if(result[0].minimum_qty_2 != 0 && req.query.qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
                             else if(req.query.qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
-                            price = roundToTwo(price);
+                            price = baseprice*(100-discount)*0.01;
                             data.push({
-                                "baseprice" : baseprice*(100-discount)*0.01,
-                                "totalprice" : baseprice*(100-discount)*0.01*req.query.qty,
+                                "baseprice" : roundToFour(price),
+                                "totalprice" : roundToTwo(price*req.query.qty),
                                 "current_cell" : req.query.current_cell
                             });
                             res.end(JSON.stringify(data));
@@ -252,16 +254,17 @@ customers.get('/getPrice',function(req,res){
                }
                 else{
                    //code 6
+                   var price = 0;
                    var discount = 0;
                    if(result[0].minimum_qty_5 != 0 && req.query.qty > result[0].minimum_qty_5) discount = result[0].prc_or_disc_5;
                    else if(result[0].minimum_qty_4 != 0 && req.query.qty > result[0].minimum_qty_4) discount = result[0].prc_or_disc_4;
                    else if(result[0].minimum_qty_3 != 0 && req.query.qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
                    else if(result[0].minimum_qty_2 != 0 && req.query.qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
                    else if(req.query.qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
-                   price = roundToTwo(price);
+                   price = baseprice*(100-discount)*0.01;
                    data.push({
-                       "baseprice" : baseprice*(100-discount)*0.01,
-                       "totalprice" : baseprice*(100-discount)*0.01*req.query.qty,
+                       "baseprice" : roundToFour(price),
+                       "totalprice" : roundToTwo(price*req.query.qty),
                        "current_cell" : req.query.current_cell
                    });
                    res.end(JSON.stringify(data));
@@ -271,13 +274,35 @@ customers.get('/getPrice',function(req,res){
 
     });
 });
+customers.get('/getUOM', function(req,res){
+    sql.execute({
+        query: sql.fromFile("./sql/getUom.sql"),
+        params: { itemno: req.query.itemno }
+    }).then(function(result) {
+        if(result !== null && result !== undefined) {
+            var data = [];
+            data.push({
+                "uom_1" : result[0].uom_1,
+                "qty_1" : result[0].qty_1,
+                "uom_2" : result[0].uom_2,
+                "qty_2" : result[0].qty_2
+            });
+            res.end(JSON.stringify(data));
+        }
+        else
+            res.end();
+    });
+});
 function roundToTwo(num) {
-    return +(Math.round(num + "e+2")  + "e-2");
+    return (+(Math.round(num + "e+2")  + "e-2")).toFixed(2);
+}
+function roundToFour(num) {
+    return +(Math.round(num + "e+4")  + "e-4");
 }
 customers.get('/search',function(req,res){
     sql.execute({
         query: sql.fromFile("./sql/search.sql"),
-        params: {key:req.query.key+'%'}
+        params: {key:req.query.key.trim()+'%'}
     }).then(function (result) {
         var data=[];
         for(var i = 0; i < result.length; i++){
@@ -381,7 +406,6 @@ customers.post('/orderForm', loggedIn, function(req,res) {
         query: sql.fromFile("./sql/createNewOrderId.sql")
     }).then(function(result){
         var sonum = result[0].newnum;
-        pdfdata = 'SONUM: '+sonum + '\n' + pdfdata;
 
         for (var i = 1; i < req.body['rowlength']; i++) {
         var product = isNumeric(req.body['inside' + i + 'at1'].substring(0,4))?req.body['inside' + i + 'at1'].substring(6):req.body['inside' + i + 'at1'],
@@ -443,19 +467,20 @@ customers.post('/orderForm', loggedIn, function(req,res) {
         while (w.length < 6) w = "0" + w;
         while (h.length < 6) h = "0" + h;
 
-            sql.execute({
+            /*sql.execute({
                 query: sql.fromFile("./sql/saveCustomOrder.sql"),
                 params: {
                     sonum: sonum,
                     itemno: numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString(),
+                    line: i,
                     qty: qty,
                     custid: custid,
                     sub: sub
                 }
             }).then(function(result)
-            {
-                /*var itemnum = numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString()
-                 + '-' + w + '-' + h + '-' + ct;
+            {*/
+                var itemnum = numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString();
+                 //+ '-' + w + '-' + h + '-' + ct;
                  var serial = date + 'S' + sonum + 'P' + numbers.convert(product) + numbers.convert(profile) + 'C' + numbers.convert(color) + 'W' + w + 'H' + h + ct + '001';
 
                  sql.execute({
@@ -477,12 +502,17 @@ customers.post('/orderForm', loggedIn, function(req,res) {
                  val_add: valadd,
                  val_ret: valrt,
                  ct: ct,
+                 tc: tc,
+                 hd: hd,
                  num: itemnum,
                  proddesc: (product + ' ' + profile + ' ' + color),
                  colordesc: color,
                  serial: serial,
                  lineno: i,
-                 whenAdded: (new Date()).toLocaleDateString()
+                 whenAdded: (new Date()).toLocaleDateString(),
+                     subtotal: sub,
+                     delivery: delivery,
+                     comment: comment
                  }
                  }).then(function (result) {
                  //console.log("success");
@@ -491,23 +521,17 @@ customers.post('/orderForm', loggedIn, function(req,res) {
                  console.log(err);
                  req.session.error = 'Something went wrong';
                  res.redirect('/CustomOrder');
-                 });*/
-            });
+                 });
+           // });
 
 
-        pdfdata = pdfdata + "LN: " + i + '\n' + "PRODUCT: " + numbers.convert(product).toString() + '-' + numbers.convert(profile).toString() + '-' + numbers.convert(color).toString() + '\n' +
-            'QTY:' + qty + '\n' + 'WIDTHxHEIGHT: ' + width + ' X ' + height + '\n' + 'MT:' + mt + '\n' + 'VAL:' + val + '\n' + 'VAL ADD:' + valadd + '\n' + 'VAL RT:' + valrt + '\n' + 'CT:' + ct + '\n' +
-            'TC:' + tc + '\n' + 'HD:' + hd + '\n' + 'COMMENT: ' + comment + '\n' + '__________________________________________' + '\n';
+
 
 
         }
-    }).then(function() {
-
-        pdfmaker.make_pdf(pdfdata, './order.pdf', 'landscape');
-        mailer.mail('./order.pdf', req.user.custid);
     });
-    req.session.success = 'Order was placed';
-    res.redirect('/customers/thank');
+    req.session.success = "Order submitted, please confirm and send using the button below";
+    res.redirect('/customers/customCart');
 
 });
 function isNumeric(num) {
@@ -543,14 +567,14 @@ customers.get('/ViewOrder', loggedIn, function(req,res){
                 for (var i = 0; i < result.length; i++) {
                     //priceLookup(result[i].item_no, result[i].qty_ordered, req.user.custid, function(obj){  console.log( JSON.parse(obj)[0].totalprice.toString()) ;     });
                     var j = i+1;
-                    data = data + "<tr><td>" + result[i].line_seq_no + "</td><td><input id='qty"+j+"' value='" + result[i].qty_ordered + "' size='5' readonly></td><td>" + result[i].uom + "</td><td><input id='item"+j+"' value='" + result[i].item_no + "' readonly></td><td>" + result[i].item_desc_1 + "</td><td><input id = 'subtotal"+j+"' readonly></td></tr>";
+                    data = data + "<tr><td>" + result[i].line_seq_no + "</td><td><input id='qty"+j+"' value='" + result[i].qty_ordered + "' size='5' readonly></td><td>" + result[i].uom + "</td><td><input id='item"+j+"' value='" + result[i].item_no + "' readonly></td><td>" + result[i].item_desc_1 + "</td><td><input id = 'unit"+j+"' readonly></td><td><input id = 'subtotal"+j+"' readonly></td></tr>";
                 }
             }
             else if(result[0].ord_id != null){
                 for(var i = 0; i < result.length; i++){
                     var j = i+1;
                     if(result[i].total == null)result[i].total = 0;
-                    data = data + "<tr><td>"+j+"</td><td><input id='qty"+j+"' value='" + result[i].qty + "' size='5' readonly></td><td><input id='uom"+j+"' readonly></td><td><input id='item"+j+"' value='" + result[i].itemno + "' readonly></td><td><input id='item_desc"+j+"' readonly></td><td><input id='subtotal"+j+"' value='"+result[i].total+"'readonly></td></tr>";
+                    data = data + "<tr><td>"+j+"</td><td><input id='qty"+j+"' value='" + result[i].qty + "' size='5' readonly></td><td><input id='uom"+j+"' readonly></td><td><input id='item"+j+"' value='" + result[i].itemno + "' readonly></td><td><input id='item_desc"+j+"' readonly></td><td><input id='unit"+j+"' value='"+(result[i].total/result[i].qty).toFixed(2)+"'readonly></td><td><input id='subtotal"+j+"' value='"+result[i].total.toFixed(2)+"'readonly></td></tr>";
                 }
 
             }
@@ -579,13 +603,37 @@ customers.get('/shoppingCart', loggedIn, function(req,res){
     });
     sql.execute({
         query: sql.fromFile("./sql/getShoppingCart.sql"),
-        params: {custid: custid}
+        params: {custid: custid, toggle: '1'}
     }).then(function(result){
         var data = '';
         for(var i = 1; i < result.length+1; i++){
-            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[i-1].itemno+"' style='border:none' readonly></td><td></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' value='"+result[i-1].qty+"' style='border:none' readonly></td><td></td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
+            var j = i-1;
+            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[j].itemno+"' style='border:none' readonly></td><td><input id='uom"+i+"' name = 'uom"+i+"' style='border:none' value='"+result[j].uom+"'readonly></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' value='"+result[j].qty+"' style='border:none' readonly></td><td><input id='subtotal"+i+"' name = 'subtotal"+i+"' style='border:none' readonly></td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
         }
         res.render('PrintableOrder',{user:req.user, ponum:ponum, smnum:smnum, delivery:delivery, instructions:instructions, data:data});
+    });
+});
+customers.get('/customCart',loggedIn,function(req,res){
+    var ponum,smnum,delivery,instructions;
+    sql.execute({
+        query: sql.fromFile("./sql/getShoppingCart.sql"),
+        params: {custid: req.user.custid, toggle: '0'}
+    }).then(function(result) {
+        if(result[0] != null) {
+            ponum = result[0].po_number;
+            smnum = result[0].sm;
+            delivery = result[0].delivery;
+            instructions = result[0].comment;
+        }
+        var data = '';
+        for(var i = 1; i < result.length+1; i++) {
+            var j = i - 1;
+            if(result[j].comment == null)result[j].comment = '';
+            data = data + "<tr><td>"+result[j].line_number+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[j].item_number.trim()+"' size='15' style='border:none;' readonly></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' size='5' value='"+result[j].qty+"'  readonly></td><td><input type = 'text' id = 'width"+i+"' name = 'width"+i+"' size='7' value='"+result[j].width+"' readonly></td><td><input type = 'text' id = 'height"+i+"' name = 'height"+i+"' size='7' value='"+result[j].height+"' readonly></td><td><input type = 'text' id = 'mt"+i+"' name = 'mt"+i+"' size='2' value='"+result[j].mount.trim()+"' readonly></td><td><input type = 'text' id = 'val"+i+"' name = 'val"+i+"' size='2' value='"+result[j].val_style.trim()+"' readonly></td><td><input type = 'text' id = 'valadd"+i+"' name = 'valadd"+i+"' size='4' value='"+result[j].val_add+"' readonly></td><td><input type = 'text' id = 'valrt"+i+"' name = 'valrt"+i+"' size='4' value='"+result[j].val_ret+"' readonly></td><td><input type = 'text' id = 'ct"+i+"' name = 'ct"+i+"' size='2' value='"+result[j].control+"' readonly>" +
+                "<input type = 'text' id = 'tc"+i+"' name = 'tc"+i+"' size='3' value='"+result[j].tc+"' readonly hidden><input type = 'text' id = 'hd"+i+"' name = 'hd"+i+"' size='3' value='"+result[j].hd+"' readonly hidden><input type = 'text' id = 'comment"+i+"' name = 'comment"+i+"' value='"+result[j].comment+"' readonly hidden>"+
+                "</td><td><input name = 'subtotal"+i+"'  size='10' value='"+result[j].subtotal.toFixed(2)+"'readonly></td><td><input type='button' value = 'Remove' style='border: ridge;' onclick='remove("+i+");'></td></tr>"
+        }
+        res.render('PrintableCustom', {user: req.user, ponum:ponum, smnum:smnum, delivery:delivery, instructions:instructions, data: data});
     });
 });
 customers.post('/confirmOrder', loggedIn, function(req,res){
@@ -602,8 +650,8 @@ customers.post('/confirmOrder', loggedIn, function(req,res){
             for (var i = 1; i < req.body['rowlength']; i++) {
                 var itemno = "item" + i;
                 var qty = "qty" + i;
-
-                data = data + i + ': ' + req.body[itemno] + '     ' + req.body[qty] + '\n';
+                var uom = "uom" + i;
+                data = data + i + ': ' + req.body[itemno].trim() + ' '+req.body[uom].trim()+'      ' + req.body[qty] + '\n';
             }
         }
         catch (err) {
@@ -617,6 +665,41 @@ customers.post('/confirmOrder', loggedIn, function(req,res){
         //create web order id, move everything from cart into order, clear cart
         sql.execute({
             query: sql.fromFile("./sql/clearCart.sql"),
+            params: {custid: req.user.custid}
+        });
+
+        req.session.success = "Order confirmed and sent";
+        res.redirect('/customers/thank');
+    }
+});
+customers.post('/confirmCustom', loggedIn, function(req,res){
+    var ponum = req.body.PONUM;
+    var smnum = req.body.SMNUM;
+    var instructions = req.body.instructions;
+    var delivery = req.body.delivery;
+    if(req.body['rowlength'] <= 1){
+        req.session.error = "The shopping cart is empty";
+        res.redirect('/customers/shoppingCart');
+    }else {
+        var data = 'CUSTOM ORDER FROM ' + req.user.custid + '\n' + (new Date()) + '\n' + 'PONUM: ' + ponum + '\n' + 'SMNUM: ' + smnum + '\n' + 'INSTRUCTIONS: ' + instructions + '\n' + 'DELIVERY: ' + delivery + ' \n \n';
+        try {
+            for (var i = 1; i < req.body['rowlength']; i++) {
+                data = data + "LN: " + i + '\n' + "PRODUCT: " + req.body['item'+i] + '\n' +
+                    'QTY:' + req.body['qty'+i] + '\n' + 'WIDTHxHEIGHT: ' + req.body['width'+i] + ' X ' + req.body['height'+i] + '\n' + 'MT:' + req.body['mt'+i] + '\n' + 'VAL:' + req.body['val'+i] + '\n' + 'VAL ADD:' + req.body['valadd'+i] + '\n' + 'VAL RT:' + req.body['valrt'+i] + '\n' + 'CT:' + req.body['ct'+i] + '\n' +
+                    'TC:' + req.body['tc'+i] + '\n' + 'HD:' + req.body['hd'+i] + '\n' + 'COMMENT: ' + req.body['comment'+i] + '\n' + '__________________________________________' + '\n';
+            }
+        }
+        catch (err) {
+            req.session.error = "Invalid page modification";
+            req.redirect('/customers/shoppingCart');
+        }
+
+        pdfmaker.make_pdf(data, './order.pdf', 'landscape');
+        mailer.mail('./order.pdf', req.user.custid);
+
+        //create web order id, move everything from cart into order, clear cart
+        sql.execute({
+            query: sql.fromFile("./sql/confirmCustom.sql"),
             params: {custid: req.user.custid}
         });
 

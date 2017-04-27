@@ -11,7 +11,7 @@
 <div id="header" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
     <div class="jumbotron">
-        <h1>THANK YOU FOR USING</h1>
+        <h2>THANK YOU FOR USING</h2>
         <h1>CBC CUSTOMER PORTAL</h1>
     </div>
     </div>
@@ -23,22 +23,26 @@
                 <li>
                     <a class="list-group-item list-group-item-info" href="#submenu"  data-toggle="collapse" data-parent="#sidebar" style="margin-bottom:0;">New Order</a>
                     <div class="collapse" id="submenu">
-                        <a href="/customers/RegularOrder" class="list-group-item">Components & Readymade</a>
-                        <a href="/customers/orderForm" class="list-group-item">Contract Orders</a>
-                        <a href="/customers/shoppingCart" class="list-group-item">View Shopping Cart</a>
+                        <a href="/customers/RegularOrder" class="list-group-item">Regular Order</a>
+                        <a href="/customers/orderForm" class="list-group-item">Contract Order</a>
+                        <a class="list-group-item list-group-item-info" href="#cartmenu"  data-toggle="collapse" data-parent="#sidebar" style="margin-bottom:0;">View Cart</a>
+                        <div class="collapse" id="cartmenu">
+                            <a href="/customers/shoppingCart" class="list-group-item">Regular Orders</a>
+                            <a href="/customers/customCart" class="list-group-item">Custom Orders</a>
+                        </div>
                     </div>
                 </li>
                 <li>
-                    <a class="list-group-item list-group-item-info" href="#"><i class="icon-home icon-1x"></i>Order Status</a>
+                    <a class="list-group-item list-group-item-info" href="#"><i class="icon-home icon-1x"></i>Order Status(n)</a>
                 </li>
                 <li>
-                    <a class="list-group-item list-group-item-info" href="#"><i class="icon-home icon-1x"></i>Accounting</a>
+                    <a class="list-group-item list-group-item-info" href="#"><i class="icon-home icon-1x"></i>Accounting(n)</a>
                 </li>
                 <li>
                     <a class="list-group-item list-group-item-info" href="/customers/changePassword"><i class="icon-home icon-1x"></i>Account Settings</a>
                 </li>
                 <li>
-                    <a class="list-group-item list-group-item-info" href="#"><i class="icon-home icon-1x"></i>Other Request</a>
+                    <a class="list-group-item list-group-item-info" href="#"><i class="icon-home icon-1x"></i>Other Request(n)</a>
                 </li>
             </ul>
         </div>
@@ -58,7 +62,7 @@
             </div>
             <div class="right" >
                 <h3>KEY</h3>
-                <table class="main"><thead><tr><th>Status</th><th>Definition</th></tr></thead><tbody><tr><td>0</td><td>Order Received</td></tr><tr><td>1</td><td>Order Entered</td></tr><tr><td>4</td><td>Order Confirmed</td></tr><tr><td>7</td><td>Order Ready</td></tr><tr><td>W</td><td>Web Order</td></tr></tbody></table>
+                <table class="main"><thead><tr><th>Status</th><th>Definition</th></tr></thead><tbody><td>1</td><td>Order Entered</td></tr><tr><td>4</td><td>Order Confirmed</td></tr><tr><td>7</td><td>Order Ready</td></tr><tr><td>W</td><td>Web Order</td></tr></tbody></table>
             </div>
         </div>
 
