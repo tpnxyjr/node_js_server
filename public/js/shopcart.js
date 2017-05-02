@@ -44,14 +44,30 @@ function autofill(){
             }
         });
         $.ajax({
+            data: {itemno: document.getElementById('item' + i).value, uom: document.getElementById('uom'+i).value, current_cell: i},
+            dataType: 'json',
+            type: 'GET',
+            url: '/customers/getConversion',
+            success: function (data) {
+                $.each(data, function (index, element) {
+                    document.getElementById('convert'+element.current_cell).value = element.convert;
+                });
+            }
+            , error: function (xhr) {
+                alert(xhr.status + ' : ' + xhr.statusText);
+            }
+        });
+        $.ajax({
             data: {itemno: document.getElementById('item' + i).value, qty: document.getElementById('qty'+i).value, current_cell: i},
             dataType: 'json',
             type: 'GET',
             url: '/customers/getPrice',
             success: function (data) {
                 $.each(data, function (index, element) {
+                    if(element.baseprice != 0)
+                        document.getElementById('unit'+element.current_cell).value = roundToFour(element.baseprice*document.getElementById('convert'+element.current_cell).value);
                     if(element.totalprice != 0)
-                        document.getElementById('subtotal'+element.current_cell).value = element.totalprice;
+                        document.getElementById('subtotal'+element.current_cell).value = roundToTwo(element.totalprice*document.getElementById('convert'+element.current_cell).value);
                 });
             }
             , error: function (xhr) {
@@ -60,4 +76,10 @@ function autofill(){
         });
 
     }
+}
+function roundToTwo(num) {
+    return (+(Math.round(num + "e+2")  + "e-2")).toFixed(2);
+}
+function roundToFour(num) {
+    return +(Math.round(num + "e+4")  + "e-4");
 }

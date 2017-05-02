@@ -133,10 +133,6 @@ h3{
     padding:10px;
 }
 
-li:hover {
-    background-color: #2a6496;
-    color: white;
-}
 textarea {
     resize: none;
 }

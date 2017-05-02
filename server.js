@@ -86,7 +86,7 @@ app.get('/orderForm', function(req,res){
 
 app.get('/home', function(req, res){
     //res.render('home', {user: req.user});
-    res.redirect('/customers/home');
+    res.render('Thanks');
 });
 app.get('/signin', function(req, res){
     res.render('signin');
@@ -177,7 +177,7 @@ app.post('/local-reg', function(req,res,next){
     }
 });
 app.post('/login', passport.authenticate('local-signin', {
-        successRedirect: '/home',
+        successRedirect: '/customers/home',
         failureRedirect: '/signin'
     })
 );
@@ -258,7 +258,7 @@ passport.use('local-signup', new LocalStrategy(
             .then(function (user) {
                 if (user) {
                     console.log("REGISTERED: " + user.username);
-                    req.session.success = 'You are successfully registered and logged in ' + user.username + '!';
+                    req.session.success = 'You are successfully registered ' + user.username + '! You may now log in.';
                     done(null, user);
                 }
                 if (!user) {

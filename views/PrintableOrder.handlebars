@@ -9,7 +9,7 @@
 <div style="display: inline;vertical-align: top;float:left;width:50%;">PO Number:<input type="text" name="PONUM" style='width:40%' value="{{ponum}}" placeholder="Purchase Order Number"><br>SM Number:<input type="text" name="SMNUM" style='width:40%;' value="{{smnum}}" placeholder="Side Mark Number"><br>Delivery Method:<input type="text" name="delivery" style='width:40%;' value="{{delivery}}" placeholder="Delivery Method"></div><div style="display: inline;vertical-align: top;">Special Instructions:<textarea name="instructions" cols="60" rows="2" placeholder="Special Instructions">{{instructions}}</textarea></div>
     <input type="number" id="rowlength" name="rowlength" readonly hidden>
     <table id="body">
-        <thead><tr><th width="4%"><B>LN</B></th><th>Item</th><th>UOM</th><th>Quantity</th><th>Subtotal</th><th>Action</th></tr></thead>
+        <thead><tr><th width="4%"><B>LN</B></th><th>Item</th><th width="6%">UOM</th><th width="7%">Quantity</th><th>Item Description</th><th>Unit Price</th><th>Subtotal</th><th width="7%">Action</th></tr></thead>
         <tbody>
             {{{data}}}
         </tbody>

@@ -202,7 +202,6 @@ function subtotal(tableID){
     checkInputs(tableID);
     var table = document.getElementById(tableID);
     var rowCount = table.rows.length;
-    document.getElementById('rowlength').value = rowCount;
     var colCount = table.rows[0].cells.length - 1;
     var total = 0, debug = 0;
     var vertical = false;
@@ -367,6 +366,7 @@ function timeEst(tableID){
 function checkInputs(tableID){
     var table = document.getElementById(tableID);
     var rowCount = table.rows.length;
+    document.getElementById('rowlength').value = rowCount;
     for(var i = 1; i < rowCount; i++) {
         if(numberconvert[document.getElementById("inside"+i+"at1").value])
             document.getElementById("inside"+i+"at1").value=numberconvert[document.getElementById("inside"+i+"at1").value];

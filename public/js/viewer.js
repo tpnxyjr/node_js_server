@@ -27,8 +27,8 @@ function autofill(){
                 success: function (data) {
                     $.each(data, function (index, element) {
                         if(element.totalprice != 0) {
-                            document.getElementById('unit' + element.current_cell).value = element.baseprice;
-                            document.getElementById('subtotal' + element.current_cell).value = element.totalprice;
+                            document.getElementById('unit' + element.current_cell).value = roundToFour(element.baseprice);
+                            document.getElementById('subtotal' + element.current_cell).value = roundToTwo(element.totalprice);
                         }
                     });
                 }
@@ -42,7 +42,12 @@ function autofill(){
 
     }
 }
-
+function roundToTwo(num) {
+    return (+(Math.round(num + "e+2")  + "e-2")).toFixed(2);
+}
+function roundToFour(num) {
+    return +(Math.round(num + "e+4")  + "e-4");
+}
 var numberconvert={};
 numberconvert['622'] = '2\" FAUXWOOD SMOOTH';
 numberconvert['622'] = '2\" FAUXWOOD EMBOSSED';

@@ -127,9 +127,9 @@ function autofill(rowCount,colCount,toggle){
                     success: function (data) {
                         $.each(data, function (index, element) {
                             if(isNaN(element.baseprice))document.getElementById(idstring + 7).value = 'Special';
-                            else document.getElementById(idstring + 7).value = element.baseprice / multiplier;
+                            else document.getElementById(idstring + 7).value = roundToFour(element.baseprice * multiplier);
                             if(isNaN(element.totalprice))document.getElementById(idstring + 8).value = 'Special';
-                            else document.getElementById(idstring + 8).value = (element.totalprice / multiplier).toFixed(2);
+                            else document.getElementById(idstring + 8).value = roundToTwo(element.totalprice * multiplier);
                         });
                     }
                     , error: function (xhr) {
@@ -139,13 +139,19 @@ function autofill(rowCount,colCount,toggle){
             }
 
 }
+function roundToTwo(num) {
+    return (+(Math.round(num + "e+2")  + "e-2")).toFixed(2);
+}
+function roundToFour(num) {
+    return +(Math.round(num + "e+4")  + "e-4");
+}
 function subtotal(tableID){
     var table = document.getElementById(tableID);
     var rowCount = table.rows.length;
     var total = 0;
     for(var i = 1; i < rowCount; i++){
-        if(isNaN(document.getElementById("inside"+i+"at"+8).value)) document.getElementById("inside"+i+"at"+8).value = 0;
-        total+= parseFloat(document.getElementById("inside"+i+"at"+8).value);
+        if(isNaN(document.getElementById("inside"+i+"at"+8).value)) total += 0;
+        else total+= parseFloat(document.getElementById("inside"+i+"at"+8).value);
     }
     document.getElementById("total").value = total.toFixed(2);
     document.getElementById('rowlength').value = rowCount;
@@ -159,11 +165,11 @@ function checkOrder(){
     var rowCount = document.getElementById('body').rows.length;
     for(var i = 1; i < rowCount; i++)
     {
-        if(document.getElementById("inside"+i+"at1").value == null){
+        if(document.getElementById("inside"+i+"at1").value == null || document.getElementById("inside"+i+"at1").value==''){
             alert("ITEM NUMBER EMPTY. Please fill in or remove empty rows");
             return false;
         }
-        if(document.getElementById("inside"+i+"at2").value == null){
+        if(isNan(document.getElementById("inside"+i+"at3").value)){
             alert("QUANTITY EMPTY. Please fill in or remove empty rows");
             return false;
         }

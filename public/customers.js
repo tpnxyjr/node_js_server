@@ -224,8 +224,8 @@ customers.get('/getPrice',function(req,res){
                                 if(result[0].cd_tp == 1) price = discount;
                                 else price = baseprice*(100-discount)*0.01;
                                 data.push({
-                                    "baseprice" : roundToFour(price),
-                                    "totalprice" : roundToTwo(price * req.query.qty),
+                                    "baseprice" : price,
+                                    "totalprice" : price * req.query.qty,
                                     "current_cell" : req.query.current_cell
                                 });
                                 res.end(JSON.stringify(data));
@@ -244,8 +244,8 @@ customers.get('/getPrice',function(req,res){
                             else if(req.query.qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
                             price = baseprice*(100-discount)*0.01;
                             data.push({
-                                "baseprice" : roundToFour(price),
-                                "totalprice" : roundToTwo(price*req.query.qty),
+                                "baseprice" : price,
+                                "totalprice" : price*req.query.qty,
                                 "current_cell" : req.query.current_cell
                             });
                             res.end(JSON.stringify(data));
@@ -263,8 +263,8 @@ customers.get('/getPrice',function(req,res){
                    else if(req.query.qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
                    price = baseprice*(100-discount)*0.01;
                    data.push({
-                       "baseprice" : roundToFour(price),
-                       "totalprice" : roundToTwo(price*req.query.qty),
+                       "baseprice" : price,
+                       "totalprice" : price*req.query.qty,
                        "current_cell" : req.query.current_cell
                    });
                    res.end(JSON.stringify(data));
@@ -291,6 +291,30 @@ customers.get('/getUOM', function(req,res){
         }
         else
             res.end();
+    });
+});
+customers.get('/getConversion', function(req,res){
+    var itemno = req.query.itemno;
+    var uom = req.query.uom;
+    var current_cell = req.query.current_cell;
+    sql.execute({
+        query: sql.fromFile("./sql/getUom.sql"),
+        params: { itemno: itemno }
+    }).then(function(result) {
+        if(result[0] !== null && result[0] !== undefined) {
+            var data = [];
+            if (uom.trim() == result[0].uom_1.trim()) {
+                if(result[0].qty_1 == null) result[0].qty_1 = 1;
+                data.push({"convert": result[0].qty_1, "current_cell" : current_cell});
+                res.end(JSON.stringify(data));
+            }
+            else if(uom.trim() == result[0].uom_2.trim()){
+                if(result[0].qty_2 == null) result[0].qty_2 = 1;
+                data.push({"convert": result[0].qty_2, "current_cell" : current_cell});
+                res.end(JSON.stringify(data));
+            }
+        }
+        else res.end();
     });
 });
 function roundToTwo(num) {
@@ -608,7 +632,7 @@ customers.get('/shoppingCart', loggedIn, function(req,res){
         var data = '';
         for(var i = 1; i < result.length+1; i++){
             var j = i-1;
-            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[j].itemno+"' style='border:none' readonly></td><td><input id='uom"+i+"' name = 'uom"+i+"' style='border:none' value='"+result[j].uom+"'readonly></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' value='"+result[j].qty+"' style='border:none' readonly></td><td><input id='subtotal"+i+"' name = 'subtotal"+i+"' style='border:none' readonly></td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
+            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[j].itemno+"' style='border:none' readonly></td><td><input id='uom"+i+"' name = 'uom"+i+"' style='border:none' size='3' value='"+result[j].uom+"'readonly></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' size='7' value='"+result[j].qty+"' style='border:none' readonly></td><td><input id='item_desc"+i+"' style='border:none' readonly></td><td><input id='unit"+i+"' style='border:none' readonly></td><td><input id='convert"+i+"' readonly hidden><input id='subtotal"+i+"' name = 'subtotal"+i+"' style='border:none' readonly></td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
         }
         res.render('PrintableOrder',{user:req.user, ponum:ponum, smnum:smnum, delivery:delivery, instructions:instructions, data:data});
     });
