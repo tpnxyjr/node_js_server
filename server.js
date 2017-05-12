@@ -88,6 +88,9 @@ app.get('/home', function(req, res){
     //res.render('home', {user: req.user});
     res.render('Thanks');
 });
+app.get('/login', function(req,res){
+    res.render('signin');
+});
 app.get('/signin', function(req, res){
     res.render('signin');
 });

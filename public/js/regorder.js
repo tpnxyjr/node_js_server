@@ -26,7 +26,7 @@ function addRow(tableID) {
         }
         else if(i==2){
             //pickable uom
-            newcell.innerHTML = "<select name='uom"+rowCount+"' id='uom"+rowCount+"'></select><input id='multiplier"+rowCount+"A' readonly hidden><input id='multiplier"+rowCount+"B' readonly hidden>";
+            newcell.innerHTML = "<select name='uom"+rowCount+"' id='uom"+rowCount+"' onchange='autofill("+rowCount+","+colCount+",1)'></select><input id='multiplier"+rowCount+"A' readonly hidden><input id='multiplier"+rowCount+"B' readonly hidden>";
         }
         else if(i==3){
             newcell.innerHTML = "<input type = 'text' name='"+idstring+"' id='"+idstring+"' placeholder='Qty' onchange='autofill("+rowCount+","+colCount+",1)'>";

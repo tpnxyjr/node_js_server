@@ -102,27 +102,40 @@ customers.post('/RegularOrder',loggedIn, function(req,res){
                 var itemno = "inside" + i + "at1";
                 var uom = "uom"+i;
                 var qty = "inside" + i + "at3";
+                /*
                 sql.execute({
-                    query: sql.fromFile("./sql/saveRegularOrder.sql"),
+                    query: sql.fromFile("./sql/getUom.sql"),
                     params: {
-                        itemno: req.body[itemno],
-                        uom: req.body[uom],
-                        qty: req.body[qty],
-                        custid: req.user.custid
+                        itemno: itemno
                     }
-                }).then(function () {
-                }, function (error) {
-                    console.log(error);
-                    req.session.error = "Order failed";
-                    res.redirect('/customers/shoppingCart');
-                });
+                }).then(function(result) {
+                    if (uom == result[0].uom_1){
+                        qty = qty * result[0].qty_1;
+                        uom = result[0].uom_2;
+                    }
+                    */
+                    sql.execute({
+                        query: sql.fromFile("./sql/saveRegularOrder.sql"),
+                        params: {
+                            itemno: req.body[itemno],
+                            uom: req.body[uom],
+                            qty: req.body[qty],
+                            custid: req.user.custid
+                        }
+                    }).then(function () {
+                    }, function (error) {
+                        console.log(error);
+                        req.session.error = "Order failed";
+                        res.redirect('/customers/shoppingCart');
+                    });
+                //});
             }
         }
         catch(err){
             req.session.error = "Invalid page modification";
             res.redirect('/customers/RegularOrder');
         }
-        req.session.success = "Order submitted, please confirm and send using the button below";
+        req.session.success = "Order submitted, please confirm and send using the button below. Refresh page if cart is not updated.";
         res.redirect('/customers/shoppingCart');
     }
 });
@@ -632,7 +645,7 @@ customers.get('/shoppingCart', loggedIn, function(req,res){
         var data = '';
         for(var i = 1; i < result.length+1; i++){
             var j = i-1;
-            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[j].itemno+"' style='border:none' readonly></td><td><input id='uom"+i+"' name = 'uom"+i+"' style='border:none' size='3' value='"+result[j].uom+"'readonly></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' size='7' value='"+result[j].qty+"' style='border:none' readonly></td><td><input id='item_desc"+i+"' style='border:none' readonly></td><td><input id='unit"+i+"' style='border:none' readonly></td><td><input id='convert"+i+"' readonly hidden><input id='subtotal"+i+"' name = 'subtotal"+i+"' style='border:none' readonly></td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
+            data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[j].itemno+"' style='border:none' readonly></td><td><input id='uom"+i+"' name = 'uom"+i+"' style='border:none' size='3' value='"+result[j].uom+"'readonly></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' size='7' value='"+result[j].qty+"' style='border:none' readonly></td><td><input id='item_desc"+i+"' style='border:none' readonly></td><td><input id='unit"+i+"' name='unit"+i+"' style='border:none' readonly></td><td><input id='convert"+i+"' readonly hidden><input id='subtotal"+i+"' name = 'subtotal"+i+"' style='border:none' readonly></td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
         }
         res.render('PrintableOrder',{user:req.user, ponum:ponum, smnum:smnum, delivery:delivery, instructions:instructions, data:data});
     });
@@ -669,13 +682,15 @@ customers.post('/confirmOrder', loggedIn, function(req,res){
         req.session.error = "The shopping cart is empty";
         res.redirect('/customers/shoppingCart');
     }else {
-        var data = 'REGULAR ORDER FROM ' + req.user.custid + '\n' + (new Date()) + '\n' + 'PONUM: ' + ponum + '\n' + 'SMNUM: ' + smnum + '\n' + 'INSTRUCTIONS: ' + instructions + '\n' + 'DELIVERY: ' + delivery + ' \n \n';
+        var data = 'REGULAR ORDER \n\n' + req.user.custid + '\n\n' + (new Date()).toDateString() + '\n' + 'PONUM: ' + ponum + '\n' + 'SIDEMARK: ' + smnum + '\n\n' + 'SHIPPING: ' + delivery + ' \n' + 'INSTRUCTIONS: ' + instructions + '\n\n';
         try {
             for (var i = 1; i < req.body['rowlength']; i++) {
                 var itemno = "item" + i;
                 var qty = "qty" + i;
                 var uom = "uom" + i;
-                data = data + i + ': ' + req.body[itemno].trim() + ' '+req.body[uom].trim()+'      ' + req.body[qty] + '\n';
+                var unit = "unit" + i;
+                var subtotal = "subtotal" + i;
+                data = data + i + ': ' + req.body[itemno].trim() + '       '+req.body[uom].trim()+'   ' + req.body[qty] +  '   ' + req.body[unit] + '   ' + req.body[subtotal] + '\n';
             }
         }
         catch (err) {
@@ -705,7 +720,7 @@ customers.post('/confirmCustom', loggedIn, function(req,res){
         req.session.error = "The shopping cart is empty";
         res.redirect('/customers/shoppingCart');
     }else {
-        var data = 'CUSTOM ORDER FROM ' + req.user.custid + '\n' + (new Date()) + '\n' + 'PONUM: ' + ponum + '\n' + 'SMNUM: ' + smnum + '\n' + 'INSTRUCTIONS: ' + instructions + '\n' + 'DELIVERY: ' + delivery + ' \n \n';
+        var data = 'CUSTOM ORDER \n\n ' + req.user.custid + '\n\n' + (new Date()).toDateString() + '\n' + 'PONUM: ' + ponum + '\n' + 'SIDEMARK: ' + smnum + '\n\n' + 'SHIPPING: ' + delivery + ' \n'+'INSTRUCTIONS: ' + instructions + '\n\n';
         try {
             for (var i = 1; i < req.body['rowlength']; i++) {
                 data = data + "LN: " + i + '\n' + "PRODUCT: " + req.body['item'+i] + '\n' +
