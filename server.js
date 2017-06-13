@@ -89,10 +89,10 @@ app.get('/home', function(req, res){
     res.render('Thanks');
 });
 app.get('/login', function(req,res){
-    res.render('signin');
+    res.render('signin', {Date: new Date().toLocaleString()});
 });
 app.get('/signin', function(req, res){
-    res.render('signin');
+    res.render('signin', {Date: new Date().toLocaleString()});
 });
 app.get('/changePassword', function(req, res){
     res.redirect('/customers/changePassword');

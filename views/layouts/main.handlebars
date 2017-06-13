@@ -34,17 +34,19 @@
 
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-
+                <ul class="nav navbar-nav navbar-left">
+                    <p class="navbar-text"><strong>{{Date}}</strong></p>
+                </ul>
                 {{#if user}}
-                <ul class="nav navbar-nav">
+                <ul class="nav navbar-nav navbar-center">
                     <li>
                     <p class="navbar-text">
-                        <strong>Hi,</strong>
+                        <strong>Logged in as:</strong>
                         <!--<img src="{{user.avatar}}" width="20" height="20">-->
-                        {{user.user_name}}
+                        <bold>{{user.user_name}}</bold>
                     </p>
-                </li>
-            </ul>
+                    </li>
+                </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li>
                     <a href="/customers/home">Home</a>
@@ -91,4 +93,14 @@
 <script src="./js/bootstrap.min.js"></script>
 <script src="./js/bootstrap.js"></script>
 </body>
+<footer class="footer">
+    <div  style="border:1px solid #cecece;width:50%;text-align: center;">
+        If you have any questions, please call us at (888) 681-8320 or (909)629-0869
+        <br><br>
+        Our office is located: <br>
+        12330 Colony Ave. <br>
+        Chino, CA 91710 <br>
+        Hours: M-F from 0830 to 1700 PST
+    </div>
+</footer>
 </html>

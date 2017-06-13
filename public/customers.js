@@ -64,7 +64,7 @@ customers.get('/home', loggedIn, function(req,res){
                         data = data + "<tr><td>" + result2[j].ord_id+result2[j].ord_type + "</td><td>xxxxxx</td><td>" + result2[j].ord_dt + "</td><td>Web</td><td></td><td>W</td><td><a href='/customers/ViewOrder?webnum=" + result2[j].ord_id + "'><input type='button' value='View'></a></td></tr>";
                     }
                     data = data + "</tbody>"
-                    res.render('customerhome', {user: req.user, data: data});
+                    res.render('customerhome', {user: req.user, data: data, Date: new Date().toLocaleString()});
                 });
             }
         });
@@ -74,7 +74,7 @@ customers.get('/changePassword', loggedIn, function(req, res){
     res.render('changepw', {user: req.user});
 });
 customers.get('/RegularOrder', loggedIn, function(req,res){
-   res.render('RegularOrder',{user: req.user})
+   res.render('RegularOrder',{user: req.user, Date: new Date().toLocaleString()})
 });
 customers.post('/RegularOrder',loggedIn, function(req,res){
     if(req.body['rowlength'] <= 1){
@@ -416,7 +416,8 @@ customers.get('/orderForm', loggedIn, function(req,res){
             plusonwidth: plusonwidth,
             noshor: noshor,
             contfaux: contfaux,
-            user: req.user
+            user: req.user,
+            Date: new Date().toLocaleString()
         });
     },function (err) {
         console.log(err);
