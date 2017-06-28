@@ -9,7 +9,21 @@ sql.setDefaultConfig( config );
 workers.use(passport.initialize());
 workers.use(passport.session());
 workers.use(express.static(path.join(__dirname, 'public')));
+workers.use(function(req, res, next){
+    var err = req.session.error,
+        msg = req.session.notice,
+        success = req.session.success;
 
+    delete req.session.error;
+    delete req.session.success;
+    delete req.session.notice;
+
+    if (err) res.locals.error = err;
+    if (msg) res.locals.notice = msg;
+    if (success) res.locals.success = success;
+
+    next();
+});
 workers.get('/login', function(req,res){
    res.render('workerlogin', {date:(new Date()).toLocaleDateString(),layout:'date'});
 });
@@ -24,6 +38,32 @@ workers.get('/home', function(req,res){
     res.render('workerhome', {user: req.user, date:(new Date()).toLocaleDateString(),layout:'date'});
 });
 
+workers.get('/processOrders',function(req,res){ res.render('ProcessOrder', {layout: 'internal'})});
+workers.post('/processOrder',function(req,res){
+    var macolaNumber = ("        " + parseInt(req.body.MacNum)).slice(-8);
+    var webNumber = parseInt(req.body.WebNum)+"";
+    var message = "";
+
+    sql.execute({
+        query: sql.fromFile("./sql/migrateOrder.sql"),
+        params: { macnum: macolaNumber, webnum: webNumber }
+    }).then(function(result){
+        switch(result[0].response) {
+            case 0:
+                message = "This order does not exist.";
+                break;
+            case 1:
+                message = "This order has already been migrated.";
+                break;
+            case 2:
+                message = "Order was successfully migrated.";
+        }
+
+        res.render('ProcessOrder', {message: message, layout: 'internal'});
+    });
+
+
+});
 
 exports.workers = workers;
 module.exports= workers;

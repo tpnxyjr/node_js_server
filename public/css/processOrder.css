@@ -1,0 +1,25 @@
+table{
+    margin-top:200px;
+    font-size:25px;
+}
+td{
+    padding: 10px;
+}
+input[type="text"]
+{
+    font-size:20px;
+}
+div{
+    margin-top:-30px;
+    font-size:25px;
+    color:red;
+    position:absolute;
+    left:40%;
+}
+a{
+    font-size:25px;
+    margin-top:-50px;
+    position:absolute;
+    left:20%;
+    color:blue;
+}
