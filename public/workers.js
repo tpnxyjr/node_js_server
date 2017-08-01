@@ -38,30 +38,45 @@ workers.get('/home', function(req,res){
     res.render('workerhome', {user: req.user, date:(new Date()).toLocaleDateString(),layout:'date'});
 });
 
-workers.get('/processOrders',function(req,res){ res.render('ProcessOrder', {layout: 'internal'})});
+workers.get('/processOrders',function(req,res){
+    sql.execute({query: sql.fromFile('./sql/getUnmigrated.sql')
+    }).then(function(result){
+        var list =  '';
+        for(var i = 0; i < result.length; i++){
+            list = list + '<tr><td>'+result[i].custid+'</td><td>'+result[i].sonum+'</td></tr>';
+        }
+        res.render('ProcessOrder', {orderlist: list, layout: 'internal'});
+    });
+    });
 workers.post('/processOrder',function(req,res){
     var macolaNumber = ("        " + parseInt(req.body.MacNum)).slice(-8);
     var webNumber = parseInt(req.body.WebNum)+"";
     var message = "";
-
     sql.execute({
-        query: sql.fromFile("./sql/migrateOrder.sql"),
-        params: { macnum: macolaNumber, webnum: webNumber }
-    }).then(function(result){
-        switch(result[0].response) {
-            case 0:
-                message = "This order does not exist.";
-                break;
-            case 1:
-                message = "This order has already been migrated.";
-                break;
-            case 2:
-                message = "Order was successfully migrated.";
-        }
+        query: sql.fromFile("./sql/checkUOM.sql"),
+        params: {sonum: webNumber}
+    }).then(function() {
+        sql.execute({
+            query: sql.fromFile("./sql/migrateOrder.sql"),
+            params: {macnum: macolaNumber, webnum: webNumber}
+        }).then(function (result) {
+            switch (result[0].response) {
+                case 0:
+                    message = "This order does not exist.";
+                    break;
+                case 1:
+                    message = "This order has already been migrated.";
+                    break;
+                case 2:
+                    message = "Order was successfully migrated.";
+                    break;
+                case 3:
+                    message = "Order CUSTOMER ID do not match.";
+            }
 
-        res.render('ProcessOrder', {message: message, layout: 'internal'});
+            res.render('ProcessOrder', {message: message, layout: 'internal'});
+        });
     });
-
 
 });
 
