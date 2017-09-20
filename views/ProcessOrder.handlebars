@@ -2,14 +2,14 @@
 <a href="/workers/home"><< BACK</a>
 <div>{{message}}</div>
 <form action="/workers/processOrder" method="post">
-    <table width="25%" align="center" border="1" style="margin-top:200px;">
+    <table width="50%" align="center" border="1" style="margin-top:200px;">
         <tr><td>Macola Order Number</td><td><input type="text" name="MacNum"></td></tr>
         <tr><td>Web Order Number</td><td><input type="text" name="WebNum"></td></tr>
         <tr><td></td><td><input type="submit" value="submit" style="width:150px; height:50px;font-size:20px;"></td></tr>
     </table>
 </form>
-<table width="25%" align="center" border="1">
-    <tr><td colspan="2">PENDING ORDERS</td></tr>
-    <tr><td>CUSTOMER ID</td><td>WEB ORDER NUMBER</td></tr>
+<table width="90%" align="center" border="1">
+    <tr><td align="center" colspan="7"><b>PENDING ORDERS</b></td></tr>
+    <tr><td>SUBMIT DATE</td><td>CUSTOMER ID</td><td>WEB ORDER NUMBER</td><td>PO NUMBER</td><td>DELIVERY METHOD</td><td>IDEAL WILL CALL/SHIP</td><td>SPECIAL INSTRUCTION</td></tr>
     {{{orderlist}}}
 </table>

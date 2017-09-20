@@ -52,7 +52,8 @@ customers.get('/home', loggedIn, function(req,res){
 
                     data = data + "<tr";
                     if (result[i].older == 1) data = data + " class='older' style='display:none;'";
-                    data = data + "><td>xxxxxx</td><td>" + result[i].ord_no + "</td><td>" + result[i].ord_dt + "</td><td>" + result[i].ord_type + "</td><td>" + result[i].oe_po_no + "</td><td>" + result[i].status + "</td><td><a href='/customers/ViewOrder?sonum=" + result[i].ord_no + "'><input type='button' value='View'></a></td></tr>"
+                    if(result[i].webnum == null) result[i].webnum = 'xxxxxx';
+                    data = data + "><td>"+result[i].webnum+"</td><td>" + result[i].ord_no + "</td><td>" + result[i].ord_dt + "</td><td>" + result[i].ord_type + "</td><td>" + result[i].oe_po_no + "</td><td>" + result[i].status + "</td><td><a href='/customers/ViewOrder?sonum=" + result[i].ord_no + "'><input type='button' value='View'></a></td></tr>"
 
                 }
                 sql.execute({
@@ -61,7 +62,10 @@ customers.get('/home', loggedIn, function(req,res){
                 }).then(function (result2) {
                     for (var j = 0; j < result2.length; j++) {
                         if(result2[j].ord_type == null)result2[j].ord_type = '';
-                        data = data + "<tr><td>" + result2[j].ord_id+result2[j].ord_type + "</td><td>xxxxxx</td><td>" + result2[j].ord_dt + "</td><td>Web</td><td></td><td>W</td><td><a href='/customers/ViewOrder?webnum=" + result2[j].ord_id + "'><input type='button' value='View'></a></td></tr>";
+                        if(result2[j].macnum == null) {
+                            result2[j].macnum = 'xxxxxx';
+                            data = data + "<tr><td>" + result2[j].ord_id + result2[j].ord_type + "</td><td>" + result2[j].macnum + "</td><td>" + result2[j].ord_dt + "</td><td>Web</td><td></td><td>W</td><td><a href='/customers/ViewOrder?webnum=" + result2[j].ord_id + "'><input type='button' value='View'></a></td></tr>";
+                        }
                     }
                     data = data + "</tbody>"
                     res.render('customerhome', {user: req.user, data: data, Date: new Date().toLocaleString()});
@@ -86,6 +90,7 @@ customers.post('/RegularOrder',loggedIn, function(req,res){
         var smnum = req.body.SMNUM.length > 50? req.body.SMNUM.substring(0,50): req.body.SMNUM.replace(/\s+$/, '');
         var instructions = req.body.instructions.replace(/\s+$/, '');
         var delivery = req.body.delivery.length > 50? req.body.delivery.substring(0,50): req.body.delivery.replace(/\s+$/, '');
+        var ideal = req.body.IDEAL;
 
         sql.execute({
             query: sql.fromFile("./sql/saveRegularOrderHeader.sql"),
@@ -94,7 +99,8 @@ customers.post('/RegularOrder',loggedIn, function(req,res){
                 ponum: ponum,
                 smnum: smnum,
                 instructions: instructions,
-                delivery: delivery
+                delivery: delivery,
+                ideal: ideal
             }
         });
         try {
@@ -627,7 +633,7 @@ customers.get('/cancel', function(req,res){
 });
 customers.get('/shoppingCart', loggedIn, function(req,res){
     var custid = req.user.custid;
-    var ponum,smnum,delivery,instructions;
+    var ponum,smnum,delivery,instructions,ideal;
     sql.execute({
         query: sql.fromFile("./sql/getRegularOrderHeader.sql"),
         params: {custid: custid}
@@ -637,6 +643,7 @@ customers.get('/shoppingCart', loggedIn, function(req,res){
             smnum = result[0].smnum;
             delivery = result[0].delivery;
             instructions = result[0].instructions;
+            ideal = result[0].ideal;
         }
     });
     sql.execute({
@@ -648,7 +655,7 @@ customers.get('/shoppingCart', loggedIn, function(req,res){
             var j = i-1;
             data = data + "<tr><td>"+i+"</td><td><input type = 'text' id = 'item"+i+"' name = 'item"+i+"' value='"+result[j].itemno+"' style='border:none' readonly></td><td><input id='uom"+i+"' name = 'uom"+i+"' style='border:none' size='3' value='"+result[j].uom+"'readonly></td><td><input type = 'text' id = 'qty"+i+"' name = 'qty"+i+"' size='7' value='"+result[j].qty+"' style='border:none' readonly></td><td><input id='item_desc"+i+"' style='border:none' readonly></td><td><input id='unit"+i+"' name='unit"+i+"' style='border:none' readonly></td><td><input id='convert"+i+"' readonly hidden><input id='subtotal"+i+"' name = 'subtotal"+i+"' style='border:none' readonly></td><td><input type='button' value = 'Remove' onclick='remove("+i+");'></td></tr>";
         }
-        res.render('PrintableOrder',{user:req.user, ponum:ponum, smnum:smnum, delivery:delivery, instructions:instructions, data:data});
+        res.render('PrintableOrder',{user:req.user, ponum:ponum, smnum:smnum, delivery:delivery, instructions:instructions, ideal: ideal, data:data});
     });
 });
 customers.get('/customCart',loggedIn,function(req,res){
@@ -679,11 +686,12 @@ customers.post('/confirmOrder', loggedIn, function(req,res){
     var smnum = req.body.SMNUM;
     var instructions = req.body.instructions;
     var delivery = req.body.delivery;
+    var ideal = req.body.IDEAL;
     if(req.body['rowlength'] <= 1){
         req.session.error = "The shopping cart is empty";
         res.redirect('/customers/shoppingCart');
     }else {
-        var data = 'REGULAR ORDER \n\n' + req.user.custid + '\n\n' + (new Date()).toDateString() + '\n' + 'PONUM: ' + ponum + '\n' + 'SIDEMARK: ' + smnum + '\n\n' + 'SHIPPING: ' + delivery + ' \n' + 'INSTRUCTIONS: ' + instructions + '\n\n';
+        var data = 'REGULAR ORDER \n\n' + req.user.custid + '\n\n' + (new Date()).toDateString() + '\n' + 'PONUM: ' + ponum + '\n' + 'SIDEMARK: ' + smnum + '\n\n' + 'SHIPPING: ' + delivery + ' \n' + 'INSTRUCTIONS: ' + instructions + '\n' + 'IDEAL DELIVERY TIME: ' + ideal + '\n\n';
         try {
             for (var i = 1; i < req.body['rowlength']; i++) {
                 var itemno = "item" + i;

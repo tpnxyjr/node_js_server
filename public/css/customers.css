@@ -140,6 +140,16 @@ textarea {
 a.list-group-item {
     background-color:#d9edf7;
 }
+a.list-group-item:focus{
+    background-color: #428BCA;
+    border-color: #428BCA;
+    color:white;
+}
 .container{
     width:90%;
+}
+.nav>li>a:focus {
+    background-color: #428BCA;
+    border-color: #428BCA;
+    color:white;
 }
