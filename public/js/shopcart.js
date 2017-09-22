@@ -6,7 +6,7 @@ function remove(i){
         if(confirm == true) {
             if (table.rows.length > 1) {
                 $.ajax({
-                    data: { itemno: document.getElementById('item'+i).value},
+                    data: { itemno: document.getElementById('item'+i).value, uom: document.getElementById('uom'+i).value},
                     dataType: 'json',
                     type: 'POST',
                     url: '/customers/removeFromCart',

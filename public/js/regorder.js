@@ -203,7 +203,9 @@ function updateUom(rowCount, itemno){
             });
         }
         , error: function (xhr) {
-            alert(xhr.status + ' : ' + xhr.statusText);
+            alert("Invalid item");
+            document.getElementById("inside"+rowCount+"at1").value = "";
+            document.getElementById("inside"+rowCount+"at1").focus();
         }
     });
 

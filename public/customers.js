@@ -120,6 +120,7 @@ customers.post('/RegularOrder',loggedIn, function(req,res){
                         uom = result[0].uom_2;
                     }
                     */
+                if(req.body[itemno] == "")continue;
                     sql.execute({
                         query: sql.fromFile("./sql/saveRegularOrder.sql"),
                         params: {
@@ -611,14 +612,14 @@ customers.get('/ViewOrder', loggedIn, function(req,res){
                 for (var i = 0; i < result.length; i++) {
                     //priceLookup(result[i].item_no, result[i].qty_ordered, req.user.custid, function(obj){  console.log( JSON.parse(obj)[0].totalprice.toString()) ;     });
                     var j = i+1;
-                    data = data + "<tr><td>" + result[i].line_seq_no + "</td><td><input id='qty"+j+"' value='" + result[i].qty_ordered + "' size='5' readonly></td><td>" + result[i].uom + "</td><td><input id='item"+j+"' value='" + result[i].item_no + "' readonly></td><td>" + result[i].item_desc_1 + "</td><td><input id = 'unit"+j+"' readonly></td><td><input id = 'subtotal"+j+"' readonly></td></tr>";
+                    data = data + "<tr><td>" + result[i].line_seq_no + "</td><td><input id='qty"+j+"' value='" + result[i].qty_ordered + "' size='5' readonly></td><td>" + result[i].uom + "</td><td><input id='item"+j+"' value='" + result[i].item_no + "' readonly></td><td>" + result[i].item_desc_1 + "</td><td><input id = 'unit"+j+"' readonly></td><td><input id = 'subtotal"+j+"' readonly></td><td><select id='options"+j+"'></select></td></tr>";
                 }
             }
             else if(result[0].ord_id != null){
                 for(var i = 0; i < result.length; i++){
                     var j = i+1;
                     if(result[i].total == null)result[i].total = 0;
-                    data = data + "<tr><td>"+j+"</td><td><input id='qty"+j+"' value='" + result[i].qty + "' size='5' readonly></td><td><input id='uom"+j+"' readonly></td><td><input id='item"+j+"' value='" + result[i].itemno + "' readonly></td><td><input id='item_desc"+j+"' readonly></td><td><input id='unit"+j+"' value='"+(result[i].total/result[i].qty).toFixed(2)+"'readonly></td><td><input id='subtotal"+j+"' value='"+result[i].total.toFixed(2)+"'readonly></td></tr>";
+                    data = data + "<tr><td>"+j+"</td><td><input id='qty"+j+"' value='" + result[i].qty + "' size='5' readonly></td><td><input id='uom"+j+"' readonly></td><td><input id='item"+j+"' value='" + result[i].itemno + "' readonly></td><td><input id='item_desc"+j+"' readonly></td><td><input id='unit"+j+"' value='"+(result[i].total/result[i].qty).toFixed(2)+"'readonly></td><td><input id='subtotal"+j+"' value='"+result[i].total.toFixed(2)+"'readonly></td><td><select id='options"+j+"'></select></td></tr>";
                 }
 
             }
@@ -757,9 +758,11 @@ customers.post('/confirmCustom', loggedIn, function(req,res){
 });
 customers.post('/removeFromCart', loggedIn, function(req,res){
     var itemno = req.body.itemno;
+    var uom = req.body.uom;
+    console.log(uom);
     sql.execute({
         query: sql.fromFile('./sql/removeOrder.sql'),
-        params: {custid: req.user.custid, itemno: itemno}
+        params: {custid: req.user.custid, itemno: itemno, uom:uom}
     });
     res.json({success : "Updated Successfully", status : 200});
 });
