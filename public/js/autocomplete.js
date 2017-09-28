@@ -140,7 +140,7 @@ numberconvert['E926']= 'E926-ALABASTER';
 numberconvert['618']= 'CHERRY';
 
 var prodhash = {};
-prodhash['2\" FAUXWOOD']=1.85;
+prodhash['2\" FAUXWOOD SMOOTH']=1.85;
 prodhash['4P VERTICAL WAND']=0.19;
 prodhash['1\" ALUMINUM']=1.1;
 prodhash['8P VERTICAL']=0.155;

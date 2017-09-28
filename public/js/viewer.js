@@ -1,5 +1,6 @@
 function autofill(){
-    for(var i = 1; i < document.getElementById('cart').rows.length; i++) {
+    var subtotal = 0;
+    for(var i = 1; i < document.getElementById('cart').rows.length-1; i++) {
         $.ajax({
             data: {itemno: document.getElementById('item' + i).value, current_cell: i},
             dataType: 'json',
@@ -7,8 +8,11 @@ function autofill(){
             url: '/customers/getItem',
             success: function (data) {
                 $.each(data, function (index, element) {
-                    if(element.uom == null || element.uom == 'EA') element.uom = 'EA';
-                    document.getElementById('uom'+element.current_cell).value = element.uom;
+                    if(document.getElementById('uom'+element.current_cell) == null || document.getElementById('uom'+element.current_cell).value == null || document.getElementById('uom'+element.current_cell).value == "") {
+                        alert(document.getElementById('uom'+element.current_cell).value);
+                        if (element.uom == null || element.uom == 'EA') element.uom = 'EA';
+                        document.getElementById('uom' + element.current_cell).value = element.uom;
+                    }
                     if(element.item_desc == 'Custom')
                         document.getElementById('item_desc'+element.current_cell).value = reverse_convert(document.getElementById('item' + element.current_cell).value);
                     else
@@ -19,16 +23,23 @@ function autofill(){
                 alert(xhr.status + ' : ' + xhr.statusText);
             }
         });
+        if(document.getElementById('unit'+i).value === 0 || document.getElementById('subtotal'+i).value === 0) {
             $.ajax({
-                data: {itemno: document.getElementById('item' + i).value, qty: document.getElementById('qty'+i).value, current_cell: i},
+                data: {
+                    itemno: document.getElementById('item' + i).value,
+                    qty: document.getElementById('qty' + i).value,
+                    current_cell: i
+                },
                 dataType: 'json',
                 type: 'GET',
                 url: '/customers/getPrice',
                 success: function (data) {
                     $.each(data, function (index, element) {
-                        if(element.totalprice != 0) {
+                        if (element.totalprice != 0) {
                             document.getElementById('unit' + element.current_cell).value = roundToFour(element.baseprice);
                             document.getElementById('subtotal' + element.current_cell).value = roundToTwo(element.totalprice);
+                            subtotal += Number.parseFloat(roundToTwo(element.totalprice));
+                            document.getElementById("subtotal").value = subtotal.toFixed(2);
                         }
                     });
                 }
@@ -36,7 +47,10 @@ function autofill(){
                     alert(xhr.status + ' : ' + xhr.statusText);
                 }
             });
-
+        }
+        else{
+            document.getElementById("subtotal").value += document.getElementById('subtotal'+i).value;
+        }
 
         //if item desc = contract, function convert
 

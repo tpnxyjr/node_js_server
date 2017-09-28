@@ -10,25 +10,33 @@
 <body>
 <div id="header" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
-    <div class="jumbotron">
+    <div class="jumbotron" style="height:140px;">
         <h2>CUSTOM BLINDS AND COMPONENTS, INC.</h2>
         <h2>CUSTOMER PORTAL</h2>
     </div>
     </div>
 </div>
-<div id="wrapper" style="top:88px;">
+<div id="wrapper" style="top:23px;">
     <div id="sidebar-wrapper" class="col-md-1">
         <div id="sidebar">
             <ul class="nav list-group">
                 <li>
                     <a class="list-group-item list-group-item-info" href="#submenu"  data-toggle="collapse" data-parent="#sidebar" style="margin-bottom:0;">New Order</a>
                     <div class="collapse" id="submenu">
+                        {{#if reg }}
                         <a href="/customers/RegularOrder" class="list-group-item">Regular Order</a>
+                        {{/if}}
+                        {{#if cust}}
                         <a href="/customers/orderForm" class="list-group-item">Contract Order</a>
+                        {{/if}}
                         <a class="list-group-item list-group-item-info" href="#cartmenu"  data-toggle="collapse" data-parent="#sidebar" style="margin-bottom:0;">View Cart</a>
                         <div class="collapse" id="cartmenu">
+                        {{#if reg }}
                             <a href="/customers/shoppingCart" class="list-group-item">Regular Orders</a>
+                        {{/if}}
+                        {{#if cust}}
                             <a href="/customers/customCart" class="list-group-item">Custom Orders</a>
+                        {{/if}}
                         </div>
                     </div>
                 </li>
@@ -62,11 +70,17 @@
             </div>
             <div class="right" >
                 <h3>KEY</h3>
-                <table class="main"><thead><tr><th>Status</th><th>Definition</th></tr></thead><tbody><td>1</td><td>Order Entered</td></tr><tr><td>4</td><td>Order Confirmed</td></tr><tr><td>7</td><td>Order Ready</td></tr><tr><td>W</td><td>Web Order</td></tr></tbody></table>
+                <table class="main"><thead><tr><th>Status</th><th>Definition</th></tr></thead>
+                    <tbody><td>1</td><td>Order Entered</td></tr>
+                    <tr><td>4</td><td>Picking Order</td></tr>
+                    <tr><td>7</td><td>Order Ready</td></tr>
+                    <tr><td>8</td><td>To be Invoiced</td></tr>
+                    <tr><td>9</td><td>Invoiced</td></tr>
+                    <tr><td>W</td><td>Web Order</td></tr></tbody></table>
             </div>
         </div>
 
-        <div class="col-md-12 footer">
+        <div class="col-md-12 footer" hidden>
 
         </div>
 

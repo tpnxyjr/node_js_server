@@ -4,7 +4,8 @@ var express = require('express'),
     passport = require('passport'),
     bodyParser = require("body-parser"),
     mailer = require('./mailer'),
-    pdfmaker = require('./pdfmaker');
+    pdfmaker = require('./pdfmaker'),
+    moment = require('moment');
 var numbers = require('../public/js/numbers.js');
 var customers = express.Router();
 var myConfig = require('../config.js');
@@ -40,13 +41,14 @@ customers.get('/logout', function(req, res){
 });
 
 customers.get('/home', loggedIn, function(req,res){
-    var data="";
+    var data="", message = "";
         sql.execute({
             query: sql.fromFile("./sql/getCustomerOrders.sql"),
             params: {cusno: req.user.custid}
         }).then(function(result){
-            if(result.length == 0) res.render('customerhome',{user: req.user, data: "You have no open orders"});
-            else {
+            if(result.length == 0) message = "You have no open orders";
+
+                //macola order listing
                 for (var i = 0; i < result.length; i++) {
                     if (result[i].status == '6') result[i].status = '7';
 
@@ -56,21 +58,31 @@ customers.get('/home', loggedIn, function(req,res){
                     data = data + "><td>"+result[i].webnum+"</td><td>" + result[i].ord_no + "</td><td>" + result[i].ord_dt + "</td><td>" + result[i].ord_type + "</td><td>" + result[i].oe_po_no + "</td><td>" + result[i].status + "</td><td><a href='/customers/ViewOrder?sonum=" + result[i].ord_no + "'><input type='button' value='View'></a></td></tr>"
 
                 }
+
+                //web order listing
                 sql.execute({
                     query: sql.fromFile("./sql/getCustomerWebOrders.sql"),
                     params: {custid: req.user.custid}
                 }).then(function (result2) {
+                    if(result2.length != 0) message = '';
                     for (var j = 0; j < result2.length; j++) {
                         if(result2[j].ord_type == null)result2[j].ord_type = '';
-                        if(result2[j].macnum == null) {
-                            result2[j].macnum = 'xxxxxx';
-                            data = data + "<tr><td>" + result2[j].ord_id + result2[j].ord_type + "</td><td>" + result2[j].macnum + "</td><td>" + result2[j].ord_dt + "</td><td>Web</td><td></td><td>W</td><td><a href='/customers/ViewOrder?webnum=" + result2[j].ord_id + "'><input type='button' value='View'></a></td></tr>";
-                        }
+                        if(result2[j].macnum == null) result2[j].macnum = 'xxxxxx';
+                        data = data + "<tr><td>" + result2[j].ord_id + result2[j].ord_type + "</td><td>" + result2[j].macnum + "</td><td>" + result2[j].ord_dt + "</td><td>Web</td><td></td><td>W</td><td><a href='/customers/ViewOrder?webnum=" + result2[j].ord_id + "'><input type='button' value='View'></a></td></tr>";
+
                     }
                     data = data + "</tbody>"
-                    res.render('customerhome', {user: req.user, data: data, Date: new Date().toLocaleString()});
+                    sql.execute({
+                        query: sql.fromFile("./sql/getPermissions.sql"),
+                        params:{custid: req.user.custid}
+                    }).then(function(result3) {
+                        var reg = false, cust = false;
+                        if(result3[0].datefield1) reg = true;
+                        if(result3[0].datefield2) cust = true;
+                        res.render('customerhome', {user: req.user, data: message + data, reg: reg, cust: cust, Date: new Date().toLocaleString()});
+                    });
                 });
-            }
+
         });
 
 });
@@ -90,8 +102,13 @@ customers.post('/RegularOrder',loggedIn, function(req,res){
         var smnum = req.body.SMNUM.length > 50? req.body.SMNUM.substring(0,50): req.body.SMNUM.replace(/\s+$/, '');
         var instructions = req.body.instructions.replace(/\s+$/, '');
         var delivery = req.body.delivery.length > 50? req.body.delivery.substring(0,50): req.body.delivery.replace(/\s+$/, '');
-        var ideal = req.body.IDEAL;
-
+        var ideal = new Date(req.body.IDEAL);
+        ideal = ideal.getUTCFullYear() + '-' +
+            ('00' + (ideal.getUTCMonth() + 1)).slice(-2) + '-' +
+            ('00' + ideal.getUTCDate()).slice(-2) + ' ' +
+            ('00' + ideal.getUTCHours()).slice(-2) + ':' +
+            ('00' + ideal.getUTCMinutes()).slice(-2) + ':' +
+            ('00' + ideal.getUTCSeconds()).slice(-2);
         sql.execute({
             query: sql.fromFile("./sql/saveRegularOrderHeader.sql"),
             params:{
@@ -108,6 +125,8 @@ customers.post('/RegularOrder',loggedIn, function(req,res){
                 var itemno = "inside" + i + "at1";
                 var uom = "uom"+i;
                 var qty = "inside" + i + "at3";
+                var unit_price = "inside" + i + "at7";
+                var total = "inside" + i + "at8";
                 /*
                 sql.execute({
                     query: sql.fromFile("./sql/getUom.sql"),
@@ -127,7 +146,9 @@ customers.post('/RegularOrder',loggedIn, function(req,res){
                             itemno: req.body[itemno],
                             uom: req.body[uom],
                             qty: req.body[qty],
-                            custid: req.user.custid
+                            custid: req.user.custid,
+                            unit_price: req.body[unit_price],
+                            total: req.body[total]
                         }
                     }).then(function () {
                     }, function (error) {
@@ -191,7 +212,7 @@ customers.get('/getPrice',function(req,res){
     var data = [];
     sql.execute({
         query: sql.fromFile("./sql/getItemPrice.sql"),
-        params:{ itemno : req.query.itemno}
+        params:{ itemno : req.query.itemno, qty: 0}
     }).then(function (result){
         if(result[0] == null){
             data.push({
@@ -619,7 +640,8 @@ customers.get('/ViewOrder', loggedIn, function(req,res){
                 for(var i = 0; i < result.length; i++){
                     var j = i+1;
                     if(result[i].total == null)result[i].total = 0;
-                    data = data + "<tr><td>"+j+"</td><td><input id='qty"+j+"' value='" + result[i].qty + "' size='5' readonly></td><td><input id='uom"+j+"' readonly></td><td><input id='item"+j+"' value='" + result[i].itemno + "' readonly></td><td><input id='item_desc"+j+"' readonly></td><td><input id='unit"+j+"' value='"+(result[i].total/result[i].qty).toFixed(2)+"'readonly></td><td><input id='subtotal"+j+"' value='"+result[i].total.toFixed(2)+"'readonly></td><td><select id='options"+j+"'></select></td></tr>";
+                    if(result[i].unit_price == null)result[i].unit_price = 0;
+                    data = data + "<tr><td>"+j+"</td><td><input id='qty"+j+"' value='" + result[i].qty + "' size='5' readonly></td><td><input id='uom"+j+"' value='"+result[i].uom+"'readonly></td><td><input id='item"+j+"' value='" + result[i].itemno + "' readonly></td><td><input id='item_desc"+j+"' readonly></td><td><input id='unit"+j+"' value='"+(result[i].unit_price).toFixed(2)+"'readonly></td><td><input id='subtotal"+j+"' value='"+result[i].total.toFixed(2)+"'readonly></td><td><select id='options"+j+"'></select></td></tr>";
                 }
 
             }
@@ -687,12 +709,18 @@ customers.post('/confirmOrder', loggedIn, function(req,res){
     var smnum = req.body.SMNUM;
     var instructions = req.body.instructions;
     var delivery = req.body.delivery;
-    var ideal = req.body.IDEAL;
+    var ideal = new Date(req.body.IDEAL);
+    ideal = ideal.getUTCFullYear() + '-' +
+        ('00' + (ideal.getUTCMonth() + 1)).slice(-2) + '-' +
+        ('00' + ideal.getUTCDate()).slice(-2) + ' ' +
+        ('00' + ideal.getUTCHours()).slice(-2) + ':' +
+        ('00' + ideal.getUTCMinutes()).slice(-2) + ':' +
+        ('00' + ideal.getUTCSeconds()).slice(-2);
     if(req.body['rowlength'] <= 1){
         req.session.error = "The shopping cart is empty";
         res.redirect('/customers/shoppingCart');
     }else {
-        var data = 'REGULAR ORDER \n\n' + req.user.custid + '\n\n' + (new Date()).toDateString() + '\n' + 'PONUM: ' + ponum + '\n' + 'SIDEMARK: ' + smnum + '\n\n' + 'SHIPPING: ' + delivery + ' \n' + 'INSTRUCTIONS: ' + instructions + '\n' + 'IDEAL DELIVERY TIME: ' + ideal + '\n\n';
+        var data = 'REGULAR ORDER \n\n' + req.user.custid + '\n\n' + (new Date()).toDateString() + '\n' + 'PONUM: ' + ponum + '\n' + 'SIDEMARK: ' + smnum + '\n\n' + 'SHIPPING: ' + delivery + ' \n' + 'INSTRUCTIONS: ' + instructions + '\n\n' + 'IDEAL DELIVERY TIME: ' + ideal + '\n\n';
         try {
             for (var i = 1; i < req.body['rowlength']; i++) {
                 var itemno = "item" + i;
@@ -700,7 +728,7 @@ customers.post('/confirmOrder', loggedIn, function(req,res){
                 var uom = "uom" + i;
                 var unit = "unit" + i;
                 var subtotal = "subtotal" + i;
-                data = data + i + ': ' + req.body[itemno].trim() + '       '+req.body[uom].trim()+'   ' + req.body[qty] +  '   ' + req.body[unit] + '   ' + req.body[subtotal] + '\n';
+                data = data + i + ': ' + ("        " +req.body[itemno].trim()).slice(-20) + '       '+req.body[uom].trim()+'   ' + req.body[qty] +  '   ' + req.body[unit] + '   ' + req.body[subtotal] + '\n';
             }
         }
         catch (err) {
@@ -767,6 +795,12 @@ customers.post('/removeFromCart', loggedIn, function(req,res){
     res.json({success : "Updated Successfully", status : 200});
 });
 
+customers.get('/reship', loggedIn, function(req,res){
+    var data = [];
+    pdfmaker.make_pdf(data, './order.pdf', 'portrait');
+    mailer.mail('./order.pdf', req.user.custid);
+
+});
 customers.get('/thank', loggedIn, function(req,res){
    res.render('Thanks');
 });

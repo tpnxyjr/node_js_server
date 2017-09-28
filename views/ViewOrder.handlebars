@@ -15,11 +15,15 @@
             <tbody>
             {{{data}}}
             </tbody>
+            <tr><td colspan = '6'></td><td><input type="text" id="subtotal" readonly></td></tr>
         </table>
         <script src="./js/viewer.js"></script>
-    <style>input{border:none}</style>
+        <style>input{border:none}</style>
     </body>
-    <footer><a href="/customers/cancel"><input type="button" value="Cancel Order" style="background-color:mediumaquamarine" onclick="alert('This button doesn\'t do anything yet. Sorry!')"></a></footer>
+    <footer>
+        <a href="/customers/cancel"><input type="button" value="Cancel Order" style="background-color:mediumaquamarine" onclick="alert('Please call CBC customer service at (909) 629-0869 for assistance')"></a>
+        <a href="/customers/reship"><input type="button" value="Ship Backorder" style="background-color:mediumaquamarine" onclick="alert('Please call CBC customer service at (909) 629-0869 for assistance')"></a>
+    </footer>
 {{else}}
     <div class="jumbotron">
         <h1>You are not logged in</h1>

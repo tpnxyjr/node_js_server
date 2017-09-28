@@ -38,6 +38,7 @@ workers.get('/home', function(req,res){
     res.render('workerhome', {user: req.user, date:(new Date()).toLocaleDateString(),layout:'date'});
 });
 
+workers.get('/processOrder', function(req,res){res.redirect('/processOrders');})
 workers.get('/processOrders',function(req,res){
     sql.execute({query: sql.fromFile('./sql/getUnmigrated.sql')
     }).then(function(result){
@@ -48,112 +49,20 @@ workers.get('/processOrders',function(req,res){
         res.render('ProcessOrder', {orderlist: list, layout: 'internal'});
     });
 });
-workers.post('/processOrder',function(req,res){
+workers.post('/processOrders',function(req,res){
     var macolaNumber = ("        " + parseInt(req.body.MacNum)).slice(-8);
     var webNumber = parseInt(req.body.WebNum)+"";
     var message = "";
-
-    sql.execute({
-        query: sql.fromFile("./sql/checkUOM.sql"),
-        params: {sonum: webNumber}
-    }).then(function(result) {
-        //recalculate price total
-        for (var i = 0; i < result.length; i++) {
-
-            var custid = result[i].custid, itemno = result[i].itemno, qty = result[i].qty;
-            sql.execute({
-                query: sql.fromFile("./sql/getItemPrice.sql"),
-                params: {itemno: itemno}
-            }).then(function (result) {
-                console.log(result[0]);
-                if (result[0] != null && result[0].prod_cat != 'ZZZ') {
-                    var baseprice = result[0].price;
-                    var prodcat = result[0].prod_cat;
-                    if (qty < 0 || isNaN(qty)) qty = 0;
-                    sql.execute({
-                        query: sql.fromFile("./sql/Code68.sql"),
-                        params: {itemno: itemno, code: '6', cat: prodcat}
-                    }).then(function (result) {
-                        if (result[0] == null) {
-                            sql.execute({
-                                query: sql.fromFile("./sql/Code68.sql"),
-                                params: {itemno: itemno, code: '8', cat: prodcat}
-                            }).then(function (result) {
-                                if (result[0] == null) {
-                                    sql.execute({
-                                        query: sql.fromFile("./sql/getCustomerCode.sql"),
-                                        params: {name: custid}
-                                    }).then(function (result) {
-
-                                        var custcode = result[0].AccountTypeCode;
-                                        sql.execute({
-                                            query: sql.fromFile("./sql/getDiscount.sql"),
-                                            params: {itemno: itemno, custid: custid, custcode: custcode}
-                                        }).then(function (result) {
-                                            // code 1,2,3,4,5,7
-                                            var price = 0;
-                                            var discount = 0;
-                                            if (result[0].minimum_qty_5 != 0 && qty > result[0].minimum_qty_5) discount = result[0].prc_or_disc_5;
-                                            else if (result[0].minimum_qty_4 != 0 && qty > result[0].minimum_qty_4) discount = result[0].prc_or_disc_4;
-                                            else if (result[0].minimum_qty_3 != 0 && qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
-                                            else if (result[0].minimum_qty_2 != 0 && qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
-                                            else if (qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
-                                            if (result[0].cd_tp == 1) price = discount*qty;
-                                            else price = (baseprice * (100 - discount) * 0.01)*qty;
-                                            sql.execute({
-                                                query: sql.fromFile("./sql/addToTotal.sql"),
-                                                params: {price: price, sonum: webNumber}
-                                            });
-                                        });
-
-                                    });
-                                }
-                                else {
-                                    //code 8
-                                    var price = 0;
-                                    var discount = 0;
-                                    if (result[0].minimum_qty_5 != 0 && qty > result[0].minimum_qty_5) discount = result[0].prc_or_disc_5;
-                                    else if (result[0].minimum_qty_4 != 0 && qty > result[0].minimum_qty_4) discount = result[0].prc_or_disc_4;
-                                    else if (result[0].minimum_qty_3 != 0 && qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
-                                    else if (result[0].minimum_qty_2 != 0 && qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
-                                    else if (qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
-                                    price = (baseprice * (100 - discount) * 0.01)*qty;
-                                    sql.execute({
-                                        query: sql.fromFile("./sql/addToTotal.sql"),
-                                        params: {price: price, sonum: webNumber}
-                                    });
-                                }
-                            });
-                        }
-                        else {
-                            //code 6
-                            var price = 0;
-                            var discount = 0;
-                            if (result[0].minimum_qty_5 != 0 && qty > result[0].minimum_qty_5) discount = result[0].prc_or_disc_5;
-                            else if (result[0].minimum_qty_4 != 0 && qty > result[0].minimum_qty_4) discount = result[0].prc_or_disc_4;
-                            else if (result[0].minimum_qty_3 != 0 && qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
-                            else if (result[0].minimum_qty_2 != 0 && qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
-                            else if (qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
-                            price = (baseprice * (100 - discount) * 0.01)*qty;
-                            sql.execute({
-                                query: sql.fromFile("./sql/addToTotal.sql"),
-                                params: {price: price, sonum: webNumber}
-                            });
-                        }
-                    });
-                }
-
-            });
-        }
-    }).then(function(){
+    var later = function(){
         //extra_6 oeordhdr to save webordnum
+
         sql.execute({
             query: sql.fromFile("./sql/migrateOrder.sql"),
-            params: {macnum: macolaNumber, webnum: webNumber}
+            params: {macnum: macolaNumber, webnum: webNumber, discount: myConfig.web_discount, web_disc: myConfig.discount_switch}
         }).then(function (result) {
             switch (result[0].response) {
                 case 0:
-                    message = "This order does not exist.";
+                    message = "This MACOLA order does not exist.";
                     break;
                 case 1:
                     message = "This order has already been migrated.";
@@ -176,7 +85,128 @@ workers.post('/processOrder',function(req,res){
             });
         });
 
-    });
+    };
+    var first = function(callback) {
+        sql.execute({
+            query: sql.fromFile("./sql/checkUOM.sql"),
+            params: {sonum: webNumber}
+        }).then(function (result) {
+            //recalculate price total
+            var len = result.length;
+            if(len == 0) callback();
+            for (var i = 0; i < len; i++) {
+                var count = 0;
+                var custid = result[i].custid, itemno = result[i].itemno, qty = result[i].qty;
+
+                sql.execute({
+                    query: sql.fromFile("./sql/getItemPrice.sql"),
+                    params: {itemno: itemno, qty: qty}
+                }).then(function (result) {
+                    var temp_no = result[0].itemno, temp_qty = result[0].qty;
+                    if (result[0] != null && result[0].prod_cat != 'ZZZ') {
+                        var baseprice = result[0].price;
+                        var prodcat = result[0].prod_cat;
+                        if (temp_qty < 0 || isNaN(temp_qty)) temp_qty = 0;
+                        sql.execute({
+                            query: sql.fromFile("./sql/Code68.sql"),
+                            params: {itemno: temp_no, code: '6', cat: prodcat}
+                        }).then(function (result) {
+                            if (result[0] == null) {
+                                sql.execute({
+                                    query: sql.fromFile("./sql/Code68.sql"),
+                                    params: {itemno: temp_no, code: '8', cat: prodcat}
+                                }).then(function (result) {
+                                    if (result[0] == null) {
+                                        sql.execute({
+                                            query: sql.fromFile("./sql/getCustomerCode.sql"),
+                                            params: {name: custid}
+                                        }).then(function (result) {
+
+                                            var custcode = result[0].AccountTypeCode;
+                                            sql.execute({
+                                                query: sql.fromFile("./sql/getDiscount.sql"),
+                                                params: {itemno: temp_no, custid: custid, custcode: custcode}
+                                            }).then(function (result) {
+                                                // code 1,2,3,4,5,7
+                                                var price = 0;
+                                                var discount = 0;
+                                                if (result[0].minimum_qty_5 != 0 && temp_qty > result[0].minimum_qty_5) discount = result[0].prc_or_disc_5;
+                                                else if (result[0].minimum_qty_4 != 0 && temp_qty > result[0].minimum_qty_4) discount = result[0].prc_or_disc_4;
+                                                else if (result[0].minimum_qty_3 != 0 && temp_qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
+                                                else if (result[0].minimum_qty_2 != 0 && temp_qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
+                                                else if (temp_qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
+                                                if (result[0].cd_tp == 1) price = discount;
+                                                else price = (baseprice * (100 - discount) * 0.01);
+                                                sql.execute({
+                                                    query: sql.fromFile("./sql/addToTotal.sql"),
+                                                    params: {
+                                                        unit_price: price.toFixed(6),
+                                                        price: (price * temp_qty).toFixed(6),
+                                                        sonum: webNumber,
+                                                        itemno: temp_no,
+                                                        qty: temp_qty
+                                                    }
+                                                });
+                                                if(count === len-1) callback();
+                                                else count++;
+                                            });
+
+                                        });
+                                    }
+                                    else {
+                                        //code 8
+                                        var price = 0;
+                                        var discount = 0;
+                                        if (result[0].minimum_qty_5 != 0 && temp_qty > result[0].minimum_qty_5) discount = result[0].prc_or_disc_5;
+                                        else if (result[0].minimum_qty_4 != 0 && temp_qty > result[0].minimum_qty_4) discount = result[0].prc_or_disc_4;
+                                        else if (result[0].minimum_qty_3 != 0 && temp_qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
+                                        else if (result[0].minimum_qty_2 != 0 && temp_qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
+                                        else if (temp_qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
+                                        price = baseprice * (100 - discount) * 0.01;
+                                        sql.execute({
+                                            query: sql.fromFile("./sql/addToTotal.sql"),
+                                            params: {
+                                                unit_price: price.toFixed(6),
+                                                price: (price * temp_qty).toFixed(6),
+                                                sonum: webNumber,
+                                                itemno: temp_no
+                                            }
+                                        });
+                                        if(count === len-1) callback();
+                                        else count++;
+                                    }
+                                });
+                            }
+                            else {
+                                //code 6
+                                var price = 0;
+                                var discount = 0;
+                                if (result[0].minimum_qty_5 != 0 && temp_qty > result[0].minimum_qty_5) discount = result[0].prc_or_disc_5;
+                                else if (result[0].minimum_qty_4 != 0 && temp_qty > result[0].minimum_qty_4) discount = result[0].prc_or_disc_4;
+                                else if (result[0].minimum_qty_3 != 0 && temp_qty > result[0].minimum_qty_3) discount = result[0].prc_or_disc_3;
+                                else if (result[0].minimum_qty_2 != 0 && temp_qty > result[0].minimum_qty_2) discount = result[0].prc_or_disc_2;
+                                else if (temp_qty > result[0].minimum_qty_1) discount = result[0].prc_or_disc_1;
+                                price = baseprice * (100 - discount) * 0.01;
+                                sql.execute({
+                                    query: sql.fromFile("./sql/addToTotal.sql"),
+                                    params: {
+                                        unit_price: price.toFixed(6),
+                                        price: (price * temp_qty).toFixed(6),
+                                        sonum: webNumber,
+                                        itemno: temp_no
+                                    }
+                                });
+                                if(count === len-1) callback();
+                                else count++;
+                            }
+                        });
+                    }
+
+                });
+            }
+        });
+    };
+    first(later);
 
 });
 

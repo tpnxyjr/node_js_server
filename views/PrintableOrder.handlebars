@@ -6,8 +6,8 @@
 </head>
 <body onload="autofill()">
 <form action="/customers/confirmOrder" method="post">
-<div style="display: inline;vertical-align: top;float:left;width:50%;">PO Number:<input type="text" name="PONUM" style='width:40%' value="{{ponum}}" placeholder="Purchase Order Number"><br>SM Number:<input type="text" name="SMNUM" style='width:40%;' value="{{smnum}}" placeholder="Side Mark Number"><br>Delivery Method:<input type="text" name="delivery" style='width:40%;' value="{{delivery}}" placeholder="Delivery Method"></div><div style="display: inline;vertical-align: top;">Special Instructions:<textarea name="instructions" cols="60" rows="2" placeholder="Special Instructions">{{instructions}}</textarea></div>
-    <br>Ideal Will Call/Ship: <input id = "datetimepicker" name="IDEAL" type="text" style="display:inline;width:30%;" value ="{{ideal}}">
+<div style="display: inline;vertical-align: top;float:left;width:50%;">PO Number:<input type="text" name="PONUM" style='width:40%' value="{{ponum}}" placeholder="Purchase Order Number"><br>SM Number:<input type="text" name="SMNUM" style='width:40%;' value="{{smnum}}" placeholder="Side Mark Number"><br>Delivery Method:<input type="text" name="delivery" style='width:40%;' value="{{delivery}}" placeholder="Delivery Method"></div><div style="display: inline;vertical-align: top;">Special Instructions:<textarea name="instructions" cols="60" rows="4" placeholder="Special Instructions">{{instructions}}</textarea></div>
+    <br>Ideal Will Call/Ship: <input id = "datetimepicker" name="IDEAL" type="text" style="display:inline;width:30%;" value ="{{{ideal}}}">
     <input type="number" id="rowlength" name="rowlength" readonly hidden>
     <table id="body">
         <thead><tr><th width="4%"><B>LN</B></th><th>Item</th><th width="6%">UOM</th><th width="7%">Quantity</th><th>Item Description</th><th>Unit Price</th><th>Subtotal</th><th width="7%">Action</th></tr></thead>
@@ -17,6 +17,7 @@
     </table>
     <input type="submit" value="Confirm and Send Order" onclick="document.getElementById('rowlength').value = document.getElementById('body').rows.length;">
 </form>
+<a href="/customers/RegularOrder">Add More to Order</a>
     <script src="./js/jquery-1.12.4.js"></script>
     <script src="./js/shopcart.js"></script>
 </body>

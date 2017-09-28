@@ -32,7 +32,7 @@ function addRow(tableID) {
             newcell.innerHTML = "<input type = 'text' name='"+idstring+"' id='"+idstring+"' placeholder='Qty' onchange='autofill("+rowCount+","+colCount+",1)'>";
         }
         else if(i == 7 || i == 8){
-            newcell.innerHTML = "$<input type = 'text' id='"+idstring+"' style='border:none' readonly>";
+            newcell.innerHTML = "$<input type = 'text' name='"+idstring+"' id='"+idstring+"' style='border:none' readonly>";
         }
         else{
             newcell.innerHTML = "<input type = 'text' id='"+idstring+"' readonly>";
@@ -115,10 +115,22 @@ function autofill(rowCount,colCount,toggle){
             if (document.getElementById(idstring + 3).value < 0) document.getElementById(idstring + 3).value = 0;
 
             if (document.getElementById(idstring + 3).value != '' && !isNaN(document.getElementById(idstring + 3).value)) {
-                var multiplier;
-                if (document.getElementById('uom' + rowCount).selectedIndex == 0 || document.getElementById('uom' + rowCount).selectedIndex == -1) multiplier = document.getElementById("multiplier" + rowCount + "A").value;
-                else multiplier = document.getElementById("multiplier" + rowCount + "B").value;
+                var multiplier, tester;
+                if (document.getElementById('uom' + rowCount).selectedIndex == 0 || document.getElementById('uom' + rowCount).selectedIndex == -1) {
+                    multiplier = document.getElementById("multiplier" + rowCount + "A").value;
+                    tester = document.getElementById("multiplier" + rowCount + "B").value;
+                }
+                else {
+                    multiplier = document.getElementById("multiplier" + rowCount + "B").value;
+                    tester = document.getElementById("multiplier" + rowCount + "A").value;
+                }
                 if(multiplier == undefined || multiplier == null || multiplier <= 0)multiplier = 1;
+                if(tester == undefined || tester == null || tester <= 0)tester = 1;
+                if(parseInt(document.getElementById(idstring + 3).value/tester) != document.getElementById(idstring + 3).value/tester) {
+                    alert("Invalid qty. Complete "+ document.getElementById("user_def_fld_1").value + " is "+document.getElementById("multiplier" + rowCount + "A").value.trim() + ".\n"+"If need incomplete please add in special instructions.");
+                    document.getElementById(idstring + 3).value = "";
+                    document.getElementById(idstring + 3).focus();
+                }
                 $.ajax({
                     data: {itemno: item, qty: document.getElementById(idstring + 3).value},
                     dataType: 'json',
@@ -161,21 +173,23 @@ $(document).ready(function() {
 });
 
 function checkOrder(){
-    subtotal('body');
     var rowCount = document.getElementById('body').rows.length;
+    for(var i = 1; i < rowCount; i++){
+        document.getElementById("uom"+i).onchange();
+    }
+    subtotal('body');
     for(var i = 1; i < rowCount; i++)
     {
         if(document.getElementById("inside"+i+"at1").value == null || document.getElementById("inside"+i+"at1").value==''){
             alert("ITEM NUMBER EMPTY. Please fill in or remove empty rows");
             return false;
         }
-        if(isNan(document.getElementById("inside"+i+"at3").value)){
+        if(isNaN(document.getElementById("inside"+i+"at3").value)){
             alert("QUANTITY EMPTY. Please fill in or remove empty rows");
             return false;
         }
     }
     document.getElementById('rowlength').value = rowCount;
-    alert(rowCount);
     return true;
 }
 
@@ -194,6 +208,7 @@ function updateUom(rowCount, itemno){
             $.each(data, function (index, element) {
                 var option = document.createElement('option');
                 option.text = element.uom_1;
+                option.id = "user_def_fld_1";
                 operator.add(option);
                 var option2 = document.createElement('option');
                 option2.text = element.uom_2;

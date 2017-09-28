@@ -15,7 +15,7 @@ body {
     display:inline-block;
     position: absolute;
     left:0;
-    margin:5px 20px;
+    margin:0 20px;
     width:65%;
 }
 .right{
