@@ -148,9 +148,9 @@ app.post('/local-reg', function(req,res,next){
         var sqlFile = './public/sql/getInfo.sql';
         sql.execute({
             query: sql.fromFile(sqlFile),
-            params: {custid: req.body.referral}
+            params: {acnum: req.body.referral.substring(4), ref: req.body.referral.substring(0,4)}
         }).then(function(result){
-            if(result[0].debcode == null || result[0].debcode != req.body.referral){
+            if(result[0] == null){
                 req.session.error = "Invalid Referral Code";
                 res.redirect('/signin');
             }
@@ -164,7 +164,7 @@ app.post('/local-reg', function(req,res,next){
                         var sqlFile = './public/sql/addName.sql';
                         sql.execute({
                             query: sql.fromFile(sqlFile),
-                            params: {custid: req.body.referral, username: req.body.username}
+                            params: {custid: req.body.referral.substring(4).toUpperCase(), username: req.body.username}
                         }).then(function (result) {
 
                         }, function (err) {

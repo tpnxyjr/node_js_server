@@ -51,6 +51,7 @@ customers.get('/home', loggedIn, function(req,res){
                 //macola order listing
                 for (var i = 0; i < result.length; i++) {
                     if (result[i].status == '6') result[i].status = '7';
+                    if (result[i].status == null || result[i].status.trim() == '') result[i].status = '1';
 
                     data = data + "<tr";
                     if (result[i].older == 1) data = data + " class='older' style='display:none;'";
@@ -720,7 +721,7 @@ customers.post('/confirmOrder', loggedIn, function(req,res){
         req.session.error = "The shopping cart is empty";
         res.redirect('/customers/shoppingCart');
     }else {
-        var data = 'REGULAR ORDER \n\n' + req.user.custid + '\n\n' + (new Date()).toDateString() + '\n' + 'PONUM: ' + ponum + '\n' + 'SIDEMARK: ' + smnum + '\n\n' + 'SHIPPING: ' + delivery + ' \n' + 'INSTRUCTIONS: ' + instructions + '\n\n' + 'IDEAL DELIVERY TIME: ' + ideal + '\n\n';
+        var data = 'REGULAR ORDER \n\n' + req.user.custid + '\n\n' + (new Date()).toDateString() + '\n' + 'PONUM: ' + ponum + '\n' + 'SIDEMARK: ' + smnum + '\n\n' + 'SHIPPING: ' + delivery + ' \n' + 'INSTRUCTIONS: ' + instructions + '\n\n' + 'IDEAL DELIVERY TIME: ' + req.body.IDEAL + '\n\n';
         try {
             for (var i = 1; i < req.body['rowlength']; i++) {
                 var itemno = "item" + i;
@@ -728,7 +729,7 @@ customers.post('/confirmOrder', loggedIn, function(req,res){
                 var uom = "uom" + i;
                 var unit = "unit" + i;
                 var subtotal = "subtotal" + i;
-                data = data + i + ': ' + ("        " +req.body[itemno].trim()).slice(-20) + '       '+req.body[uom].trim()+'   ' + req.body[qty] +  '   ' + req.body[unit] + '   ' + req.body[subtotal] + '\n';
+                data = data + i + ': ' + (req.body[itemno].trim()+ '        ').slice(-18) + '       '+req.body[uom].trim()+'   ' + req.body[qty] +  '   ' + req.body[unit] + '   ' + req.body[subtotal] + '\n';
             }
         }
         catch (err) {
